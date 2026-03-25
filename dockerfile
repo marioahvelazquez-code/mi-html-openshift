@@ -1,4 +1,3 @@
-FROM nginx:alpine
-COPY index.html /usr/share/nginx/html/index.html
+FROM registry.access.redhat.com/ubi9/httpd-24
+COPY index.html /var/www/html/index.html
 EXPOSE 8080
-CMD ["sh", "-c", "sed -i 's/listen       80;/listen 8080;/g' /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]
