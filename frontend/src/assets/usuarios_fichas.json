@@ -1,0 +1,24 @@
+{
+  "usuarios": [
+    {
+      "usuario": "mario",
+      "contrasena": "desarrollador"
+    },
+    {
+      "usuario": "david",
+      "contrasena": "desarrollador"
+    },
+    {
+      "usuario": "direccion",
+      "contrasena": "acceso"
+    },
+    {
+      "usuario": "usuario",
+      "contrasena": "revision"
+    },
+    {
+      "usuario": "lmartinez",
+      "contrasena": "IMSS_Login@52"
+    }
+  ]
+}
