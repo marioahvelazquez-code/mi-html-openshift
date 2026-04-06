@@ -1,0 +1,9 @@
+frontend:
+  build: ./frontend
+  container_name: react_frontend
+  volumes:
+    - ./frontend:/app
+  ports:
+    - "5180:8080"
+  depends_on:
+    - backend
