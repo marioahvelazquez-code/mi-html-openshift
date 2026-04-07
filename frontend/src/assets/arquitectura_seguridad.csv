@@ -1,0 +1,12 @@
+variable,definicion,tipo,unidadMedicion,fuente,consistente,disponible,confidencial,sensible,resumen,observaciones
+Prueba,Def,Tipo,Unidad,Fuente,Si,Completa,No,No,Aceptable,Prueba guardado
+Sexo,Sexo referido por el paciente,Cualitativa ordinal,"1)Masculino
+2)Femenino
+3)No especificado","MOCE, PHEDS, SIMOIQX",No,1,1,0,Aceptable,l
+Sexo,Sexo referido por el paciente,Cualitativa ordinal,"1)Masculino
+2)Femenino
+3)No especificado","MOCE, PHEDS, SIMOIQX",Si,1,0,0,Aceptable,Se acepta campo
+Sexo,Sexo referido por el paciente,Cualitativa ordinal,"1)Masculino
+2)Femenino
+3)No especificado","MOCE, PHEDS, SIMOIQX",Si,1,1,0,Aceptable,Se acepta petición
+Edad,Años de vida,Cuantitativa discreta,Numérica,"MOCE, PHEDS, SIMOIQX",Si,2,0,1,Aceptable,

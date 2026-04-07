@@ -1,0 +1,53 @@
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: backend
+  namespace: marioahvelazquez-dev
+spec:
+  source:
+    type: Git
+    git:
+      uri: https://github.com/marioahvelazquez-code/mi-html-openshift.git
+      ref: react-django-openshift
+    contextDir: backend
+  strategy:
+    type: Docker
+    dockerStrategy:
+      dockerfilePath: Dockerfile
+      noCache: false
+  output:
+    to:
+      kind: ImageStreamTag
+      name: backend:latest
+  triggers:
+    - type: ConfigChange
+    - type: GitHub
+      github:
+        secret: webhook-secret
+---
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: frontend
+  namespace: marioahvelazquez-dev
+spec:
+  source:
+    type: Git
+    git:
+      uri: https://github.com/marioahvelazquez-code/mi-html-openshift.git
+      ref: react-django-openshift
+    contextDir: frontend
+  strategy:
+    type: Docker
+    dockerStrategy:
+      dockerfilePath: Dockerfile
+      noCache: false
+  output:
+    to:
+      kind: ImageStreamTag
+      name: frontend:latest
+  triggers:
+    - type: ConfigChange
+    - type: GitHub
+      github:
+        secret: webhook-secret

@@ -1,0 +1,276 @@
+.arquitectura-seguridad {
+  padding: 0;
+  min-height: 100vh;
+  background: transparent;
+}
+
+.header-section {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  padding: 40px 20px 0 20px;
+  min-height: auto;
+  flex-wrap: wrap;
+}
+
+.header-section h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+  flex: 1;
+  min-width: 300px;
+  line-height: 1.2;
+}
+
+.content-wrapper {
+  background: transparent;
+  margin: 0 20px 20px 20px;
+  padding: 20px 10px;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+/* Criterios de Validación */
+.criterios-section h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #6b2c42;
+  margin-bottom: 20px;
+}
+
+.criterios-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.criterio-card {
+  border: 2px solid #6b2c42;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.criterio-titulo {
+  background: #6b2c42;
+  color: white;
+  padding: 12px 15px;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.criterio-select {
+  width: 100%;
+  padding: 12px 15px;
+  background: #fff;
+  font-size: 0.8rem;
+  color: #333;
+  border: none;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.criterio-select:focus {
+  outline: none;
+  background-color: #f9f9f9;
+}
+
+.table-select {
+  width: 100%;
+  padding: 8px 6px;
+  background: #fff;
+  font-size: 0.8rem;
+  color: #333;
+  border: 1px solid #e0e0e0;
+  font-family: inherit;
+  cursor: pointer;
+  border-radius: 3px;
+}
+
+.table-select:focus {
+  outline: none;
+  border-color: #006b5f;
+  box-shadow: 0 0 3px rgba(0, 107, 95, 0.3);
+}
+
+.criterio-valores {
+  padding: 15px;
+  background: #fff;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: #333;
+}
+
+.criterio-valores div {
+  margin: 4px 0;
+}
+
+.table-responsive {
+  overflow-x: auto;
+  border-radius: 4px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  background: #fff;
+}
+
+.arquitectura-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  background: #fff;
+}
+
+.arquitectura-table thead {
+  background: #006b5f;
+  color: white;
+  font-weight: 700;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.arquitectura-table th {
+  padding: 14px 10px;
+  text-align: left;
+  vertical-align: middle;
+  border: 1px solid #005453;
+  min-width: 110px;
+  font-size: 0.8rem;
+}
+
+.arquitectura-table th.header-pink {
+  background: #6b2c42;
+  border-color: #5a1f3a;
+}
+
+.arquitectura-table tbody tr {
+  border-bottom: 1px solid #ddd;
+  transition: background 0.2s;
+}
+
+.arquitectura-table tbody tr:hover {
+  background: #f9f9f9;
+}
+
+.arquitectura-table tbody tr:nth-child(even) {
+  background: #fafafa;
+}
+
+.arquitectura-table td {
+  padding: 12px 10px;
+  border: 1px solid #e0e0e0;
+  vertical-align: top;
+}
+
+.arquitectura-table td.bold {
+  font-weight: 700;
+  color: #006b5f;
+}
+
+.arquitectura-table td.cell-pink {
+  background: #f5e6eb;
+  text-align: center;
+  font-weight: 600;
+  color: #6b2c42;
+}
+
+.arquitectura-table td.cell-pink.numeric {
+  color: #006b5f;
+}
+
+.observaciones-input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #e0e0e0;
+  border-radius: 3px;
+  font-family: inherit;
+  font-size: 0.8rem;
+  resize: vertical;
+  min-height: 50px;
+}
+
+.observaciones-input:focus {
+  outline: none;
+  border-color: #006b5f;
+  box-shadow: 0 0 3px rgba(0, 107, 95, 0.3);
+}
+
+.btn-guardar {
+  background: #006b5f;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 3px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  width: 100%;
+}
+
+.btn-guardar:hover {
+  background: #005447;
+}
+
+.btn-guardar:active {
+  background: #004538;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .header-content {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .header-right {
+    justify-content: flex-start;
+  }
+
+  .header-left h1 {
+    font-size: 1.8rem;
+  }
+
+  .criterios-sidebar {
+    min-width: auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .header-top {
+    padding: 20px 15px;
+  }
+
+  .header-content {
+    grid-template-columns: 1fr;
+  }
+
+  .header-left h1 {
+    font-size: 1.4rem;
+  }
+
+  .header-right {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .arquitectura-table {
+    font-size: 0.75rem;
+  }
+
+  .arquitectura-table th,
+  .arquitectura-table td {
+    padding: 8px 6px;
+    min-width: 80px;
+  }
+
+  .criterios-table {
+    font-size: 0.65rem;
+  }
+
+  .criterio-label,
+  .criterio-value {
+    padding: 6px 8px;
+  }
+}
