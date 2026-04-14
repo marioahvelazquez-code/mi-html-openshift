@@ -1,0 +1,422 @@
+@charset "UTF-8";
+
+@font-face {
+  font-family: "customfont";
+  src:url("fonts/customfont.eot");
+  src:url("fonts/customfont.eot?#iefix") format("embedded-opentype"),
+    url("fonts/customfont.woff") format("woff"),
+    url("fonts/customfont.ttf") format("truetype"),
+    url("fonts/customfont.svg#customfont") format("svg");
+  font-weight: normal;
+  font-style: normal;
+
+}
+
+[data-icon]:before {
+  font-family: "customfont" !important;
+  content: attr(data-icon);
+  font-style: normal !important;
+  font-weight: normal !important;
+  font-variant: normal !important;
+  text-transform: none !important;
+  speak: none;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+[class^="icon-"]:before,
+[class*=" icon-"]:before {
+  font-family: "customfont" !important;
+  font-style: normal !important;
+  font-weight: normal !important;
+  font-variant: normal !important;
+  text-transform: none !important;
+  speak: none;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-psi:before {
+  content: "\61";
+}
+.icon-actividades-promocion:before {
+  content: "\62";
+}
+.icon-analisis-informacion:before {
+  content: "\63";
+}
+.icon-asma-epoc:before {
+  content: "\64";
+}
+.icon-atencion-adicciones:before {
+  content: "\65";
+}
+.icon-atenciones-diarias:before {
+  content: "\66";
+}
+.icon-camas-hospitalarias:before {
+  content: "\67";
+}
+.icon-cirugias:before {
+  content: "\68";
+}
+.icon-consulta-externa:before {
+  content: "\69";
+}
+.icon-consultorio:before {
+  content: "\6a";
+}
+.icon-defunciones:before {
+  content: "\6b";
+}
+.icon-deteccion:before {
+  content: "\6c";
+}
+.icon-dia-tipico:before {
+  content: "\6d";
+}
+.icon-egresos-hospitalarios:before {
+  content: "\6e";
+}
+.icon-enfermeras:before {
+  content: "\6f";
+}
+.icon-gasto-salud:before {
+  content: "\70";
+}
+.icon-general:before {
+  content: "\71";
+}
+.icon-indicadores-nacionales:before {
+  content: "\72";
+}
+.icon-infancia-adolescencia:before {
+  content: "\73";
+}
+.icon-informacion-general:before {
+  content: "\74";
+}
+.icon-lesiones:before {
+  content: "\75";
+}
+.icon-bd {
+    display: inline-block;
+    width: 50px; 
+    height: 50px;
+    background-image: url("../img/bd.png"); 
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+.icon-analitico {
+    display: inline-block;
+    width: 50px; 
+    height: 50px;
+    background-image: url("../img/analitico.png"); 
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+.icon-quejas {
+    display: inline-block;
+    width: 50px; 
+    height: 50px;
+    background-image: url("../img/queja.png"); 
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+.icon-hidalgo {
+    display: inline-block;
+    width: 50px; 
+    height: 50px;
+    background-image: url("../img/logosedos/hidalgo.png"); 
+    background-size: contain; 
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.icon-aguascalientes {
+    display: inline-block;
+    width: 50px; 
+    height: 50px;
+    background-image: url("../img/logosedos/aguascalientes.png"); 
+    background-size: contain; 
+    background-repeat: no-repeat;
+    background-position: center;
+}
+.icon-bc {
+    display: inline-block;
+    width: 50px;  /* Ajusta el tamaño según sea necesario */
+    height: 50px;
+    background-image: url("../img/logosedos/bc.png"); 
+    background-size: contain; 
+    background-repeat: no-repeat;
+    background-position: center;
+}
+.icon-bcs {
+    display: inline-block;
+    width: 50px;  
+    height: 50px;
+    background-image: url("../img/logosedos/bcs.png"); 
+    background-size: contain; 
+    background-repeat: no-repeat;
+    background-position: center;
+}
+.icon-campeche {
+    display: inline-block;
+    width: 50px; 
+    height: 50px;
+    background-image: url("../img/logosedos/campeche.png"); 
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+.icon-cdmx {
+    display: inline-block;
+    width: 50px; 
+    height: 50px;
+    background-image: url("../img/logosedos/cdmx.png"); 
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+
+.icon-chiapas {
+    display: inline-block;
+    width: 50px; 
+    height: 50px;
+    background-image: url("../img/logosedos/chiapas.png"); 
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+.icon-chihuahua {
+    display: inline-block;
+    width: 50px; 
+    height: 50px;
+    background-image: url("../img/logosedos/chihuahua.png"); 
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+.icon-coahuila {
+    display: inline-block;
+    width: 50px; 
+    height: 50px;
+    background-image: url("../img/logosedos/coahuila.png"); 
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+.icon-colima {
+    display: inline-block;
+    width: 50px; 
+    height: 50px;
+    background-image: url("../img/logosedos/colima.png"); 
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+.icon-durango {
+    display: inline-block;
+    width: 50px; 
+    height: 50px;
+    background-image: url("../img/logosedos/durango.png"); 
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+.icon-edomex {
+    display: inline-block;
+    width: 50px; 
+    height: 50px;
+    background-image: url("../img/logosedos/edomex.png"); 
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+.icon-guanajuato {
+    display: inline-block;
+    width: 50px; 
+    height: 50px;
+    background-image: url("../img/logosedos/guanajuato.png"); 
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+.icon-guerrero {
+    display: inline-block;
+    width: 50px; 
+    height: 50px;
+    background-image: url("../img/logosedos/guerrero.png"); 
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+.icon-jalisco {
+    display: inline-block;
+    width: 50px; 
+    height: 50px;
+    background-image: url("../img/logosedos/jalisco.png"); 
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+.icon-michoacan {
+    display: inline-block;
+    width: 50px; 
+    height: 50px;
+    background-image: url("../img/logosedos/michoacan.png"); 
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+.icon-morelos {
+    display: inline-block;
+    width: 50px; 
+    height: 50px;
+    background-image: url("../img/logosedos/morelos.png"); 
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+.icon-nayarit {
+    display: inline-block;
+    width: 50px; 
+    height: 50px;
+    background-image: url("../img/logosedos/nayarit.png"); 
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+.icon-nl {
+    display: inline-block;
+    width: 50px; 
+    height: 50px;
+    background-image: url("../img/logosedos/nl.png"); 
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+.icon-oaxaca {
+    display: inline-block;
+    width: 50px; 
+    height: 50px;
+    background-image: url("../img/logosedos/oaxaca.png"); 
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+.icon-puebla {
+    display: inline-block;
+    width: 50px; 
+    height: 50px;
+    background-image: url("../img/logosedos/puebla.png"); 
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+.icon-qroo {
+    display: inline-block;
+    width: 50px; 
+    height: 50px;
+    background-image: url("../img/logosedos/qroo.png"); 
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+.icon-queretaro {
+    display: inline-block;
+    width: 50px; 
+    height: 50px;
+    background-image: url("../img/logosedos/queretaro.png"); 
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+.icon-sinaloa {
+    display: inline-block;
+    width: 50px; 
+    height: 50px;
+    background-image: url("../img/logosedos/sinaloa.png"); 
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+.icon-slp {
+    display: inline-block;
+    width: 50px; 
+    height: 50px;
+    background-image: url("../img/logosedos/slp.png"); 
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+.icon-sonora {
+    display: inline-block;
+    width: 50px; 
+    height: 50px;
+    background-image: url("../img/logosedos/sonora.png"); 
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+.icon-tabasco {
+    display: inline-block;
+    width: 50px; 
+    height: 50px;
+    background-image: url("../img/logosedos/tabasco.png"); 
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+.icon-tamaulipas {
+    display: inline-block;
+    width: 50px; 
+    height: 50px;
+    background-image: url("../img/logosedos/tamaulipas.png"); 
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+.icon-tlaxcala {
+    display: inline-block;
+    width: 50px; 
+    height: 50px;
+    background-image: url("../img/logosedos/tlaxcala.png"); 
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+.icon-veracruz {
+    display: inline-block;
+    width: 50px; 
+    height: 50px;
+    background-image: url("../img/logosedos/veracruz.png"); 
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+.icon-yucatan {
+    display: inline-block;
+    width: 50px; 
+    height: 50px;
+    background-image: url("../img/logosedos/yucatan.png"); 
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+.icon-zacatecas {
+    display: inline-block;
+    width: 50px; 
+    height: 50px;
+    background-image: url("../img/logosedos/zacatecas.png"); 
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
