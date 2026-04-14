@@ -139,6 +139,94 @@
   display: none;
 }
 
+/* ── Registro de fotos ─────────────────────────────── */
+
+.fotos-registro {
+  margin-top: 14px;
+  display: grid;
+  gap: 10px;
+}
+
+.fotos-btn-registro {
+  background-color: rgba(0, 0, 0, 0.4);
+  border: 1px solid #00acae;
+}
+
+.fotos-btn-registro:hover {
+  background-color: rgba(0, 172, 174, 0.2);
+}
+
+.fotos-lista {
+  background-color: rgba(0, 0, 0, 0.55);
+  border: 1px solid #00515e;
+  border-radius: 8px;
+  padding: 12px;
+  max-height: 340px;
+  overflow-y: auto;
+}
+
+.fotos-lista-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 0.85rem;
+  color: #d0f0f0;
+}
+
+.fotos-link-bitacora {
+  color: #00acae;
+  font-size: 0.8rem;
+  text-decoration: underline;
+}
+
+.fotos-link-bitacora:hover {
+  color: #ffffff;
+}
+
+.fotos-lista-vacia {
+  font-size: 0.85rem;
+  color: #aaaaaa;
+  margin: 0;
+  text-align: center;
+}
+
+.fotos-tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+  color: #e0e0e0;
+}
+
+.fotos-tabla th {
+  text-align: left;
+  border-bottom: 1px solid #00515e;
+  padding: 4px 6px;
+  color: #00acae;
+  font-weight: 600;
+}
+
+.fotos-tabla td {
+  padding: 4px 6px;
+  border-bottom: 1px solid rgba(0, 81, 94, 0.3);
+  word-break: break-all;
+}
+
+.fotos-tabla tr:last-child td {
+  border-bottom: none;
+}
+
+.fotos-link-dl {
+  color: #00acae;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.fotos-link-dl:hover {
+  color: #ffffff;
+  text-decoration: underline;
+}
+
 @media (max-width: 576px) {
   .fotos-shell {
     width: 100%;

@@ -5,6 +5,7 @@ import re
 import unicodedata
 
 from django.conf import settings
+from django.http import FileResponse
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -118,4 +119,60 @@ def subir_foto(request):
             "archivo": nombre_archivo,
             "ruta": ruta_completa,
         }
+    )
+
+
+@api_view(["GET"])
+@authentication_classes([])
+@permission_classes([AllowAny])
+def listar_fotos(request):
+    fotos = []
+    if os.path.isdir(settings.MEDIA_ROOT):
+        for nombre in sorted(os.listdir(settings.MEDIA_ROOT)):
+            if nombre == "bitacora_fotos.txt":
+                continue
+            ruta = os.path.join(settings.MEDIA_ROOT, nombre)
+            if os.path.isfile(ruta):
+                mtime = datetime.fromtimestamp(
+                    os.path.getmtime(ruta), tz=ZoneInfo("America/Mexico_City")
+                )
+                fotos.append(
+                    {
+                        "nombre": nombre,
+                        "bytes": os.path.getsize(ruta),
+                        "fecha": mtime.strftime("%Y-%m-%d %H:%M:%S"),
+                    }
+                )
+    return Response({"ok": True, "total": len(fotos), "fotos": fotos})
+
+
+_NOMBRE_SEGURO = re.compile(r"^[a-zA-Z0-9._-]+$")
+
+
+@api_view(["GET"])
+@authentication_classes([])
+@permission_classes([AllowAny])
+def descargar_foto(request, nombre):
+    if not nombre or not _NOMBRE_SEGURO.match(nombre):
+        return Response({"ok": False, "message": "Nombre de archivo invalido."}, status=400)
+    ruta = os.path.abspath(os.path.join(settings.MEDIA_ROOT, nombre))
+    if not ruta.startswith(os.path.abspath(settings.MEDIA_ROOT) + os.sep):
+        return Response({"ok": False, "message": "Acceso denegado."}, status=403)
+    if not os.path.isfile(ruta):
+        return Response({"ok": False, "message": "Foto no encontrada."}, status=404)
+    return FileResponse(open(ruta, "rb"), as_attachment=True, filename=nombre)
+
+
+@api_view(["GET"])
+@authentication_classes([])
+@permission_classes([AllowAny])
+def descargar_bitacora(request):
+    bitacora_path = os.path.join(settings.MEDIA_ROOT, "bitacora_fotos.txt")
+    if not os.path.isfile(bitacora_path):
+        return Response({"ok": False, "message": "La bitacora no existe aun."}, status=404)
+    return FileResponse(
+        open(bitacora_path, "rb"),
+        as_attachment=True,
+        filename="bitacora_fotos.txt",
+        content_type="text/plain; charset=utf-8",
     )

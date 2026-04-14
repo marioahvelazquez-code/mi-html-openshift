@@ -26,6 +26,8 @@ export default function FotosPage() {
   const [unidad, setUnidad] = useState("");
   const [error, setError] = useState("");
   const [fotosSubidas, setFotosSubidas] = useState<Record<TipoFoto, boolean>>(estadoInicialFotos);
+  const [mostrarRegistro, setMostrarRegistro] = useState(false);
+  const [listaFotos, setListaFotos] = useState<{ nombre: string; bytes: number; fecha: string }[]>([]);
 
   const inputRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
@@ -65,6 +67,19 @@ export default function FotosPage() {
 
   const resetEstadoFotos = () => {
     setFotosSubidas(estadoInicialFotos);
+  };
+
+  const cargarListaFotos = async () => {
+    try {
+      const resp = await fetch("/api/catalogos/listar_fotos/");
+      const data = (await resp.json()) as {
+        ok?: boolean;
+        fotos?: { nombre: string; bytes: number; fecha: string }[];
+      };
+      if (data.ok && data.fotos) setListaFotos(data.fotos);
+    } catch {
+      // ignorar error de red
+    }
   };
 
   useEffect(() => {
@@ -250,6 +265,64 @@ export default function FotosPage() {
                 </button>
               </div>
             ))}
+          </div>
+
+          <div className="fotos-registro">
+            <button
+              type="button"
+              className="fotos-btn fotos-btn-registro"
+              onClick={() => {
+                if (!mostrarRegistro) void cargarListaFotos();
+                setMostrarRegistro((prev) => !prev);
+              }}
+            >
+              {mostrarRegistro ? "Ocultar registro" : "Ver fotos registradas"}
+            </button>
+
+            {mostrarRegistro && (
+              <div className="fotos-lista">
+                <div className="fotos-lista-header">
+                  <span>{listaFotos.length} foto(s) registrada(s)</span>
+                  <a
+                    href="/api/catalogos/descargar_bitacora/"
+                    download="bitacora_fotos.txt"
+                    className="fotos-link-bitacora"
+                  >
+                    Descargar bitácora
+                  </a>
+                </div>
+                {listaFotos.length === 0 ? (
+                  <p className="fotos-lista-vacia">No hay fotos registradas aún.</p>
+                ) : (
+                  <table className="fotos-tabla">
+                    <thead>
+                      <tr>
+                        <th>Archivo</th>
+                        <th>Fecha</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {listaFotos.map((foto) => (
+                        <tr key={foto.nombre}>
+                          <td>{foto.nombre}</td>
+                          <td>{foto.fecha}</td>
+                          <td>
+                            <a
+                              href={`/api/catalogos/descargar_foto/${encodeURIComponent(foto.nombre)}/`}
+                              download={foto.nombre}
+                              className="fotos-link-dl"
+                            >
+                              ↓ Descargar
+                            </a>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>

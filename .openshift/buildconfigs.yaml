@@ -8,7 +8,7 @@ spec:
     type: Git
     git:
       uri: https://github.com/marioahvelazquez-code/mi-html-openshift.git
-      ref: react-django-openshift
+      ref: fotos
     contextDir: backend
   strategy:
     type: Docker
@@ -35,7 +35,7 @@ spec:
     type: Git
     git:
       uri: https://github.com/marioahvelazquez-code/mi-html-openshift.git
-      ref: react-django-openshift
+      ref: fotos
     contextDir: frontend
   strategy:
     type: Docker
