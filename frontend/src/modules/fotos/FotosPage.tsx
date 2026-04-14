@@ -283,13 +283,22 @@ export default function FotosPage() {
               <div className="fotos-lista">
                 <div className="fotos-lista-header">
                   <span>{listaFotos.length} foto(s) registrada(s)</span>
-                  <a
-                    href="/api/catalogos/descargar_bitacora/"
-                    download="bitacora_fotos.txt"
-                    className="fotos-link-bitacora"
-                  >
-                    Descargar bitácora
-                  </a>
+                  <div className="fotos-lista-acciones">
+                    <a
+                      href="/api/catalogos/descargar_todo/"
+                      download
+                      className="fotos-link-bitacora"
+                    >
+                      ↓ Descargar todo (ZIP)
+                    </a>
+                    <a
+                      href="/api/catalogos/descargar_bitacora/"
+                      download="bitacora_fotos.txt"
+                      className="fotos-link-bitacora"
+                    >
+                      ↓ Bitácora
+                    </a>
+                  </div>
                 </div>
                 {listaFotos.length === 0 ? (
                   <p className="fotos-lista-vacia">No hay fotos registradas aún.</p>

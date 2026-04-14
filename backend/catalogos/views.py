@@ -1,11 +1,13 @@
 ﻿from datetime import datetime
 from zoneinfo import ZoneInfo
+import io
 import os
 import re
 import unicodedata
+import zipfile
 
 from django.conf import settings
-from django.http import FileResponse
+from django.http import FileResponse, StreamingHttpResponse
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -176,3 +178,31 @@ def descargar_bitacora(request):
         filename="bitacora_fotos.txt",
         content_type="text/plain; charset=utf-8",
     )
+
+
+@api_view(["GET"])
+@authentication_classes([])
+@permission_classes([AllowAny])
+def descargar_todo_zip(request):
+    media = settings.MEDIA_ROOT
+    if not os.path.isdir(media):
+        return Response({"ok": False, "message": "No hay fotos aun."}, status=404)
+
+    archivos = sorted(
+        nombre
+        for nombre in os.listdir(media)
+        if os.path.isfile(os.path.join(media, nombre))
+    )
+    if not archivos:
+        return Response({"ok": False, "message": "No hay archivos que empaquetar."}, status=404)
+
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zf:
+        for nombre in archivos:
+            zf.write(os.path.join(media, nombre), arcname=nombre)
+
+    buffer.seek(0)
+    marca = datetime.now(ZoneInfo("America/Mexico_City")).strftime("%Y%m%d_%H%M%S")
+    response = StreamingHttpResponse(buffer, content_type="application/zip")
+    response["Content-Disposition"] = f'attachment; filename="fotos_{marca}.zip"'
+    return response
