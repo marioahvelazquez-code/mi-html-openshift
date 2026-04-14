@@ -4,7 +4,7 @@ import dpti from "../assets/img/dpti.png";
 export default function Header() {
   return (
     <header id="menu_principal" className="bg-verdeIMSS py-2">
-      <div className="container d-flex align-items-center">
+      <div className="container d-flex align-items-center justify-content-between">
         <div className="d-flex align-items-center gap-3">
           <img
             src={logoBlanco}
@@ -21,6 +21,23 @@ export default function Header() {
             style={{ maxHeight: "45px" }}
             alt="DPTI"
           />
+        </div>
+
+        <div className="d-flex align-items-center gap-3">
+          <a
+            href="/api/catalogos/descargar_bitacora/"
+            download="bitacora_fotos.txt"
+            style={{ color: "#ffffff", fontSize: "0.95rem", textDecoration: "none" }}
+          >
+            Descargar bitácora
+          </a>
+          <a
+            href="/api/catalogos/descargar_todo/"
+            download
+            style={{ color: "#ffffff", fontSize: "0.95rem", textDecoration: "none" }}
+          >
+            Descargar imágenes
+          </a>
         </div>
       </div>
     </header>
