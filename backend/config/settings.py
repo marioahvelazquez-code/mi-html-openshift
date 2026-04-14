@@ -137,3 +137,5 @@ STATIC_URL = 'static/'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+DOWNLOAD_PASSWORD = os.getenv("DOWNLOAD_PASSWORD", "imss2026")

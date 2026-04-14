@@ -25,6 +25,22 @@ def _slug(texto: str) -> str:
     return texto
 
 
+def _validar_password_descarga(request):
+    password_esperada = str(getattr(settings, "DOWNLOAD_PASSWORD", "imss2026"))
+    password_recibida = str(
+        request.headers.get("X-Download-Password")
+        or request.query_params.get("pwd", "")
+    ).strip()
+
+    if not password_recibida:
+        return Response({"ok": False, "message": "Se requiere contraseña para descargar."}, status=401)
+
+    if password_recibida != password_esperada:
+        return Response({"ok": False, "message": "Contraseña incorrecta."}, status=403)
+
+    return None
+
+
 @api_view(["GET"])
 @authentication_classes([])
 @permission_classes([AllowAny])
@@ -169,9 +185,15 @@ def descargar_foto(request, nombre):
 @authentication_classes([])
 @permission_classes([AllowAny])
 def descargar_bitacora(request):
+    error_password = _validar_password_descarga(request)
+    if error_password:
+        return error_password
+
+    os.makedirs(settings.MEDIA_ROOT, exist_ok=True)
     bitacora_path = os.path.join(settings.MEDIA_ROOT, "bitacora_fotos.txt")
     if not os.path.isfile(bitacora_path):
-        return Response({"ok": False, "message": "La bitacora no existe aun."}, status=404)
+        with open(bitacora_path, "w", encoding="utf-8"):
+            pass
     return FileResponse(
         open(bitacora_path, "rb"),
         as_attachment=True,
@@ -184,17 +206,23 @@ def descargar_bitacora(request):
 @authentication_classes([])
 @permission_classes([AllowAny])
 def descargar_todo_zip(request):
+    error_password = _validar_password_descarga(request)
+    if error_password:
+        return error_password
+
     media = settings.MEDIA_ROOT
-    if not os.path.isdir(media):
-        return Response({"ok": False, "message": "No hay fotos aun."}, status=404)
+    os.makedirs(media, exist_ok=True)
+
+    bitacora_path = os.path.join(media, "bitacora_fotos.txt")
+    if not os.path.isfile(bitacora_path):
+        with open(bitacora_path, "w", encoding="utf-8"):
+            pass
 
     archivos = sorted(
         nombre
         for nombre in os.listdir(media)
         if os.path.isfile(os.path.join(media, nombre))
     )
-    if not archivos:
-        return Response({"ok": False, "message": "No hay archivos que empaquetar."}, status=404)
 
     buffer = io.BytesIO()
     with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zf:
