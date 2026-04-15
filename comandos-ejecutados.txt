@@ -1,0 +1,139 @@
+Registro de comandos ejecutados (sesion de despliegue y soporte)
+Fecha: 2026-03-25
+Proyecto: react-django
+
+NOTA:
+- Este archivo resume los comandos principales ejecutados durante la sesion.
+- Algunos comandos incluyen rutas de Windows (c:\temp\oc.exe).
+
+1) Verificacion de estado Git local
+Comando:
+  git status --short; git branch --show-current; git remote -v
+Explicacion:
+  Se uso para revisar archivos modificados, confirmar rama activa y validar remotos antes de hacer pull/push.
+
+2) Pull desde repositorio remoto conservando cambios locales
+Comando:
+  git pull --rebase --autostash origin main
+Explicacion:
+  Trae cambios de origin/main, hace rebase y usa autostash para no perder modificaciones locales.
+
+3) Confirmacion post-pull
+Comando:
+  git status --short; git log --oneline -n 3
+Explicacion:
+  Verifica estado final despues del pull y muestra ultimos commits.
+
+4) Aplicar BuildConfigs en OpenShift
+Comando:
+  c:\temp\oc.exe apply -f .\.openshift\buildconfigs.yaml -n marioahvelazquez-dev
+Explicacion:
+  Crea/actualiza los objetos BuildConfig (backend y frontend) en el namespace.
+
+5) Validar BuildConfigs (repo y branch)
+Comando:
+  c:\temp\oc.exe get bc backend frontend -n marioahvelazquez-dev -o jsonpath=...
+Explicacion:
+  Confirma que los BuildConfig apuntan al repositorio y rama correctos.
+
+6) Lanzar build de backend en OpenShift (con seguimiento)
+Comando:
+  c:\temp\oc.exe start-build backend -n marioahvelazquez-dev --follow
+Explicacion:
+  Inicia compilacion de imagen backend y muestra logs en tiempo real.
+
+7) Lanzar build de frontend en OpenShift (con seguimiento)
+Comando:
+  c:\temp\oc.exe start-build frontend -n marioahvelazquez-dev --follow
+Explicacion:
+  Inicia compilacion de imagen frontend y muestra logs en tiempo real.
+
+8) Ver estado de rollout backend
+Comando:
+  c:\temp\oc.exe rollout status dc/backend -n marioahvelazquez-dev --timeout=300s
+Explicacion:
+  Espera a que el DeploymentConfig backend termine despliegue.
+
+9) Ver estado de rollout frontend
+Comando:
+  c:\temp\oc.exe rollout status dc/frontend -n marioahvelazquez-dev --timeout=300s
+Explicacion:
+  Espera a que el DeploymentConfig frontend termine despliegue (aqui se detecto timeout en un intento).
+
+10) Diagnostico de pods
+Comando:
+  c:\temp\oc.exe get pods -n marioahvelazquez-dev -o wide
+Explicacion:
+  Revisa estado de pods (Running, CrashLoopBackOff, etc.) para diagnostico.
+
+11) Revisar logs de pod previo (fallo)
+Comando:
+  c:\temp\oc.exe logs <pod> -n marioahvelazquez-dev --previous --tail=80
+Explicacion:
+  Se uso para encontrar la causa de fallo en frontend (permisos nginx).
+
+12) Reaplicar deployment frontend tras ajuste
+Comando:
+  c:\temp\oc.exe apply -f .\.openshift\frontend-dc.yaml -n marioahvelazquez-dev
+Explicacion:
+  Actualiza DeploymentConfig/Service de frontend con cambios de puerto e imagen.
+
+13) Forzar nuevo rollout frontend
+Comando:
+  c:\temp\oc.exe rollout latest dc/frontend -n marioahvelazquez-dev
+Explicacion:
+  Dispara una nueva revision de despliegue para tomar la imagen actual.
+
+14) Confirmar pods frontend en ejecucion
+Comando:
+  c:\temp\oc.exe get pods -n marioahvelazquez-dev -l app=frontend -o wide
+Explicacion:
+  Verifica que replicas de frontend esten en Running.
+
+15) Ver rutas publicas
+Comando:
+  c:\temp\oc.exe get routes -n marioahvelazquez-dev
+Explicacion:
+  Lista URLs publicas para frontend y backend en OpenShift.
+
+16) Prueba HTTP frontend
+Comando:
+  curl.exe -k -I https://frontend-marioahvelazquez-dev.apps.rm2.thpm.p1.openshiftapps.com
+Explicacion:
+  Valida respuesta del frontend (HTTP 200 esperado).
+
+17) Prueba HTTP backend API (endpoint de catalogos)
+Comando:
+  curl.exe -k -I https://backend-marioahvelazquez-dev.apps.rm2.thpm.p1.openshiftapps.com/api/catalogos/entidades/
+Explicacion:
+  Valida que backend responde en endpoint API (405 en HEAD puede ser esperado si endpoint acepta GET).
+
+18) Commit de correccion frontend para OpenShift
+Comando:
+  git commit -m "Fix frontend for OpenShift non-root nginx"
+Explicacion:
+  Registra ajuste para usar imagen nginx no-root y puertos compatibles con OpenShift.
+
+19) Push de cambios a rama de trabajo remota
+Comando:
+  git push mario main:react-django-openshift
+Explicacion:
+  Publica cambios en rama remota usada por el pipeline de OpenShift.
+
+20) Build local con Docker Compose
+Comando:
+  docker compose build
+Explicacion:
+  Construye imagenes localmente para validar que el proyecto siga compilando fuera de OpenShift.
+
+21) Detener entorno local Docker Compose
+Comando:
+  docker compose down
+Explicacion:
+  Baja contenedores/redes del entorno local.
+
+22) Intento de build Docker directo para frontend
+Comando:
+  docker build -t default-route-openshift-image-registry.apps.rm2.thpm.p1.openshiftapps.com/marioahvelazquez-dev/frontend:latest .
+Explicacion:
+  Intento de construir/taggear imagen frontend para registro de OpenShift; en contexto reporto error de salida 1.

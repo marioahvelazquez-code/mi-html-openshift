@@ -1,0 +1,234 @@
+.fotos-page {
+  position: relative;
+  min-height: calc(100vh - 120px);
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fotos-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)),
+    url("../../assets/img/slide1.jpg");
+  background-size: cover;
+  background-position: center;
+  z-index: -1;
+}
+
+.fotos-shell {
+  width: min(500px, 100%);
+  color: #ffffff;
+}
+
+.fotos-title {
+  margin-bottom: 14px;
+  color: #ffffff;
+  font-weight: 600;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
+}
+
+.fotos-form {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+.fotos-field {
+  display: grid;
+  gap: 8px;
+}
+
+.fotos-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #ffffff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.fotos-select-wrapper {
+  position: relative;
+}
+
+.fotos-select-wrapper::after {
+  content: "▼";
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #00acae;
+  pointer-events: none;
+  font-size: 10px;
+}
+
+.fotos-select {
+  background-color: rgba(0, 0, 0, 0.4);
+  color: #ffffff;
+  border: 1px solid #00515e;
+  border-radius: 8px;
+  padding: 10px;
+  width: 100%;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+select.fotos-select {
+  appearance: none;
+}
+
+.fotos-date-input {
+  appearance: auto;
+  -webkit-appearance: auto;
+}
+
+.fotos-date-input::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  filter: invert(1);
+}
+
+.fotos-select:hover {
+  border-color: #008c8c;
+}
+
+.fotos-select:focus {
+  border-color: #00acae;
+  box-shadow: 0 0 0 2px rgba(0, 172, 174, 0.3);
+}
+
+.fotos-select option {
+  background-color: #666666;
+  color: #ffffff;
+}
+
+.fotos-error {
+  margin: 0;
+  color: #ffb4b4;
+  font-size: 0.9rem;
+}
+
+.fotos-success {
+  margin: 0;
+  color: #b9ffd4;
+  font-size: 0.9rem;
+}
+
+.fotos-help {
+  margin: 0;
+  color: #d7f3ff;
+  font-size: 0.8rem;
+}
+
+.fotos-actions {
+  margin-top: 18px;
+  display: flex;
+  justify-content: center;
+}
+
+.fotos-btn {
+  background-color: #00acae;
+  color: #ffffff;
+  border: none;
+  padding: 10px 18px;
+  width: 75%;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.fotos-btn:hover {
+  background-color: #00515e;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0, 81, 94, 0.4);
+}
+
+.fotos-btn:active {
+  transform: scale(0.97);
+  box-shadow: none;
+}
+
+.fotos-btn-ok,
+.fotos-btn-ok:hover {
+  background-color: #1f8f4c;
+  box-shadow: 0 4px 10px rgba(23, 107, 57, 0.4);
+}
+
+.revision-modal-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(7, 16, 24, 0.62);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  z-index: 2000;
+}
+
+.revision-modal-card {
+  width: min(560px, 100%);
+  padding: 28px;
+  border-radius: 24px;
+  background: linear-gradient(
+    180deg,
+    rgba(6, 52, 60, 0.96) 0%,
+    rgba(4, 32, 38, 0.96) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.32);
+  color: #ffffff;
+}
+
+.revision-modal-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.revision-modal-success {
+  background: rgba(25, 135, 84, 0.18);
+  color: #7ef0b1;
+}
+
+.revision-modal-title {
+  margin: 18px 0 10px;
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.revision-modal-message {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.86);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.fotos-modal-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+@media (max-width: 576px) {
+  .fotos-shell {
+    width: 100%;
+  }
+
+  .revision-modal-card {
+    padding: 22px;
+    border-radius: 18px;
+  }
+
+  .revision-modal-title {
+    font-size: 1.3rem;
+  }
+}

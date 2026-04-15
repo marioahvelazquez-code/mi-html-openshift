@@ -1,0 +1,8 @@
+2026-04-15 10:43:04 | clave_presupuestal=160614012151 | fecha_inicio_operaciones=1982-11-25 | region=Centro | entidad=Estado de México | unidad=HGZ 58 Las Margaritas
+2026-04-15 10:45:21 | clave_presupuestal=36A131322153 | fecha_inicio_operaciones=2026-04-08 | region=Centro | entidad=Ciudad de México | unidad=BS CMN La Raza
+2026-04-15 10:50:30 | clave_presupuestal=36A131322153 | fecha_inicio_operaciones=2026-04-01 | region=Centro | entidad=Ciudad de México | unidad=BS CMN La Raza
+2026-04-15 10:50:37 | clave_presupuestal=36A131322153 | fecha_inicio_operaciones=2026-04-01 | region=Centro | entidad=Ciudad de México | unidad=BS CMN La Raza
+2026-04-15 10:51:58 | clave_presupuestal=36A131322153 | fecha_inicio_operaciones=2026-04-01 | region=Centro | entidad=Ciudad de México | unidad=BS CMN La Raza
+2026-04-15 10:52:16 | clave_presupuestal=36A131322153 | fecha_inicio_operaciones=2026-04-01 | region=Centro | entidad=Ciudad de México | unidad=BS CMN La Raza
+2026-04-15 10:53:00 | clave_presupuestal=110506022151 | fecha_inicio_operaciones=2026-04-03 | region=Centro | entidad=Guanajuato | unidad=HGZMF 2 Irapuato
+2026-04-15 10:55:58 | clave_presupuestal=36A131322153 | fecha_inicio_operaciones=2026-04-01 | region=Centro | entidad=Ciudad de México | unidad=BS CMN La Raza
