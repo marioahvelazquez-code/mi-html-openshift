@@ -8,8 +8,8 @@ const DELEGACIONES = [
   "Campeche",
   "Chiapas",
   "Chihuahua",
-  "Ciudad de Mexico Norte",
-  "Ciudad de Mexico Sur",
+  "Ciudad de México Norte",
+  "Ciudad de México Sur",
   "Coahuila",
   "Colima",
   "Durango",
@@ -17,25 +17,50 @@ const DELEGACIONES = [
   "Guerrero",
   "Hidalgo",
   "Jalisco",
-  "Mexico Oriente",
-  "Mexico Poniente",
-  "Michoacan",
+  "México Oriente",
+  "México Poniente",
+  "Michoacán",
   "Morelos",
   "Nayarit",
-  "Nuevo Leon",
+  "Nuevo León",
   "Oaxaca",
   "Puebla",
-  "Queretaro",
+  "Querétaro",
   "Quintana Roo",
-  "San Luis Potosi",
+  "San Luis Potosí",
   "Sinaloa",
   "Sonora",
   "Tabasco",
   "Tamaulipas",
   "Tlaxcala",
+  "UMAE 01 HES CMN La Raza",
+  "UMAE 02 HES CMN Siglo XXI",
+  "UMAE 03 HES CMN Occidente",
+  "UMAE 04 HES Monterrey",
+  "UMAE 05 HES Torreón",
+  "UMAE 06 HES Puebla",
+  "UMAE 07 HES CMN del Bajío",
+  "UMAE 08 HES Obregón",
+  "UMAE 09 HES Veracruz",
+  "UMAE 10 HES 1 Mérida",
+  "UMAE 11 HGO CMN La Raza",
+  "UMAE 12 HGO San Angel",
+  "UMAE 13 HGO CMN Occidente",
+  "UMAE 14 HGO Monterrey",
+  "UMAE 15 HTO Magdalena Salinas",
+  "UMAE 16 HTO Lomas Verdes",
+  "UMAE 17 HTO Puebla",
+  "UMAE 18 HTO Monterrey",
+  "UMAE 19 HP CMN Siglo XXI",
+  "UMAE 20 HP CMN Occidente",
+  "UMAE 21 HC CMN Siglo XXI",
+  "UMAE 22 HC Monterrey",
+  "UMAE 23 HGP CMN del Bajío",
+  "UMAE 24 HG CMN La Raza",
+  "UMAE 25 HOnco CMN Siglo XXI",
   "Veracruz Norte",
   "Veracruz Sur",
-  "Yucatan",
+  "Yucatán",
   "Zacatecas",
 ];
 
@@ -69,7 +94,7 @@ export default function FotosPage() {
 
   const manejarGuardar = async () => {
     const faltantes = [
-      ["Delegacion", delegacion],
+      ["Delegación o UMAE", delegacion],
       ["Nombre del titular de la unidad", titularUnidad],
       ["Nombre", nombreUsuario],
       ["Cargo", cargoUsuario],
@@ -137,7 +162,7 @@ export default function FotosPage() {
             <h4 className="fotos-section-title">Datos de la institucion</h4>
             <div className="fotos-grid fotos-grid-2">
               <div className="fotos-field">
-                <label htmlFor="delegacion" className="fotos-label">Delegacion</label>
+                <label htmlFor="delegacion" className="fotos-label">Delegación o UMAE</label>
                 <div className="fotos-select-wrapper">
                   <select
                     id="delegacion"
@@ -146,7 +171,7 @@ export default function FotosPage() {
                     onChange={(event) => setDelegacion(event.target.value)}
                     required
                   >
-                    <option value="">Selecciona una delegacion</option>
+                    <option value="">Selecciona una Delegación o UMAE</option>
                     {DELEGACIONES.map((item) => (
                       <option key={item} value={item}>{item}</option>
                     ))}

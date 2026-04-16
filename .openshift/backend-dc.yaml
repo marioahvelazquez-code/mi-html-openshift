@@ -13,10 +13,7 @@ spec:
     matchLabels:
       app: backend
   strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxSurge: 25%
-      maxUnavailable: 25%
+    type: Recreate
   template:
     metadata:
       labels:
