@@ -315,7 +315,7 @@ export default function FotosPage() {
             <div className="revision-modal-badge revision-modal-success">Completado</div>
             <h3 className="revision-modal-title">Registro realizado</h3>
             <p className="revision-modal-message">
-              Los datos iniciales se guardaron correctamente.
+              Los datos se guardaron correctamente.
             </p>
 
             <div className="fotos-modal-actions">
