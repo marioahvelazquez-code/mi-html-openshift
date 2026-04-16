@@ -21,7 +21,7 @@ if ! command -v oc &> /dev/null; then
 fi
 
 # Check if logged in
-if ! oc auth can-i create deploymentconfigs --namespace=$NAMESPACE &> /dev/null; then
+if ! oc auth can-i create deployments --namespace=$NAMESPACE &> /dev/null; then
     echo "❌ No estás conectado a OpenShift, o no tienes permisos en el namespace $NAMESPACE"
     echo "Por favor ejecuta: oc login"
     exit 1
@@ -60,8 +60,8 @@ oc start-build backend --follow || true
 echo "  - Frontend build..."
 oc start-build frontend --follow || true
 
-# Create DeploymentConfigs and Services
-echo "📦 Creando DeploymentConfigs y Services..."
+# Create Deployments and Services
+echo "📦 Creando Deployments y Services..."
 oc apply -f .openshift/backend-dc.yaml
 oc apply -f .openshift/frontend-dc.yaml
 
@@ -71,8 +71,8 @@ oc apply -f .openshift/routes.yaml
 
 # Wait for deployments to complete
 echo "⏳ Esperando a que se completen los desployos..."
-oc rollout status dc/backend -n $NAMESPACE --timeout=5m
-oc rollout status dc/frontend -n $NAMESPACE --timeout=5m
+oc rollout status deployment/backend -n $NAMESPACE --timeout=5m
+oc rollout status deployment/frontend -n $NAMESPACE --timeout=5m
 
 # Get route information
 echo ""
@@ -85,5 +85,5 @@ echo "  Frontend: $(oc get route frontend -n $NAMESPACE -o jsonpath='{.spec.host
 echo "  Backend:  $(oc get route backend -n $NAMESPACE -o jsonpath='{.spec.host}' 2>/dev/null || echo 'Esperando...')"
 echo ""
 echo "Monitorear despliegues:"
-echo "  oc logs -f dc/backend -n $NAMESPACE"
-echo "  oc logs -f dc/frontend -n $NAMESPACE"
+echo "  oc logs -f deployment/backend -n $NAMESPACE"
+echo "  oc logs -f deployment/frontend -n $NAMESPACE"

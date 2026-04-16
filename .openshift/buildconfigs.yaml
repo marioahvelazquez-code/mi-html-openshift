@@ -2,13 +2,12 @@ apiVersion: build.openshift.io/v1
 kind: BuildConfig
 metadata:
   name: backend
-  namespace: marioahvelazquez-dev
 spec:
   source:
     type: Git
     git:
       uri: https://github.com/marioahvelazquez-code/mi-html-openshift.git
-      ref: fotos
+      ref: QR
     contextDir: backend
   strategy:
     type: Docker
@@ -29,13 +28,12 @@ apiVersion: build.openshift.io/v1
 kind: BuildConfig
 metadata:
   name: frontend
-  namespace: marioahvelazquez-dev
 spec:
   source:
     type: Git
     git:
       uri: https://github.com/marioahvelazquez-code/mi-html-openshift.git
-      ref: fotos
+      ref: QR
     contextDir: frontend
   strategy:
     type: Docker

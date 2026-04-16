@@ -15,6 +15,6 @@ services:
     volumes:
       - ./frontend/src/assets/Fichas_estatales:/usr/share/nginx/html/fichas:ro
     ports:
-      - "8094:80"
+      - "8096:80"
     depends_on:
       - backend

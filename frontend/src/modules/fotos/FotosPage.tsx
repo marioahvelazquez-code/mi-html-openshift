@@ -1,75 +1,87 @@
-import { useMemo, useRef, useState } from "react";
+import { useState } from "react";
 import "./fotos.css";
-import { CATALOGO_UNIDADES } from "./catalogoUnidades";
+
+const DELEGACIONES = [
+  "Aguascalientes",
+  "Baja California",
+  "Baja California Sur",
+  "Campeche",
+  "Chiapas",
+  "Chihuahua",
+  "Ciudad de Mexico Norte",
+  "Ciudad de Mexico Sur",
+  "Coahuila",
+  "Colima",
+  "Durango",
+  "Guanajuato",
+  "Guerrero",
+  "Hidalgo",
+  "Jalisco",
+  "Mexico Oriente",
+  "Mexico Poniente",
+  "Michoacan",
+  "Morelos",
+  "Nayarit",
+  "Nuevo Leon",
+  "Oaxaca",
+  "Puebla",
+  "Queretaro",
+  "Quintana Roo",
+  "San Luis Potosi",
+  "Sinaloa",
+  "Sonora",
+  "Tabasco",
+  "Tamaulipas",
+  "Tlaxcala",
+  "Veracruz Norte",
+  "Veracruz Sur",
+  "Yucatan",
+  "Zacatecas",
+];
+
+const TIPOS_CARGO = ["Titular de la unidad", "Enlace operativo", "Enlace ejecutivo"];
 
 export default function FotosPage() {
-  const [region, setRegion] = useState("");
-  const [entidad, setEntidad] = useState("");
-  const [unidad, setUnidad] = useState("");
-  const [fechaInicioOperaciones, setFechaInicioOperaciones] = useState("");
+  const [delegacion, setDelegacion] = useState("");
+  const [titularUnidad, setTitularUnidad] = useState("");
+  const [nombreUsuario, setNombreUsuario] = useState("");
+  const [cargoUsuario, setCargoUsuario] = useState("");
+  const [correoInstitucional, setCorreoInstitucional] = useState("");
+  const [correoPersonal, setCorreoPersonal] = useState("");
+  const [telefono, setTelefono] = useState("");
+  const [area, setArea] = useState("");
+  const [tipoCargo, setTipoCargo] = useState("");
   const [error, setError] = useState("");
   const [guardadoExitoso, setGuardadoExitoso] = useState(false);
   const [modalGuardadoAbierto, setModalGuardadoAbierto] = useState(false);
-  const fechaInputRef = useRef<HTMLInputElement | null>(null);
 
-  const regiones = useMemo(
-    () => Array.from(new Set(CATALOGO_UNIDADES.map((item) => item.region))).sort((a, b) => a.localeCompare(b)),
-    [],
-  );
-
-  const entidades = useMemo(
-    () =>
-      Array.from(
-        new Set(
-          CATALOGO_UNIDADES
-            .filter((item) => !region || item.region === region)
-            .map((item) => item.entidad),
-        ),
-      ).sort((a, b) => a.localeCompare(b)),
-    [region],
-  );
-
-  const unidades = useMemo(
-    () =>
-      Array.from(
-        new Set(
-          CATALOGO_UNIDADES
-            .filter((item) => (!region || item.region === region) && (!entidad || item.entidad === entidad))
-            .map((item) => item.unidad),
-        ),
-      ).sort((a, b) => a.localeCompare(b)),
-    [region, entidad],
-  );
-
-  const registroSeleccionado = useMemo(
-    () => CATALOGO_UNIDADES.find((item) => item.region === region && item.entidad === entidad && item.unidad === unidad),
-    [region, entidad, unidad],
-  );
-
-  const abrirCalendario = () => {
-    if (!unidad || !fechaInputRef.current) return;
-    const input = fechaInputRef.current as HTMLInputElement & { showPicker?: () => void };
-    input.focus();
-    try {
-      input.showPicker?.();
-    } catch {
-      // Algunos navegadores lanzan excepción si showPicker no está disponible por contexto.
-    }
+  const limpiarFormulario = () => {
+    setDelegacion("");
+    setTitularUnidad("");
+    setNombreUsuario("");
+    setCargoUsuario("");
+    setCorreoInstitucional("");
+    setCorreoPersonal("");
+    setTelefono("");
+    setArea("");
+    setTipoCargo("");
   };
 
   const manejarGuardar = async () => {
-    if (!region || !entidad || !unidad) {
-      setError("Selecciona Region, Entidad y Unidad antes de guardar.");
-      return;
-    }
+    const faltantes = [
+      ["Delegacion", delegacion],
+      ["Nombre del titular de la unidad", titularUnidad],
+      ["Nombre", nombreUsuario],
+      ["Cargo", cargoUsuario],
+      ["Correo institucional", correoInstitucional],
+      ["Correo personal", correoPersonal],
+      ["Telefono", telefono],
+      ["Area", area],
+      ["Tipo de cargo", tipoCargo],
+    ].filter(([, valor]) => !String(valor).trim());
 
-    if (!registroSeleccionado?.clave) {
-      setError("No se encontro clave presupuestal para la unidad seleccionada.");
-      return;
-    }
-
-    if (!fechaInicioOperaciones) {
-      setError("Selecciona la fecha de inicio de operaciones.");
+    if (faltantes.length > 0) {
+      setError(`Completa los campos requeridos: ${faltantes.map(([campo]) => campo).join(", ")}.`);
       return;
     }
 
@@ -82,11 +94,15 @@ export default function FotosPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          clave_presupuestal: registroSeleccionado.clave,
-          fecha_inicio_operaciones: fechaInicioOperaciones,
-          region,
-          entidad,
-          unidad,
+          delegacion,
+          titular_unidad: titularUnidad,
+          nombre_usuario: nombreUsuario,
+          cargo_usuario: cargoUsuario,
+          correo_institucional: correoInstitucional,
+          correo_personal: correoPersonal,
+          telefono,
+          area,
+          tipo_cargo: tipoCargo,
         }),
       });
 
@@ -100,6 +116,7 @@ export default function FotosPage() {
       setGuardadoExitoso(true);
       setError("");
       setModalGuardadoAbierto(true);
+      limpiarFormulario();
     } catch {
       setGuardadoExitoso(false);
       setError("No fue posible conectar con el servidor.");
@@ -113,94 +130,145 @@ export default function FotosPage() {
   return (
     <div className="fotos-page">
       <div className="fotos-shell">
-        <h3 className="fotos-title">Fecha de inicio de operaciones</h3>
+        <h3 className="fotos-title">Datos de acceso</h3>
 
         <div className="fotos-form">
-          <div className="fotos-field">
-            <label htmlFor="region" className="fotos-label">Region</label>
-            <div className="fotos-select-wrapper">
-              <select
-                id="region"
-                className="fotos-select"
-                value={region}
-                onChange={(event) => {
-                  setRegion(event.target.value);
-                  setEntidad("");
-                  setUnidad("");
-                  setFechaInicioOperaciones("");
-                  setGuardadoExitoso(false);
-                }}
-              >
-                <option value="">Selecciona una Region</option>
-                {regiones.map((item) => (
-                  <option key={item} value={item}>{item}</option>
-                ))}
-              </select>
-            </div>
-          </div>
+          <section className="fotos-section">
+            <h4 className="fotos-section-title">Datos de la institucion</h4>
+            <div className="fotos-grid fotos-grid-2">
+              <div className="fotos-field">
+                <label htmlFor="delegacion" className="fotos-label">Delegacion</label>
+                <div className="fotos-select-wrapper">
+                  <select
+                    id="delegacion"
+                    className="fotos-select"
+                    value={delegacion}
+                    onChange={(event) => setDelegacion(event.target.value)}
+                    required
+                  >
+                    <option value="">Selecciona una delegacion</option>
+                    {DELEGACIONES.map((item) => (
+                      <option key={item} value={item}>{item}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
 
-          <div className="fotos-field">
-            <label htmlFor="entidad" className="fotos-label">Entidad</label>
-            <div className="fotos-select-wrapper">
-              <select
-                id="entidad"
-                className="fotos-select"
-                value={entidad}
-                onChange={(event) => {
-                  setEntidad(event.target.value);
-                  setUnidad("");
-                  setFechaInicioOperaciones("");
-                  setGuardadoExitoso(false);
-                }}
-                disabled={!region}
-              >
-                <option value="">Selecciona una Entidad</option>
-                {entidades.map((item) => (
-                  <option key={item} value={item}>{item}</option>
-                ))}
-              </select>
+              <div className="fotos-field">
+                <label htmlFor="titular-unidad" className="fotos-label">Nombre del titular de la unidad</label>
+                <input
+                  id="titular-unidad"
+                  type="text"
+                  className="fotos-select"
+                  value={titularUnidad}
+                  onChange={(event) => setTitularUnidad(event.target.value)}
+                  placeholder="Escribe el nombre del titular"
+                  required
+                />
+              </div>
             </div>
-          </div>
+          </section>
 
-          <div className="fotos-field">
-            <label htmlFor="unidad" className="fotos-label">Unidad Hospitalaria</label>
-            <div className="fotos-select-wrapper">
-              <select
-                id="unidad"
-                className="fotos-select"
-                value={unidad}
-                onChange={(event) => {
-                  setUnidad(event.target.value);
-                  setGuardadoExitoso(false);
-                }}
-                disabled={!entidad}
-              >
-                <option value="">Selecciona una Unidad</option>
-                {unidades.map((item) => (
-                  <option key={item} value={item}>{item}</option>
-                ))}
-              </select>
+          <section className="fotos-section">
+            <h4 className="fotos-section-title">Datos del usuario</h4>
+            <div className="fotos-grid fotos-grid-3">
+              <div className="fotos-field">
+                <label htmlFor="nombre-usuario" className="fotos-label">Nombre</label>
+                <input
+                  id="nombre-usuario"
+                  type="text"
+                  className="fotos-select"
+                  value={nombreUsuario}
+                  onChange={(event) => setNombreUsuario(event.target.value)}
+                  placeholder="Nombre del usuario"
+                  required
+                />
+              </div>
+
+              <div className="fotos-field">
+                <label htmlFor="cargo-usuario" className="fotos-label">Cargo</label>
+                <input
+                  id="cargo-usuario"
+                  type="text"
+                  className="fotos-select"
+                  value={cargoUsuario}
+                  onChange={(event) => setCargoUsuario(event.target.value)}
+                  placeholder="Cargo del usuario"
+                  required
+                />
+              </div>
+
+              <div className="fotos-field">
+                <label htmlFor="correo-institucional" className="fotos-label">Correo institucional</label>
+                <input
+                  id="correo-institucional"
+                  type="email"
+                  className="fotos-select"
+                  value={correoInstitucional}
+                  onChange={(event) => setCorreoInstitucional(event.target.value)}
+                  placeholder="usuario@imss.gob.mx"
+                  required
+                />
+              </div>
+
+              <div className="fotos-field">
+                <label htmlFor="correo-personal" className="fotos-label">Correo personal</label>
+                <input
+                  id="correo-personal"
+                  type="email"
+                  className="fotos-select"
+                  value={correoPersonal}
+                  onChange={(event) => setCorreoPersonal(event.target.value)}
+                  placeholder="usuario@correo.com"
+                  required
+                />
+              </div>
+
+              <div className="fotos-field">
+                <label htmlFor="telefono" className="fotos-label">Telefono</label>
+                <input
+                  id="telefono"
+                  type="tel"
+                  className="fotos-select"
+                  value={telefono}
+                  onChange={(event) => setTelefono(event.target.value)}
+                  placeholder="10 digitos"
+                  required
+                />
+              </div>
+
+              <div className="fotos-field">
+                <label htmlFor="area" className="fotos-label">Area</label>
+                <input
+                  id="area"
+                  type="text"
+                  className="fotos-select"
+                  value={area}
+                  onChange={(event) => setArea(event.target.value)}
+                  placeholder="Area de adscripcion"
+                  required
+                />
+              </div>
+
+              <div className="fotos-field fotos-field-full">
+                <label htmlFor="tipo-cargo" className="fotos-label">Tipo de cargo</label>
+                <div className="fotos-select-wrapper">
+                  <select
+                    id="tipo-cargo"
+                    className="fotos-select"
+                    value={tipoCargo}
+                    onChange={(event) => setTipoCargo(event.target.value)}
+                    required
+                  >
+                    <option value="">Selecciona una opcion</option>
+                    {TIPOS_CARGO.map((item) => (
+                      <option key={item} value={item}>{item}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
             </div>
-          </div>
-
-          <div className="fotos-field">
-            <label htmlFor="fecha-inicio" className="fotos-label">Fecha de inicio de operaciones</label>
-            <input
-              ref={fechaInputRef}
-              id="fecha-inicio"
-              type="date"
-              className="fotos-select fotos-date-input"
-              value={fechaInicioOperaciones}
-              onChange={(event) => {
-                setFechaInicioOperaciones(event.target.value);
-                setGuardadoExitoso(false);
-              }}
-              onClick={abrirCalendario}
-              onFocus={abrirCalendario}
-              disabled={!unidad}
-            />
-            {!unidad && <p className="fotos-help">Selecciona una unidad para habilitar el calendario.</p>}
-          </div>
+          </section>
 
           {error && <p className="fotos-error">{error}</p>}
 
@@ -222,7 +290,7 @@ export default function FotosPage() {
             <div className="revision-modal-badge revision-modal-success">Completado</div>
             <h3 className="revision-modal-title">Registro realizado</h3>
             <p className="revision-modal-message">
-              La fecha de inicio de operaciones se guardo correctamente.
+              Los datos iniciales se guardaron correctamente.
             </p>
 
             <div className="fotos-modal-actions">

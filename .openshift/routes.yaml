@@ -2,11 +2,9 @@ apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
   name: frontend
-  namespace: marioahvelazquez-dev
   labels:
     app: frontend
 spec:
-  host: frontend-marioahvelazquez-dev.apps.rm2.thpm.p1.openshiftapps.com
   port:
     targetPort: 80-tcp
   to:
@@ -22,11 +20,9 @@ apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
   name: backend
-  namespace: marioahvelazquez-dev
   labels:
     app: backend
 spec:
-  host: backend-marioahvelazquez-dev.apps.rm2.thpm.p1.openshiftapps.com
   path: /api
   port:
     targetPort: 8000-tcp
