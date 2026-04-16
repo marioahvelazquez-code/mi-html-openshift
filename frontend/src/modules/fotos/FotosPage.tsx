@@ -100,8 +100,8 @@ export default function FotosPage() {
       ["Cargo", cargoUsuario],
       ["Correo institucional", correoInstitucional],
       ["Correo personal", correoPersonal],
-      ["Telefono", telefono],
-      ["Area", area],
+      ["Teléfono", telefono],
+      ["Área", area],
       ["Tipo de cargo", tipoCargo],
     ].filter(([, valor]) => !String(valor).trim());
 
@@ -159,7 +159,7 @@ export default function FotosPage() {
 
         <div className="fotos-form">
           <section className="fotos-section">
-            <h4 className="fotos-section-title">Datos de la institucion</h4>
+            <h4 className="fotos-section-title">Datos de la institución</h4>
             <div className="fotos-grid fotos-grid-2">
               <div className="fotos-field">
                 <label htmlFor="delegacion" className="fotos-label">Delegación o UMAE</label>
@@ -250,27 +250,27 @@ export default function FotosPage() {
               </div>
 
               <div className="fotos-field">
-                <label htmlFor="telefono" className="fotos-label">Telefono</label>
+                <label htmlFor="telefono" className="fotos-label">Teléfono</label>
                 <input
                   id="telefono"
                   type="tel"
                   className="fotos-select"
                   value={telefono}
                   onChange={(event) => setTelefono(event.target.value)}
-                  placeholder="10 digitos"
+                  placeholder="10 dígitos"
                   required
                 />
               </div>
 
               <div className="fotos-field">
-                <label htmlFor="area" className="fotos-label">Area</label>
+                <label htmlFor="area" className="fotos-label">Área</label>
                 <input
                   id="area"
                   type="text"
                   className="fotos-select"
                   value={area}
                   onChange={(event) => setArea(event.target.value)}
-                  placeholder="Area de adscripcion"
+                  placeholder="Área de adscripción"
                   required
                 />
               </div>
@@ -285,7 +285,7 @@ export default function FotosPage() {
                     onChange={(event) => setTipoCargo(event.target.value)}
                     required
                   >
-                    <option value="">Selecciona una opcion</option>
+                    <option value="">Selecciona una opción</option>
                     {TIPOS_CARGO.map((item) => (
                       <option key={item} value={item}>{item}</option>
                     ))}
