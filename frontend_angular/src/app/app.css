@@ -1,0 +1,14 @@
+.app-shell {
+	height: 100vh;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+.app-main {
+	flex: 1 1 auto;
+	padding-top: 56px;
+	background: #f3f5f7;
+	overflow-y: auto;
+}
+

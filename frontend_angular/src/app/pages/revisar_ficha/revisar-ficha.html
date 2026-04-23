@@ -1,0 +1,153 @@
+<div class="rf-page-bg">
+<div class="container-fluid py-4">
+  <div class="row align-items-start">
+
+    <!-- COLUMNA IZQUIERDA: Visor PDF -->
+    <div class="col-md-6 d-flex flex-column align-items-center ps-5">
+
+      <div class="d-flex justify-content-center gap-4 mb-3">
+        <button class="btn-custom" (click)="anterior()" [disabled]="!pdfSeleccionado || paginaActual <= 1">
+          &#8249; Anterior
+        </button>
+        <button class="btn-custom" (click)="siguiente()" [disabled]="!pdfSeleccionado || paginaActual >= numPages">
+          Siguiente &#8250;
+        </button>
+      </div>
+
+      <div class="visor-pdf" #visorPdfRef>
+        @if (tipoFicha === 'hospitalaria') {
+          <div class="text-center w-100 py-5 text-white">Seleccione un hospital cuando se cargue el catalogo correspondiente.</div>
+        } @else if (pdfSeleccionado) {
+          <canvas #pdfCanvasRef class="rf-pdf-canvas"></canvas>
+        } @else {
+          <div class="text-center w-100 py-5 text-white">No se encontro la ficha estatal de la entidad seleccionada.</div>
+        }
+      </div>
+
+      <div class="mt-3 d-flex justify-content-center align-items-center gap-5 w-100" style="max-width:520px">
+        <button class="btn-custom" (click)="descargarPpt()" [disabled]="!pptSeleccionado || tipoFicha === 'hospitalaria'">
+          Descargar
+        </button>
+        <div class="fw-bold text-white px-3 py-1 rounded" style="background-color:rgba(0,0,0,0.35)">
+          {{ paginadorCargando ? 'Cargando paginas...' : ('Pagina ' + paginaActualVisual + ' de ' + totalPaginasVisual) }}
+        </div>
+      </div>
+
+    </div>
+
+    <!-- COLUMNA DERECHA: Controles -->
+    <div class="col-md-4 d-flex flex-column align-items-center pt-2">
+      <div class="w-100" style="max-width:420px">
+
+        <!-- Selector de entidad -->
+        <div class="mb-4">
+          <label class="form-label fw-bold text-white fs-4 text-center d-block">Seleccionar Entidad</label>
+          <div class="select-wrapper">
+            <select class="select-custom" [ngModel]="entidadSeleccionada" (ngModelChange)="seleccionarEntidad($event)">
+              @for (entidad of entidades; track entidad) {
+                <option [value]="entidad">{{ entidad }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <!-- Tipo de ficha -->
+        <div class="mb-4">
+          <div class="d-flex justify-content-between gap-4">
+            <label class="form-check-label text-white fw-semibold text-center flex-fill">
+              <div class="mb-2">Ficha Estatal</div>
+              <input type="radio" name="tipoFicha" class="form-check-input"
+                [checked]="tipoFicha === 'estatal'" (change)="seleccionarTipoFicha('estatal')" />
+            </label>
+            <label class="form-check-label text-white fw-semibold text-center flex-fill">
+              <div class="mb-2">Ficha Hospitalaria</div>
+              <input type="radio" name="tipoFicha" class="form-check-input"
+                [checked]="tipoFicha === 'hospitalaria'" (change)="seleccionarTipoFicha('hospitalaria')" />
+            </label>
+          </div>
+        </div>
+
+        <!-- Hospital -->
+        <div class="mb-4">
+          <div class="select-wrapper">
+            <select class="select-custom" [(ngModel)]="hospitalSeleccionado" [disabled]="tipoFicha !== 'hospitalaria'">
+              <option value="">
+                {{ tipoFicha === 'hospitalaria' ? 'Seleccione un hospital' : 'Disponible al elegir ficha hospitalaria' }}
+              </option>
+              @for (hospital of hospitalesDisponibles; track hospital) {
+                <option [value]="hospital">{{ hospital }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <!-- Revision de ficha -->
+        <div class="mt-5">
+          <label class="form-label fw-bold text-white fs-4 mb-4 text-center d-block">Revision de ficha</label>
+
+          <div class="d-flex justify-content-around mb-4">
+            <label class="form-check-label text-white fw-semibold text-center">
+              <div class="mb-2">Aprobado</div>
+              <input type="radio" [name]="'estatus-' + paginaActual" class="form-check-input"
+                [checked]="revisionActual.estatus === 'correcta'"
+                (change)="cambiarEstatus('correcta')"
+                [disabled]="tipoFicha === 'hospitalaria' || !pdfSeleccionado" />
+            </label>
+            <label class="form-check-label text-white fw-semibold text-center">
+              <div class="mb-2">Requiere correccion</div>
+              <input type="radio" [name]="'estatus-' + paginaActual" class="form-check-input"
+                [checked]="revisionActual.estatus === 'correccion'"
+                (change)="cambiarEstatus('correccion')"
+                [disabled]="tipoFicha === 'hospitalaria' || !pdfSeleccionado" />
+            </label>
+          </div>
+
+          <!-- Comentarios -->
+          <div class="mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <label class="form-label fw-bold text-white fs-4 mb-0 d-block">Comentarios</label>
+              <span class="badge" [class.bg-success]="paginaRevisada" [class.bg-warning]="!paginaRevisada"
+                [class.text-dark]="!paginaRevisada" style="font-size:0.9rem">
+                {{ paginaRevisada ? 'Pagina revisada' : 'Falta por revisar' }}
+              </span>
+            </div>
+            <textarea class="input-custom" rows="6" placeholder="Escribe aqui tus comentarios..."
+              [disabled]="tipoFicha === 'hospitalaria' || !pdfSeleccionado || revisionActual.estatus !== 'correccion'"
+              [value]="revisionActual.comentario"
+              (input)="cambiarComentario($any($event.target).value)"
+              style="resize:none; border-radius:16px">
+            </textarea>
+          </div>
+
+          <div class="d-flex justify-content-center gap-3 mt-4">
+            <button class="btn-custom" (click)="guardarRevision()" [disabled]="tipoFicha === 'hospitalaria' || !pdfSeleccionado">
+              Guardar revision
+            </button>
+            <button class="btn-custom" (click)="finalizarRevision()" [disabled]="tipoFicha === 'hospitalaria' || !pdfSeleccionado">
+              Finalizar revision
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- Modal -->
+@if (modalRevision.abierto) {
+  <div class="revision-modal-overlay" (click)="cerrarModal()">
+    <div class="revision-modal-card" (click)="$event.stopPropagation()">
+      <div class="revision-modal-badge" [ngClass]="'revision-modal-' + modalRevision.tipo">
+        {{ modalBadgeTexto }}
+      </div>
+      <h3 class="revision-modal-title">{{ modalRevision.titulo }}</h3>
+      <p class="revision-modal-message">{{ modalRevision.mensaje }}</p>
+      <div class="d-flex justify-content-center mt-4">
+        <button class="btn-custom" (click)="cerrarModal()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+}

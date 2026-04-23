@@ -1,0 +1,11 @@
+<div class="app-shell">
+	<app-header [menuAbierto]="menuAbierto" (toggleMenu)="alternarMenu()"></app-header>
+
+	<app-menu-lateral [abierto]="menuAbierto" (cerrar)="cerrarMenu()"></app-menu-lateral>
+
+	<main class="app-main">
+		<router-outlet></router-outlet>
+	</main>
+
+	<app-footer></app-footer>
+</div>

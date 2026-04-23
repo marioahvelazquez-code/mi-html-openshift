@@ -1,0 +1,111 @@
+.menu-principal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background-image: url('/img/superior.jpeg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  line-height: 135%;
+  min-height: 60px;
+  padding: 8px 0;
+}
+
+.menu-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  font-family: Arial, sans-serif;
+  display: flex;
+  align-items: center;
+}
+
+.menu-logos {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.menu-toggle {
+  margin-left: auto;
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+
+.menu-toggle span {
+  width: 30px;
+  height: 3px;
+  border-radius: 2px;
+  background: #ffffff;
+  display: block;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.menu-toggle.activo span:nth-child(1) {
+  transform: translateY(9px) rotate(45deg);
+}
+
+.menu-toggle.activo span:nth-child(2) {
+  opacity: 0;
+}
+
+.menu-toggle.activo span:nth-child(3) {
+  transform: translateY(-9px) rotate(-45deg);
+}
+
+.logo-gob {
+  max-height: 50px;
+  width: auto;
+}
+
+.logo-dpti {
+  max-height: 45px;
+  width: auto;
+}
+
+.logo-divider {
+  width: 1px;
+  height: 35px;
+  background: #fff;
+}
+
+@media (max-width: 576px) {
+  .menu-container {
+    padding: 0 12px;
+  }
+
+  .menu-logos {
+    gap: 10px;
+  }
+
+  .logo-gob {
+    max-height: 40px;
+  }
+
+  .logo-dpti {
+    max-height: 34px;
+  }
+
+  .logo-divider {
+    height: 28px;
+  }
+
+  .menu-toggle {
+    width: 36px;
+    height: 36px;
+  }
+
+  .menu-toggle span {
+    width: 28px;
+  }
+}

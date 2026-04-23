@@ -1,0 +1,22 @@
+<header id="menu_principal" class="menu-principal">
+  <div class="menu-container">
+    <div class="menu-logos" aria-label="Identidad institucional">
+      <img src="/img/logo-gob-mx.png" class="logo-gob" alt="Gobierno de Mexico" />
+      <div class="logo-divider"></div>
+      <img src="/img/dpti.png" class="logo-dpti" alt="DPTI" />
+    </div>
+
+    <button
+      type="button"
+      class="menu-toggle"
+      [class.activo]="menuAbierto"
+      (click)="alternarMenu()"
+      aria-label="Abrir o cerrar menu lateral"
+      [attr.aria-expanded]="menuAbierto"
+    >
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </div>
+</header>

@@ -1,0 +1,31 @@
+<main class="login-screen">
+  <div class="login-overlay"></div>
+
+  <section class="login-card">
+    <div class="login-brand">
+      <img src="/img/logo-gob-mx.png" class="login-logo-gob" alt="Gobierno de Mexico" />
+      <div class="login-divider"></div>
+      <img src="/img/dpti.png" class="login-logo-dpti" alt="DPTI" />
+    </div>
+
+    <p class="login-kicker">Acceso al sistema</p>
+    <h1 class="login-title">Autenticacion</h1>
+    <p class="login-subtitle">Inicia sesion para acceder a Revisar Fichas</p>
+
+    <form (ngSubmit)="iniciarSesion()" class="login-form">
+      <label for="usuario" class="login-label">Usuario</label>
+      <input id="usuario" name="usuario" type="text" class="login-input" [(ngModel)]="usuario" autocomplete="username" />
+
+      <label for="contrasena" class="login-label">Contrasena</label>
+      <input id="contrasena" name="contrasena" type="password" class="login-input" [(ngModel)]="contrasena" autocomplete="current-password" />
+
+      @if (error) {
+        <p class="login-error">{{ error }}</p>
+      }
+
+      <button type="submit" class="login-button" [disabled]="cargando">
+        {{ cargando ? 'Validando...' : 'Entrar' }}
+      </button>
+    </form>
+  </section>
+</main>

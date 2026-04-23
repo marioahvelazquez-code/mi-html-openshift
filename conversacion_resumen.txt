@@ -1,0 +1,25 @@
+Resumen de la reestructura y acciones recientes:
+
+1. Se decidió limpiar el proyecto y dejar solo Angular y Django.
+2. Se eliminaron las carpetas de frontends antiguos (frontend y frontend_angular_react_backup).
+3. Se configuró la ruta principal del frontend Angular para que apunte a login.
+4. Se realizó push de los cambios a GitHub y se explicó cómo revertir cambios en TFS Git.
+5. Se aclaró la diferencia entre Git y TFVC, y que tu TFS usa Git (puedes usar comandos estándar de Git).
+6. Se explicó cómo limpiar el repositorio en TFS y cómo reestructurarlo.
+7. Se creó una nueva estructura en C:\Docker\react-angular-tfs con:
+   - backend (Django)
+   - frontend_angular (Angular)
+   - nginx (configuración)
+   - README.md, .env, .gitignore, docker-compose.yml en la raíz
+8. Se copiaron los archivos y carpetas relevantes a la nueva estructura.
+9. Se recomendó inicializar el repositorio Git en la nueva carpeta y hacer push a TFS.
+
+Notas adicionales:
+- Puedes continuar la conversación en la nueva carpeta y pedir que se retome desde este resumen.
+- Si necesitas comandos para inicializar Git, agregar remoto y hacer push, avísame.
+
+Fin del resumen.
+
+---
+
+Si necesitas el detalle de algún paso, solo pídelo aquí.

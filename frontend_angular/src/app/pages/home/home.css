@@ -1,0 +1,13 @@
+.home-screen {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+  background-image:
+    linear-gradient(rgba(16, 49, 43, 0.24), rgba(16, 49, 43, 0.24)),
+    url('/img/slide1.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  font-family: Arial, sans-serif;
+}

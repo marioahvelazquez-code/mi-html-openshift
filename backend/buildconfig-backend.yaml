@@ -1,0 +1,20 @@
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: backend
+spec:
+  source:
+    type: Git
+    git:
+      uri: "http://tfs.imss.gob.mx:8080/tfs/DG/SREDG/_git/bd-sredg"
+      ref: "develop"
+    sourceSecret:
+      name: tfs-secret
+    contextDir: "/"
+  strategy:
+    type: Docker
+    dockerStrategy: {}
+  output:
+    to:
+      kind: ImageStreamTag
+      name: backend:latest

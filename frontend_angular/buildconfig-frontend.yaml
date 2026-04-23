@@ -1,0 +1,20 @@
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: frontend
+spec:
+  source:
+    type: Git
+    git:
+      uri: "http://tfs.imss.gob.mx:8080/tfs/DG/SREDG/_git/guisredg-portal"
+      ref: "develop"
+    sourceSecret:
+      name: tfs-secret
+    contextDir: "/"
+  strategy:
+    type: Docker
+    dockerStrategy: {}
+  output:
+    to:
+      kind: ImageStreamTag
+      name: frontend:latest
