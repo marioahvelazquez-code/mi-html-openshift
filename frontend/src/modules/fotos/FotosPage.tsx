@@ -95,7 +95,7 @@ export default function FotosPage() {
   const manejarGuardar = async () => {
     const faltantes = [
       ["Delegación o UMAE", delegacion],
-      ["Nombre del titular de la unidad", titularUnidad],
+      ["Nombre del titular de la OOAD o UMAE", titularUnidad],
       ["Nombre", nombreUsuario],
       ["Cargo", cargoUsuario],
       ["Correo institucional", correoInstitucional],
@@ -180,7 +180,7 @@ export default function FotosPage() {
               </div>
 
               <div className="fotos-field">
-                <label htmlFor="titular-unidad" className="fotos-label">Nombre del titular de la unidad</label>
+                <label htmlFor="titular-unidad" className="fotos-label">Nombre del titular de la OOAD o UMAE</label>
                 <input
                   id="titular-unidad"
                   type="text"

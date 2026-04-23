@@ -67,16 +67,28 @@ export default function Header() {
     }
   };
 
+  const manejarClickLogoGob = () => {
+    abrirModalDescarga("/api/catalogos/descargar_bitacora/", "bitacora_operaciones.csv");
+  };
+
   return (
     <header id="menu_principal" className="bg-verdeIMSS py-2">
       <div className="container d-flex align-items-center justify-content-between">
         <div className="d-flex align-items-center gap-3">
-          <img
-            src={logoBlanco}
-            className="img-fluid"
-            style={{ maxHeight: "50px" }}
-            alt="Gobierno de Mexico"
-          />
+          <button
+            type="button"
+            onClick={manejarClickLogoGob}
+            style={{ background: "transparent", border: "none", padding: 0, cursor: "pointer" }}
+            aria-label="Descargar bitacora"
+            title="Descargar bitacora"
+          >
+            <img
+              src={logoBlanco}
+              className="img-fluid"
+              style={{ maxHeight: "50px" }}
+              alt="Gobierno de Mexico"
+            />
+          </button>
 
           <div style={{ width: "1px", height: "35px", background: "white" }} />
 
@@ -86,19 +98,6 @@ export default function Header() {
             style={{ maxHeight: "45px" }}
             alt="DPTI"
           />
-        </div>
-
-        <div className="d-flex align-items-center gap-3">
-          <a
-            href="#"
-            onClick={(event) => {
-              event.preventDefault();
-              abrirModalDescarga("/api/catalogos/descargar_bitacora/", "bitacora_operaciones.csv");
-            }}
-            style={{ color: "#ffffff", fontSize: "0.95rem", textDecoration: "none" }}
-          >
-            Descargar bitácora
-          </a>
         </div>
       </div>
 
