@@ -1,13 +1,2 @@
-registro,delegacion,titular_unidad,nombre_usuario,cargo_usuario,correo_institucional,correo_personal,telefono,area,tipo_cargo
-,,,,,,,,,
-,,,,,,,,,
-,,,,,,,,,
-,,,,,,,,,
-,,,,,,,,,
-,,,,,,,,,
-,,,,,,,,,
-,,,,,,,,,
-,,,,,,,,,
-2026-04-16 13:43:21,Jalisco,Maria Perez,Juan Lopez,Administrador,juan.lopez@imss.gob.mx,juan.lopez@gmail.com,3312345678,Operacion,Enlace operativo
-2026-04-16 14:05:57,Aguascalientes,mario,mario,mario,marioahvelazquez@gmail.com,marioahvelazquez@gmail.cok,5548148180,IMSS,Titular de la unidad
-2026-04-16 14:49:27,Aguascalientes,mario,mario,mario,mario,mario,mario,mario,Titular de la unidad
+registro,ooad,unidad_medica,cargo,pregunta_1,pregunta_2,pregunta_3,pregunta_4,pregunta_5,pregunta_6,pregunta_7,pregunta_8,pregunta_9,pregunta_10,pregunta_11,sugerencia
+2026-05-14 14:03:21,rweyui,yui,yui,Totalmente claro,Totalmente de acuerdo,Sí completamente,Sí,Excelente,Totalmente de acuerdo,Adecuada,Totalmente de acuerdo,Totalmente de acuerdo,Excelente,Sí,gfd

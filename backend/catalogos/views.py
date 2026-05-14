@@ -2,28 +2,36 @@
 import os
 from datetime import datetime
 from zoneinfo import ZoneInfo
-
 from django.conf import settings
 from django.http import FileResponse
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
+BITACORA_NOMBRE = "bitacora_operaciones.csv"
+BITACORA_NOMBRE_LEGACY = "bitacora_operaciones.txt"
+
+BITACORA_HEADERS = [
+    "registro",
+    "ooad",
+    "unidad_medica",
+    "cargo",
+    "pregunta_1",
+    "pregunta_2",
+    "pregunta_3",
+    "pregunta_4",
+    "pregunta_5",
+    "pregunta_6",
+    "pregunta_7",
+    "pregunta_8",
+    "pregunta_9",
+    "pregunta_10",
+    "pregunta_11",
+    "sugerencia"
+]
 
 BITACORA_NOMBRE = "bitacora_operaciones.csv"
 BITACORA_NOMBRE_LEGACY = "bitacora_operaciones.txt"
-BITACORA_HEADERS = [
-    "registro",
-    "delegacion",
-    "titular_unidad",
-    "nombre_usuario",
-    "cargo_usuario",
-    "correo_institucional",
-    "correo_personal",
-    "telefono",
-    "area",
-    "tipo_cargo",
-]
 
 
 def _ruta_bitacora() -> str:
@@ -45,13 +53,24 @@ def _parsear_linea_legacy(linea: str):
         "registro": partes[0],
         "delegacion": "",
         "titular_unidad": "",
-        "nombre_usuario": "",
         "cargo_usuario": "",
         "correo_institucional": "",
         "correo_personal": "",
         "telefono": "",
         "area": "",
         "tipo_cargo": "",
+        "pregunta_1": "",
+        "pregunta_2": "",
+        "pregunta_3": "",
+        "pregunta_4": "",
+        "pregunta_5": "",
+        "pregunta_6": "",
+        "pregunta_7": "",
+        "pregunta_8": "",
+        "pregunta_9": "",
+        "pregunta_10": "",
+        "pregunta_11": "",
+        "sugerencia": "",
     }
 
     equivalencias = {
@@ -140,53 +159,112 @@ def _validar_password_descarga(request):
 @authentication_classes([])
 @permission_classes([AllowAny])
 def guardar_inicio_operaciones(request):
+    ooad = str(request.data.get("delegacion", "")).strip()
+    unidad_medica = str(request.data.get("titular_unidad", "")).strip()
+    cargo = str(request.data.get("cargo_usuario", "")).strip()
+
+    # Respuestas del cuestionario
+    pregunta_1 = str(request.data.get("pregunta_1", "")).strip()
+    pregunta_2 = str(request.data.get("pregunta_2", "")).strip()
+    pregunta_3 = str(request.data.get("pregunta_3", "")).strip()
+    pregunta_4 = str(request.data.get("pregunta_4", "")).strip()
+    pregunta_5 = str(request.data.get("pregunta_5", "")).strip()
+    pregunta_6 = str(request.data.get("pregunta_6", "")).strip()
+    pregunta_7 = str(request.data.get("pregunta_7", "")).strip()
+    pregunta_8 = str(request.data.get("pregunta_8", "")).strip()
+    pregunta_9 = str(request.data.get("pregunta_9", "")).strip()
+    pregunta_10 = str(request.data.get("pregunta_10", "")).strip()
+    pregunta_11 = str(request.data.get("pregunta_11", "")).strip()
+    sugerencia = str(request.data.get("sugerencia", "")).strip()
+
+    # Solo requerimos los campos que realmente se llenan en el formulario
+    faltantes = [
+        k for k, v in {
+            "ooad": ooad,
+            "unidad_medica": unidad_medica,
+            "cargo": cargo,
+            "pregunta_1": pregunta_1,
+            "pregunta_2": pregunta_2,
+            "pregunta_3": pregunta_3,
+            "pregunta_4": pregunta_4,
+            "pregunta_5": pregunta_5,
+            "pregunta_6": pregunta_6,
+            "pregunta_7": pregunta_7,
+            "pregunta_8": pregunta_8,
+            "pregunta_9": pregunta_9,
+            "pregunta_10": pregunta_10,
+            "pregunta_11": pregunta_11,
+        }.items() if not v
+    ]
+    # Solo los campos realmente usados
     delegacion = str(request.data.get("delegacion", "")).strip()
     titular_unidad = str(request.data.get("titular_unidad", "")).strip()
-    nombre_usuario = str(request.data.get("nombre_usuario", "")).strip()
     cargo_usuario = str(request.data.get("cargo_usuario", "")).strip()
-    correo_institucional = str(request.data.get("correo_institucional", "")).strip()
-    correo_personal = str(request.data.get("correo_personal", "")).strip()
-    telefono = str(request.data.get("telefono", "")).strip()
-    area = str(request.data.get("area", "")).strip()
-    tipo_cargo = str(request.data.get("tipo_cargo", "")).strip()
 
-    faltantes = [
-        k
-        for k, v in {
-            "delegacion": delegacion,
-            "titular_unidad": titular_unidad,
-            "nombre_usuario": nombre_usuario,
-            "cargo_usuario": cargo_usuario,
-            "correo_institucional": correo_institucional,
-            "correo_personal": correo_personal,
-            "telefono": telefono,
-            "area": area,
-            "tipo_cargo": tipo_cargo,
-        }.items()
-        if not v
-    ]
+    # Respuestas del cuestionario
+    pregunta_1 = str(request.data.get("pregunta_1", "")).strip()
+    pregunta_2 = str(request.data.get("pregunta_2", "")).strip()
+    pregunta_3 = str(request.data.get("pregunta_3", "")).strip()
+    pregunta_4 = str(request.data.get("pregunta_4", "")).strip()
+    pregunta_5 = str(request.data.get("pregunta_5", "")).strip()
+    pregunta_6 = str(request.data.get("pregunta_6", "")).strip()
+    pregunta_7 = str(request.data.get("pregunta_7", "")).strip()
+    pregunta_8 = str(request.data.get("pregunta_8", "")).strip()
+    pregunta_9 = str(request.data.get("pregunta_9", "")).strip()
+    pregunta_10 = str(request.data.get("pregunta_10", "")).strip()
+    pregunta_11 = str(request.data.get("pregunta_11", "")).strip()
+    sugerencia = str(request.data.get("sugerencia", "")).strip()
+
+    print("[DEBUG] Datos recibidos en guardar_inicio_operaciones:")
+    print({
+        "ooad": ooad,
+        "unidad_medica": unidad_medica,
+        "cargo": cargo,
+        "pregunta_1": pregunta_1,
+        "pregunta_2": pregunta_2,
+        "pregunta_3": pregunta_3,
+        "pregunta_4": pregunta_4,
+        "pregunta_5": pregunta_5,
+        "pregunta_6": pregunta_6,
+        "pregunta_7": pregunta_7,
+        "pregunta_8": pregunta_8,
+        "pregunta_9": pregunta_9,
+        "pregunta_10": pregunta_10,
+        "pregunta_11": pregunta_11,
+        "sugerencia": sugerencia,
+    })
     if faltantes:
+        print(f"[DEBUG] Faltan campos: {faltantes}")
         return Response({"ok": False, "message": f"Faltan campos: {', '.join(faltantes)}"}, status=400)
 
     bitacora_path = _asegurar_bitacora_csv()
     marca_tiempo = datetime.now(ZoneInfo("America/Mexico_City")).strftime("%Y-%m-%d %H:%M:%S")
 
-    with open(bitacora_path, "a", newline="", encoding="utf-8") as bitacora:
-        writer = csv.DictWriter(bitacora, fieldnames=BITACORA_HEADERS)
-        writer.writerow(
-            {
+    try:
+        with open(bitacora_path, "a", newline="", encoding="utf-8") as bitacora:
+            writer = csv.DictWriter(bitacora, fieldnames=BITACORA_HEADERS)
+            writer.writerow({
                 "registro": marca_tiempo,
-                "delegacion": delegacion,
-                "titular_unidad": titular_unidad,
-                "nombre_usuario": nombre_usuario,
-                "cargo_usuario": cargo_usuario,
-                "correo_institucional": correo_institucional,
-                "correo_personal": correo_personal,
-                "telefono": telefono,
-                "area": area,
-                "tipo_cargo": tipo_cargo,
-            }
-        )
+                "ooad": ooad,
+                "unidad_medica": unidad_medica,
+                "cargo": cargo,
+                "pregunta_1": pregunta_1,
+                "pregunta_2": pregunta_2,
+                "pregunta_3": pregunta_3,
+                "pregunta_4": pregunta_4,
+                "pregunta_5": pregunta_5,
+                "pregunta_6": pregunta_6,
+                "pregunta_7": pregunta_7,
+                "pregunta_8": pregunta_8,
+                "pregunta_9": pregunta_9,
+                "pregunta_10": pregunta_10,
+                "pregunta_11": pregunta_11,
+                "sugerencia": sugerencia,
+            })
+        print("[DEBUG] Registro guardado exitosamente en la bitácora.")
+    except Exception as e:
+        print(f"[ERROR] No se pudo guardar el registro en la bitácora: {e}")
+        return Response({"ok": False, "message": "Error al guardar el registro en la bitácora."}, status=500)
 
     return Response(
         {

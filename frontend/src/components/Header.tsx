@@ -67,8 +67,13 @@ export default function Header() {
     }
   };
 
+  // Detecta si está en desarrollo local con Vite
+  const API_BASE = window.location.hostname === "localhost" && window.location.port === "5184"
+    ? "http://localhost:8000"
+    : "";
+
   const manejarClickLogoGob = () => {
-    abrirModalDescarga("/api/catalogos/descargar_bitacora/", "bitacora_operaciones.csv");
+    abrirModalDescarga(`${API_BASE}/api/catalogos/descargar_bitacora/`, "bitacora_operaciones.csv");
   };
 
   return (

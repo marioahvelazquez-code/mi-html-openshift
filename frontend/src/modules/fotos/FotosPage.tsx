@@ -147,8 +147,38 @@ export default function FotosPage() {
     setError("");
     setGuardadoExitoso(false);
     try {
-      // Aquí deberías enviar las respuestas al backend
-      // await fetch("/api/cuestionario/guardar_respuestas/", { ... })
+      // Construir el payload para el backend con identificación y respuestas
+      const payload = {
+        delegacion: ooad,
+        titular_unidad: unidadMedica,
+        cargo_usuario: cargo,
+        pregunta_1: respuestas[1] || "",
+        pregunta_2: respuestas[2] || "",
+        pregunta_3: respuestas[3] || "",
+        pregunta_4: respuestas[4] || "",
+        pregunta_5: respuestas[5] || "",
+        pregunta_6: respuestas[6] || "",
+        pregunta_7: respuestas[7] || "",
+        pregunta_8: respuestas[8] || "",
+        pregunta_9: respuestas[9] || "",
+        pregunta_10: respuestas[10] || "",
+        pregunta_11: respuestas[11] || "",
+        sugerencia: indicadoresExtra || "",
+      };
+
+      const response = await fetch("/api/catalogos/guardar_inicio_operaciones/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+      const data = await response.json();
+      if (!response.ok || !data.ok) {
+        setGuardadoExitoso(false);
+        setError(data.message || "Error al guardar el registro.");
+        return;
+      }
       setGuardadoExitoso(true);
       setModalGuardadoAbierto(true);
       limpiarFormulario();
