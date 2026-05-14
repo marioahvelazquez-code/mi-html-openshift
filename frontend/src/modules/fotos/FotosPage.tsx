@@ -110,6 +110,9 @@ const preguntas = [
 ];
 
 export default function FotosPage() {
+  const [ooad, setOoad] = useState("");
+  const [unidadMedica, setUnidadMedica] = useState("");
+  const [cargo, setCargo] = useState("");
   const [respuestas, setRespuestas] = useState<{ [key: number]: string }>({});
   const [indicadoresExtra, setIndicadoresExtra] = useState("");
   const [error, setError] = useState("");
@@ -117,12 +120,20 @@ export default function FotosPage() {
   const [modalGuardadoAbierto, setModalGuardadoAbierto] = useState(false);
 
   const limpiarFormulario = () => {
+    setOoad("");
+    setUnidadMedica("");
+    setCargo("");
     setRespuestas({});
     setIndicadoresExtra("");
   };
 
   const manejarGuardar = async () => {
     // Validación: todas las preguntas respondidas
+    // Validar campos de identificación
+    if (!ooad.trim() || !unidadMedica.trim() || !cargo.trim()) {
+      setError("Por favor completa los campos de OOAD, Unidad Médica de adscripción y Cargo.");
+      return;
+    }
     const faltantes = preguntas.filter((p) => {
       if (!respuestas[p.id]) return true;
       // Solo la última pregunta (id 11) requiere campo abierto si es "Sí"
@@ -156,6 +167,49 @@ export default function FotosPage() {
       <div className="fotos-shell">
         <h3 className="fotos-title" style={{ textAlign: "center", marginBottom: 38 }}>Cuestionario de Evaluación</h3>
         <div className="fotos-form" style={{ marginTop: 10 }}>
+          <div className="fotos-section" style={{ marginBottom: 18 }}>
+            <div className="fotos-grid fotos-grid-2">
+              <div className="fotos-field fotos-field-full">
+                <label className="fotos-label" htmlFor="ooad"><b>OOAD:</b></label>
+                <input
+                  id="ooad"
+                  className="fotos-select"
+                  type="text"
+                  value={ooad}
+                  onChange={e => setOoad(e.target.value)}
+                  placeholder="Nombre de la OOAD"
+                  required
+                />
+              </div>
+              <div className="fotos-field fotos-field-full">
+                <label className="fotos-label" htmlFor="unidad-medica"><b>Unidad Médica de adscripción:</b></label>
+                <input
+                  id="unidad-medica"
+                  className="fotos-select"
+                  type="text"
+                  value={unidadMedica}
+                  onChange={e => setUnidadMedica(e.target.value)}
+                  placeholder="Nombre de la unidad médica"
+                  required
+                />
+              </div>
+              <div className="fotos-field fotos-field-full">
+                <label className="fotos-label" htmlFor="cargo"><b>Cargo:</b></label>
+                <input
+                  id="cargo"
+                  className="fotos-select"
+                  type="text"
+                  value={cargo}
+                  onChange={e => setCargo(e.target.value)}
+                  placeholder="Cargo del participante"
+                  required
+                />
+              </div>
+            </div>
+          </div>
+          <div style={{ margin: '0 0 24px 0', fontWeight: 600, fontSize: '1.1rem', color: '#fff', textAlign: 'left' }}>
+            Selecciona la opción que mejor refleje tu opinión. Tu retroalimentación es valiosa y nos ayuda a mejorar el material.
+          </div>
           {Array.from({ length: Math.ceil(preguntas.length / 2) }, (_, i) => (
             <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }} key={i}>
               {[preguntas[i * 2], preguntas[i * 2 + 1]].map(
