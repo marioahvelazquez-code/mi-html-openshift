@@ -1,11 +1,19 @@
-
 import { useState } from "react";
 import "./fotos.css";
 
-const preguntas = [
+type Pregunta = {
+  id: number | string;
+  texto: string;
+  opciones: string[];
+  campoAbierto?: boolean;
+  soloTexto?: boolean;
+};
+
+    
+const preguntas: Pregunta[] = [
   {
     id: 1,
-    texto: "¿Qué tan claro tienes cuál es el propósito del Modelo de Gestión Hospitalaria Humanista y de Trato Digno?",
+    texto: "Después de revisar el material, ¿qué tan claro tienes cuál es el propósito del Modelo de Gestión Hospitalaria Humanista y de Trato Digno?",
     opciones: [
       "Totalmente claro",
       "Bastante claro",
@@ -38,7 +46,7 @@ const preguntas = [
   },
   {
     id: 4,
-    texto: "¿Considera que la presentación cumplió adecuadamente con este propósito?",
+    texto: `La presentación tiene como propósito dar a conocer el Modelo de Gestión Hospitalaria Humanista y de Trato Digno, el contexto institucional por el cual surge y su utilidad para las Unidades Médicas, así como su alineación con el PIIMSS 2025-2030 y la viabilidad financiera del Instituto. De igual manera, busca dar a conocer el Tablero de Gestión como componente central del modelo y garantizar la comprensión de sus indicadores y la capacidad del usuario para interactuar con la interfaz, interpretar la información que ofrece y apoyarse de ella para la toma de decisiones y gestión dentro de su hospital.\n\nDe acuerdo con lo anterior, ¿considera que la presentación cumplió adecuadamente con este propósito?`,
     opciones: ["Sí", "No"],
   },
   {
@@ -113,7 +121,7 @@ export default function FotosPage() {
   const [ooad, setOoad] = useState("");
   const [unidadMedica, setUnidadMedica] = useState("");
   const [cargo, setCargo] = useState("");
-  const [respuestas, setRespuestas] = useState<{ [key: number]: string }>({});
+  const [respuestas, setRespuestas] = useState<{ [key: string]: string }>({});
   const [indicadoresExtra, setIndicadoresExtra] = useState("");
   const [error, setError] = useState("");
   const [guardadoExitoso, setGuardadoExitoso] = useState(false);
@@ -135,6 +143,7 @@ export default function FotosPage() {
       return;
     }
     const faltantes = preguntas.filter((p) => {
+      if (p.soloTexto) return false;
       if (!respuestas[p.id]) return true;
       // Solo la última pregunta (id 11) requiere campo abierto si es "Sí"
       if (p.id === 11 && p.campoAbierto && respuestas[p.id] === "Sí" && !indicadoresExtra.trim()) return true;
@@ -212,6 +221,7 @@ export default function FotosPage() {
                 />
               </div>
               <div className="fotos-field fotos-field-full">
+
                 <label className="fotos-label" htmlFor="unidad-medica"><b>Unidad Médica de adscripción:</b></label>
                 <input
                   id="unidad-medica"
@@ -240,9 +250,77 @@ export default function FotosPage() {
           <div style={{ margin: '0 0 24px 0', fontWeight: 600, fontSize: '1.1rem', color: '#fff', textAlign: 'left' }}>
             Selecciona la opción que mejor refleje tu opinión. Tu retroalimentación es valiosa y nos ayuda a mejorar el material.
           </div>
-          {Array.from({ length: Math.ceil(preguntas.length / 2) }, (_, i) => (
-            <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }} key={i}>
-              {[preguntas[i * 2], preguntas[i * 2 + 1]].map(
+
+          {/* Preguntas 1 y 2 en grid doble */}
+          <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
+            {[preguntas[0], preguntas[1]].map(
+              (pregunta) =>
+                pregunta && (
+                  <div className="fotos-section" style={{ flex: 1, minWidth: 320, maxWidth: 500, marginBottom: 0 }} key={pregunta.id}>
+                    <label className="fotos-label" style={{ fontWeight: 600 }}>
+                      {pregunta.id === 4 ? (
+                        <span style={{ whiteSpace: 'pre-line' }}>{pregunta.id}. {pregunta.texto}</span>
+                      ) : (
+                        `${pregunta.id}. ${pregunta.texto}`
+                      )}
+                    </label>
+                    <div style={{ height: 12 }} />
+                    <div className="fotos-grid fotos-grid-2">
+                      {pregunta.opciones.map((opcion) => (
+                        <label key={opcion} className="fotos-radio-label" style={{ marginBottom: 3, display: "flex", alignItems: "center" }}>
+                          <input
+                            type="radio"
+                            name={`pregunta-${pregunta.id}`}
+                            value={opcion}
+                            checked={respuestas[pregunta.id] === opcion}
+                            onChange={() => setRespuestas({ ...respuestas, [pregunta.id]: opcion })}
+                            required
+                            style={{ marginRight: 6 }}
+                          />
+                          {opcion}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )
+            )}
+          </div>
+
+
+
+          {/* Preguntas 3 y 4 en una línea, grid doble */}
+          <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
+            {[preguntas[2], preguntas[3]].map(
+              (pregunta) =>
+                pregunta && (
+                  <div className="fotos-section" style={{ flex: 1, minWidth: 320, maxWidth: 500, marginBottom: 0 }} key={pregunta.id}>
+                    <label className="fotos-label" style={{ fontWeight: 600 }}>{pregunta.id}. {pregunta.texto}</label>
+                    <div style={{ height: 12 }} />
+                    <div className="fotos-grid fotos-grid-2">
+                      {pregunta.opciones.map((opcion) => (
+                        <label key={opcion} className="fotos-radio-label" style={{ marginBottom: 3, display: "flex", alignItems: "center" }}>
+                          <input
+                            type="radio"
+                            name={`pregunta-${pregunta.id}`}
+                            value={opcion}
+                            checked={respuestas[pregunta.id] === opcion}
+                            onChange={() => setRespuestas({ ...respuestas, [pregunta.id]: opcion })}
+                            required
+                            style={{ marginRight: 6 }}
+                          />
+                          {opcion}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )
+            )}
+          </div>
+
+          {/* El resto de preguntas en grid doble como antes */}
+          {Array.from({ length: Math.ceil((preguntas.length - 4) / 2) }, (_, i) => (
+            <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }} key={i + 2}>
+              {[preguntas[4 + i * 2], preguntas[4 + i * 2 + 1]].map(
                 (pregunta) =>
                   pregunta && (
                     <div className="fotos-section" style={{ flex: 1, minWidth: 320, maxWidth: 500, marginBottom: 0 }} key={pregunta.id}>
