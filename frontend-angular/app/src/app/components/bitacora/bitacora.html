@@ -1,0 +1,43 @@
+<div class="container mt-4">
+  <h3 class="mt-4">Bitácora de Cargas</h3>
+
+  <!-- Filtro -->
+  <br />
+  <h4>Seleccione el Área:</h4>
+  <div class="select-wrapper">
+    <select class="select-custom" [(ngModel)]="areaSeleccionada" (change)="filtrarPorArea()">
+      <option [ngValue]="null">Todas</option>
+      <option *ngFor="let area of areas" [value]="area.nombre">
+        {{ area.nombre }}
+      </option>
+    </select>
+  </div>
+  <br />
+  <!-- Tabla -->
+  <table class="tabla-bitacora">
+    <thead>
+      <tr>
+        <th>Área</th>
+        <th>Tema</th>
+        <th>Usuario</th>
+        <th>Archivo</th>
+        <th>Fecha</th>
+        <th>Registros</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr
+        *ngFor="let r of registrosFiltrados; let i = index"
+        [class.fila-par]="i % 2 === 0"
+        [class.fila-impar]="i % 2 !== 0"
+      >
+        <td>{{ r.nombre_area }}</td>
+        <td>{{ r.nombre_tema }}</td>
+        <td>{{ r.usuario }}</td>
+        <td>{{ r.nombre_archivo }}</td>
+        <td>{{ r.fecha_carga | date: 'short' }}</td>
+        <td>{{ r.registros_total }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

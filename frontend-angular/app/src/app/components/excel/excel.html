@@ -1,0 +1,14 @@
+<hr />
+<div class="Excel">
+  <h2>Archivo Excel</h2>
+  <ul>
+    @for (excel of Exceles; track excel) {
+      <li>{{ excel }}</li>
+    } @empty {
+      <li>No hay documentos Excel disponibles.</li>
+    }
+  </ul>
+  <h4>{{ nuevoExcel }}</h4>
+  <input [(ngModel)]="nuevoExcel" type="text" placeholder="Agregar documento..." />
+  <button (click)="agregarExcel()">Agregar</button>
+</div>

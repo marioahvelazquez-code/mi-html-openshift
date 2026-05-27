@@ -1,0 +1,177 @@
+<div class="container mt-4">
+  <h3 class="mt-4">Genera Ficha Hospitalaria</h3>
+
+  <div class="contenedor-formulario">
+    <!-- IZQUIERDA -->
+    <div class="lado-izquierdo">
+      <!-- Región -->
+      <div class="select-wrapper">
+        <select
+          class="select-custom"
+          [(ngModel)]="idRegion"
+          [disabled]="isLoading"
+          (change)="onRegionChange($any($event.target).value)"
+        >
+          <option [value]="null">Seleccione la Región</option>
+          @for (a of region; track a.id_region) {
+            <option [value]="a.id_region">{{ a.nombre }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Entidad -->
+      <div class="select-wrapper">
+        <select
+          class="select-custom"
+          [(ngModel)]="idEntidad"
+          [disabled]="!idRegion || isLoading"
+          (change)="onEntidadChange($any($event.target).value)"
+        >
+          <option [value]="null">Seleccione la Entidad</option>
+          @for (t of entidad; track t.id_entidad) {
+            <option [value]="t.id_entidad">{{ t.Entidad }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Nivel de atención -->
+      <div class="select-wrapper">
+        <select
+          class="select-custom"
+          [(ngModel)]="id_nivel_atencion"
+          [disabled]="!idRegion || !idEntidad || isLoading"
+          (change)="onNivelAtencionChange($any($event.target).value)"
+        >
+          <option [value]="null">Seleccione el Nivel de Atención</option>
+          @for (t of nivelAtencion; track t.id_nivel_atencion) {
+            <option [value]="t.id_nivel_atencion">{{ t.nombre }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Unidad Médica -->
+
+      <div class="select-wrapper">
+        <select
+          class="select-custom"
+          [(ngModel)]="id_unidad_medica"
+          [disabled]="!idRegion || !idEntidad || !id_nivel_atencion || isLoading"
+          (change)="onUnidadMedicaChange($any($event.target).value)"
+        >
+          <option [value]="null">Seleccione la Unidad Médica</option>
+          @for (t of unidadMedica; track t.id_unidad_medica) {
+            <option [value]="t.id_unidad_medica">{{ t.nombre }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- BOTÓN -->
+      <button
+        class="btn-custom"
+        [disabled]="!idRegion || !idEntidad || !id_nivel_atencion || !id_unidad_medica || isLoading"
+        (click)="onSubmit()"
+      >
+        Generar Ficha Hospitalaria
+      </button>
+
+      <!-- PROGRESS -->
+
+      <div style="margin-top: 1rem" *ngIf="isLoading">
+        <p style="margin-bottom: 0.5rem; font-size: 0.9rem">Procesando...</p>
+
+        <!-- reemplazo simple de antd Progress -->
+        <div class="progress">
+          <div
+            class="progress-bar"
+            role="progressbar"
+            [style.width.%]="progress"
+            aria-valuemin="0"
+            aria-valuemax="100"
+          >
+            {{ progress }}%
+          </div>
+        </div>
+      </div>
+
+      <!-- MENSAJE -->
+
+      <div class="bloque-info" *ngIf="mensaje">
+        {{ mensaje }}
+      </div>
+    </div>
+
+    <!-- DERECHA -->
+    @if (!archivoGenerado) {
+      <div class="lado-derecho">
+        <div class="bloque-info">
+          <strong>Filtros seleccionados:</strong>
+
+          <ul>
+            <li *ngIf="idRegion">Región: {{ idRegion }}</li>
+
+            <li *ngIf="idEntidad">
+              Entidad:
+              {{ entidad.find(e => e.id_entidad === idEntidad)?.Entidad }}
+            </li>
+
+            <li *ngIf="id_nivel_atencion">Nivel de Atención: {{ id_nivel_atencion }}</li>
+
+            <li *ngIf="id_unidad_medica">
+              Unidad Médica:
+              {{ unidadMedica.find(u => u.id_unidad_medica === id_unidad_medica)?.nombre }}
+            </li>
+          </ul>
+        </div>
+      </div>
+    } @else {
+      <div class="lado-derecho">
+        <div class="bloque-info">
+          <div class="d-flex justify-content-center gap-4 mb-3">
+            <button
+              type="button"
+              class="btn-custom"
+              (click)="anterior()"
+              [disabled]="!archivoGenerado || paginaActual <= 1"
+            >
+              Anterior
+            </button>
+
+            <button
+              type="button"
+              class="btn-custom"
+              (click)="siguiente()"
+              [disabled]="!archivoGenerado || paginaActual >= numPages"
+            >
+              Siguiente
+            </button>
+          </div>
+
+          <div class="visor-pdf" #visorPdfRef>
+            <canvas #pdfCanvasRef class="rf-pdf-canvas"></canvas>
+          </div>
+
+          <div class="d-flex justify-content-center gap-4 mb-5"></div>
+          <div class="d-flex justify-content-center gap-4 mb-3">
+            <button
+              type="button"
+              class="btn-custom"
+              (click)="descargarPpt()"
+              [disabled]="!archivoGenerado"
+            >
+              Descargar
+            </button>
+
+            <button
+              type="button"
+              class="btn-custom"
+              (click)="limpiar()"
+              [disabled]="!archivoGenerado"
+            >
+              Limpiar
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>
