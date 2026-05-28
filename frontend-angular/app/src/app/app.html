@@ -1,0 +1,19 @@
+<div class="layout">
+  <!-- <app-header [showMenu]="showMenu" (openMenu)="toggleMenu()"></app-header> -->
+  <app-header [showHamburger]="!isLogin()" [menuOpen]="showMenu" (openMenu)="toggleMenu()">
+  </app-header>
+
+  <app-menu-lateral
+    [show]="showMenu"
+    (hide)="cerrarMenu()"
+    (openCargaMenu)="cambiarVista($event)"
+  ></app-menu-lateral>
+
+  <!-- <app-carrusel-home *ngIf="isHome()"></app-carrusel-home> -->
+
+  <main class="bloque-global">
+    <router-outlet></router-outlet>
+  </main>
+
+  <app-footer></app-footer>
+</div>

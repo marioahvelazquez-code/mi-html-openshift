@@ -1,0 +1,78 @@
+.contenedor {
+  padding: 20px;
+  font-family: 'Noto Sans', Arial, sans-serif;
+  font-size: 13px;
+}
+
+/* Encabezado */
+.tabla-bitacora thead {
+  background-color: #008c8c;
+  color: white;
+}
+
+.tabla-bitacora th {
+  padding: 10px;
+  text-align: left;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+/* Filas */
+.tabla-bitacora td {
+  padding: 8px;
+}
+
+/* Colores alternados */
+.fila-par {
+  background-color: #cbe6e1;
+}
+
+.fila-impar {
+  background-color: #ffffff;
+}
+
+/* Hover elegante */
+.tabla-bitacora tbody tr:hover {
+  background-color: #7dc0c5;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+/* Bordes */
+.tabla-bitacora {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tabla-bitacora td,
+.tabla-bitacora th {
+  border: 1px solid #ddd;
+}
+
+/* Filtro */
+.filtro {
+  margin-bottom: 15px;
+}
+
+select {
+  padding: 5px;
+}
+
+h2 {
+  color: white;
+  font-weight: 600;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
+}
+
+h4 {
+  color: white;
+  font-weight: 600;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
+}
+
+.select-custom {
+  width: 300px;
+}
+.select-wrapper {
+  width: 300px;
+}

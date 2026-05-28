@@ -1,0 +1,106 @@
+<div class="container mt-4">
+  <h3 class="mt-4">Carga de Excel</h3>
+
+  <div class="contenedor-formulario">
+    <!-- IZQUIERDA -->
+    <div class="lado-izquierdo">
+      <!-- ÁREA -->
+      <div class="select-wrapper">
+        <select
+          class="select-custom"
+          [(ngModel)]="idArea"
+          [disabled]="isLoading"
+          (change)="onAreaChange($any($event.target).value)"
+        >
+          <option [value]="null">Seleccione área</option>
+          @for (a of areas; track a.id_area) {
+            <option [value]="a.id_area">{{ a.nombre }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- TEMA -->
+      <div class="select-wrapper">
+        <select
+          class="select-custom"
+          [(ngModel)]="idTema"
+          [disabled]="!idArea || isLoading"
+          (change)="onTemaChange($any($event.target).value)"
+        >
+          <option [value]="null">Seleccione tema</option>
+          @for (t of temas; track t.id_tema) {
+            <option [value]="t.id_tema">{{ t.nombre }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- ARCHIVO -->
+      <input
+        type="file"
+        class="input-custom"
+        accept=".xlsx,.xls"
+        [disabled]="!idTema || isLoading"
+        (change)="onFileChange($event)"
+      />
+
+      <!-- HOJAS -->
+
+      <div class="select-wrapper" *ngIf="hojas.length > 0">
+        <select
+          class="select-custom"
+          [value]="hojaSeleccionada"
+          (change)="hojaSeleccionada = $any($event.target).value"
+        >
+          <option value="">Seleccione hoja</option>
+          <option *ngFor="let h of hojas" [value]="h">
+            {{ h }}
+          </option>
+        </select>
+      </div>
+
+      <!-- BOTÓN -->
+      <button class="btn-custom" [disabled]="!idTema || isLoading" (click)="onSubmit()">
+        Subir archivo
+      </button>
+
+      <!-- PROGRESS -->
+
+      <div style="margin-top: 1rem" *ngIf="isLoading">
+        <p style="margin-bottom: 0.5rem; font-size: 0.9rem">Procesando...</p>
+
+        <!-- reemplazo simple de antd Progress -->
+        <div class="progress">
+          <div
+            class="progress-bar"
+            role="progressbar"
+            [style.width.%]="progress"
+            aria-valuemin="0"
+            aria-valuemax="100"
+          >
+            {{ progress }}%
+          </div>
+        </div>
+      </div>
+
+      <!-- MENSAJE -->
+
+      <div class="bloque-info" *ngIf="mensaje">
+        {{ mensaje }}
+      </div>
+    </div>
+
+    <!-- DERECHA -->
+    <div class="lado-derecho">
+      <div class="bloque-info" *ngIf="diccionario.length > 0">
+        <strong>Columnas esperadas:</strong>
+        <ul>
+          <li *ngFor="let c of diccionario">
+            {{ c.columna_excel }}
+            <strong *ngIf="c.obligatorio"> *</strong>
+            <small class="text-muted"> ({{ c.tipo_dato }})</small>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

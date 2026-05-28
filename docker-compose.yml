@@ -1,0 +1,25 @@
+services:
+  backend:
+    build: ./backend
+    volumes:
+      - ./backend:/app
+      - ./frontend-angular/app/public/nacional:/app/frontend-public/nacional:ro
+      - ./frontend-angular/app/public/fichas:/app/frontend-public/fichas:ro
+      - "C:/Users/Administrador/OneDrive - imssmx/Archivos de Rohan Myron Oprisko - Fotos de Unidades Médicas  (File responses):/app/ficha/assets/fotos_origen:ro"
+      - "C:/Users/Administrador/OneDrive - imssmx/Archivos de Rohan Myron Oprisko - Fotos de FACHADASUnidades Médicas  (File responses):/app/ficha/assets/fotos_fachada:ro"
+    expose:
+      - "8100"
+    env_file:
+      - .env
+
+  nginx:
+    build:
+      context: .
+      dockerfile: nginx/Dockerfile
+    container_name: nginx_proxy
+    ports:
+      - "8088:80"
+    depends_on:
+      - backend
+    volumes:
+      - ./backend/ficha/output_fichas:/app/ficha/output_fichas

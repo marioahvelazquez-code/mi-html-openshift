@@ -1,0 +1,65 @@
+.visor-pdf {
+  width: 100%;
+  max-width: 520px;
+  min-height: 0;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  background: #ffffff;
+  border-radius: 10px;
+  overflow: auto;
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 8px;
+  margin: 0 auto 1.5rem;
+}
+.rf-pdf-canvas {
+  display: block;
+  max-width: 100%;
+  background: #ffffff;
+  border-radius: 4px;
+}
+.btn-custom {
+  margin: 0 10px;
+}
+
+.button-group {
+  display: flex !important;
+  gap: 1rem !important;
+  justify-content: center;
+  align-items: center;
+}
+
+.button-group > button {
+  margin: 0 !important;
+  flex: 0 0 auto !important;
+}
+
+.contenedor-botones {
+  display: flex;
+  width: 100%;
+  align-items: center;
+}
+
+.bloque-izquierdo,
+.bloque-derecho {
+  flex: 1;
+}
+
+.bloque-izquierdo {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.bloque-centro {
+  display: flex;
+  justify-content: center;
+  width: 30px !important;
+  min-width: 30px !important;
+  flex: 0 0 30px !important;
+}
+
+.bloque-derecho {
+  display: flex;
+  justify-content: flex-end;
+}

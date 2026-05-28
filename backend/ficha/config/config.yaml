@@ -1,0 +1,17 @@
+entorno:
+  # Base relativa desde el "Home" del usuario hasta la carpeta del proyecto
+  mac:
+    base_relativa: "Library/CloudStorage/OneDrive-imssmx/Juan Manuel Alvarez Damian's files - CID/Fichas/Ficha Hospitalaria/Ficha_Hospitalaria_1_1"
+  windows:
+    # base_relativa: "OneDrive - imssmx/Juan Manuel Alvarez Damian's files - CID/Fichas/Ficha Hospitalaria/Ficha_Hospitalaria_1_1"
+    # base_relativa: r"C:\Users\david.baltazar\OneDrive - imssmx\Archivos de Juan Manuel Alvarez Damian - CID\Fichas\Ficha Hospitalaria\Ficha_Hospitalaria_1_1"
+    base_relativa: "ficha/"
+
+rutas:
+  # Rutas de assets locales
+  fotos_origen: "assets/fotos_origen"
+  fotos_fachada: "assets/fotos_fachada"
+  plantilla_normal: "assets/Plantilla.pptx"
+  plantilla_hr: "assets/Plantilla_HR.pptx"
+  excel_poblacion: "assets/_BD_Regionalizacion.xlsx"
+  salida_fichas: "assets/output_fichas"

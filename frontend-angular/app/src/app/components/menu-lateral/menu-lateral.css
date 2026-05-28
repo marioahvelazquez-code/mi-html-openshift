@@ -1,0 +1,6 @@
+.menu-lateral.offcanvas {
+  --bs-offcanvas-width: 300px;
+  background-color: rgba(0, 81, 94, 0.55) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
