@@ -293,7 +293,7 @@ def temas(request):
 
     with connection.cursor() as cursor:
         cursor.execute("""
-            SELECT id_tema, id_area, nombre, descripcion, tabla_destino, modo_carga
+            SELECT id_tema, id_area, nombre, descripcion, tabla_destino, modo_carga, sp_carga
             FROM cat_tema
             WHERE activo = 1
               AND id_area = %s
@@ -310,6 +310,7 @@ def temas(request):
             "descripcion": r[3],
             "tabla_destino": r[4],
             "modo_carga": r[5],
+            "sp_carga": r[6],                 
         }
         for r in rows
     ]
@@ -621,8 +622,9 @@ def generar_reporte_excel_revision(request):
 @api_view(["POST"])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
+
 def subir_excel(request):
-    print(request.META.get("HTTP_AUTHORIZATION"),flush=True)
+    
     archivo = request.FILES.get("file")
     id_tema = request.POST.get("id_tema")
     id_area = request.POST.get("id_area")
@@ -671,9 +673,9 @@ def subir_excel(request):
         # print(usuario, flush=True)
         if request.auth:
             usuario = request.auth["id_usuario"]
-            print(usuario, flush=True)
+            
         else:
-            print("Error", flush=True)
+            # print("Error", flush=True)
             return Response({"error": "No autenticado"}, status=401)
         fecha_captura = timezone.now()
         if faltantes_estructura  or extras:
@@ -710,7 +712,7 @@ def subir_excel(request):
                 (v is None) or (str(v).strip() == "") or (pd.isna(v))
                 for v in fila.values()
             ):
-                print("Fila vacía detectada, se detiene la carga", flush=True)
+                # print("Fila vacía detectada, se detiene la carga", flush=True)
                 break
 
             filas_limpias.append(fila)
@@ -721,6 +723,12 @@ def subir_excel(request):
 
         for i, fila in enumerate(filas, start=1):
             for col_bd, value in fila.items():
+                if pd.isna(value):
+
+                    value = None
+                    fila[col_bd] = None
+
+                          
                 config = dic_tipos.get(col_bd)
 
                 if not config:
@@ -737,36 +745,40 @@ def subir_excel(request):
 
                 #  tipo entero
                 if config["tipo"] == "int":
-                    try:
-                        int(value)
-                    except:
-                        errores.append({
-                            "fila": i,
-                            "columna": config["excel"],
-                            "error": f"Valor inválido: {value}"
-                        })
+                    if value is not None:
+                        try:
+                            int(value)
+                        except:
+                            errores.append({
+                                "fila": i,
+                                "columna": config["excel"],
+                                "error": f"Valor inválido: {value}"
+                            })
 
                 #  tipo decimal
                 elif config["tipo"] == "decimal":
-                    try:
-                        float(value)
-                    except:
-                        errores.append({
-                            "fila": i,
-                            "columna": config["excel"],
-                            "error": f"Debe ser numérico: {value}"
-                        })
+                    if value is not None:
+                        try:
+                            float(value)
+                        except:
+                            errores.append({
+                                "fila": i,
+                                "columna": config["excel"],
+                                "error": f"Debe ser numérico: {value}"
+                            })
 
                 #  tipo fecha
                 elif config["tipo"] == "date":
-                    try:
-                        pd.to_datetime(value)
-                    except:
-                        errores.append({
-                            "fila": i,
-                            "columna": config["excel"],
-                            "error": f"Fecha inválida: {value}"
-                        })      
+                    if value is not None:
+                        try:
+                            # pd.to_datetime(value, format='%d/%m/%Y')
+                            fila[col_bd] = pd.to_datetime(value, format='%d/%m/%Y').date()                            
+                        except:
+                            errores.append({
+                                "fila": i,
+                                "columna": config["excel"],
+                                "error": f"Fecha inválida: {value}"
+                            })      
                 if config.get("longitud") and len(str(value)) > config["longitud"]:
                     errores.append({
                         "fila": i,
@@ -775,19 +787,21 @@ def subir_excel(request):
                     })                          
         #
         if errores:
+            # print(f"Errores encontrados: {errores[:20]}", flush=True)   
             return Response({
-                "error": "Errores de validación",
+                "error": "Errores de validación: " + str(errores[:5]),
                 "detalle": errores[:20],
                 "total_errores": len(errores)
             }, status=400)        
+        
         with connection.cursor() as cursor:
             cursor.execute("""
-                SELECT tabla_destino, modo_carga
+                SELECT tabla_destino, modo_carga, sp_carga
                 FROM cat_tema
                 WHERE id_tema = %s
             """, [id_tema])
 
-            tabla, modo_carga = cursor.fetchone()
+            tabla, modo_carga, sp_carga = cursor.fetchone()
             tabla = f"[{tabla}]"
             # filas = df.to_dict(orient="records")
 
@@ -828,6 +842,10 @@ def subir_excel(request):
                 vals = (id_area, id_tema, usuario, archivo.name, fecha_captura, len(df))
                 cursor.execute(sql, vals)
 
+            if sp_carga is not None and sp_carga.strip() != "":
+                with connection.cursor() as cursor:
+                    cursor.execute(f"EXEC {sp_carga}")
+
         return Response({
             "columnas": list(df.columns),
             "filas": df.to_dict(orient="records")[:10],
@@ -840,8 +858,7 @@ def subir_excel(request):
         traceback.print_exc()
 
         return Response({"error": str(e)}, status=500)
-    
-
+        
 @api_view(["POST"])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])

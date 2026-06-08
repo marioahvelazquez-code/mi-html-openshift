@@ -22,4 +22,6 @@ services:
     depends_on:
       - backend
     volumes:
+      - ./frontend-angular/app/public/fichas:/usr/share/nginx/html/fichas:ro
+      - ./frontend-angular/app/public/nacional:/usr/share/nginx/html/nacional:ro
       - ./backend/ficha/output_fichas:/app/ficha/output_fichas

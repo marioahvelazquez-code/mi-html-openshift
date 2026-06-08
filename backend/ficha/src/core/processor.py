@@ -162,7 +162,7 @@ class DataProcessor:
         df5 = ficha.df_comparativo_ant
         if df5 is not None and not df5.empty and 'Indicador' in df5.columns:
             cols_valor = sorted([c for c in df5.columns if c.startswith('Valor_')])
-            col_ant = cols_valor[0] if cols_valor else None  # ej. 'Valor_2024'
+            col_ant = cols_valor[-1] if cols_valor else None  # 'Valor_2025'
 
             def ext(ind):
                 fila = df5[df5['Indicador'] == ind]

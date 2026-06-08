@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class BitacoraService {
-  private apiUrl = 'http://localhost:8089/api/catalogos';
+  private apiUrl = '/api/catalogos';
 
   constructor(private http: HttpClient) {}
 
