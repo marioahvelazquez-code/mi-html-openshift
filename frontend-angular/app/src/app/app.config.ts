@@ -17,6 +17,8 @@ import {
   BetweenHorizontalStart,
   PanelsTopLeft,
   LayoutDashboard,
+  MessageSquare,
+  Send,
   DatabaseSearch,
   LogOut,
 } from 'lucide-angular';
@@ -36,6 +38,8 @@ export const appConfig: ApplicationConfig = {
         BetweenHorizontalStart,
         PanelsTopLeft,
         LayoutDashboard,
+        MessageSquare,
+        Send,
         DatabaseSearch,
         LogOut,
       }),

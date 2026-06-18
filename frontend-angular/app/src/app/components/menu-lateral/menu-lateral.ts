@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule } from 'lucide-angular';
 import { Router } from '@angular/router';
@@ -7,11 +7,15 @@ import { AuthService } from '../../services/auth';
 export const VISTAS = {
   MENU: 'menu',
   INICIO: 'inicio',
+  CHATBOT: 'chatbot',
   EXCEL: 'excel',
   FICHAHOSPITALARIA: 'FichaHospitalaria',
   CONSULTAS_SQL: 'consultassql',
   REVISAPPTX: 'RevisaPPTx',
   BITACORA: 'bitacora',
+  SOLICITUDACCESOBD: 'solicitud-acceso-bd',
+  SOLICITUDESPENDIENTES: 'solicitudes-pendientes',
+  SOLICITUDESREALIZADAS: 'solicitudes-realizadas',
 } as const;
 
 export type VistaActiva = (typeof VISTAS)[keyof typeof VISTAS];
@@ -22,20 +26,42 @@ export type VistaActiva = (typeof VISTAS)[keyof typeof VISTAS];
   templateUrl: './menu-lateral.html',
   imports: [CommonModule, LucideAngularModule],
 })
-export class MenuLateralComponent {
+export class MenuLateralComponent implements OnChanges {
   @Input() show: boolean = false;
 
   @Output() hide = new EventEmitter<void>();
   @Output() openCargaMenu = new EventEmitter<VistaActiva>();
 
   VISTAS = VISTAS;
+  accesoRestringidoSolicitud = false;
 
   constructor(
     private router: Router,
     private authService: AuthService,
-  ) {}
+  ) {
+    this.accesoRestringidoSolicitud = this.authService.hasRestrictedSolicitudAccess();
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['show']) {
+      this.accesoRestringidoSolicitud = this.authService.hasRestrictedSolicitudAccess();
+    }
+  }
 
   seleccionar(vista: string) {
+    if (
+      this.accesoRestringidoSolicitud &&
+      vista !== 'solicitud-acceso-bd' &&
+      vista !== 'solicitudes-realizadas'
+    ) {
+      this.router.navigate(['/solicitud-acceso-bd']);
+      this.hide.emit();
+      return;
+    }
+
+    if (vista === 'chatbot') {
+      this.router.navigate(['/chatbot']);
+    }
     if (vista === 'excel') {
       this.router.navigate(['/excel']);
     }
@@ -51,6 +77,15 @@ export class MenuLateralComponent {
     }
     if (vista === 'inicio') {
       this.router.navigate(['/home']);
+    }
+    if (vista === 'solicitud-acceso-bd') {
+      this.router.navigate(['/solicitud-acceso-bd']);
+    }
+    if (vista === 'solicitudes-pendientes') {
+      this.router.navigate(['/solicitudes-pendientes']);
+    }
+    if (vista === 'solicitudes-realizadas') {
+      this.router.navigate(['/solicitudes-realizadas']);
     }
     this.hide.emit(); // cerrar menú
   }

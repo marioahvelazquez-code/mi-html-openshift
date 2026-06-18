@@ -19,7 +19,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
-# Mario: Función para resolver archivos de ficha nacional dinámicamente por prefijo.
+# Mario: Funci+�n para resolver archivos de ficha nacional din+�micamente por prefijo.
 def _resolver_archivos_ficha_nacional():
     carpeta_montada = Path('/app/frontend-public/nacional')
     raiz_repo = Path(__file__).resolve().parents[2]
@@ -48,7 +48,7 @@ def _resolver_archivos_ficha_nacional():
     }
 
 
-# Mario: Función para resolver archivos de fichas estatales dinámicamente agrupados por prefijo (FE_XX_CLAVE).
+# Mario: Funci+�n para resolver archivos de fichas estatales din+�micamente agrupados por prefijo (FE_XX_CLAVE).
 def _resolver_archivos_fichas_estatales():
     carpeta_montada = Path('/app/frontend-public/fichas')
     raiz_repo = Path(__file__).resolve().parents[2]
@@ -124,7 +124,7 @@ def ficha_nacional_archivos(request):
         )
 
 
-# Mario: Endpoint para consultar dinámicamente los archivos de fichas estatales disponibles.
+# Mario: Endpoint para consultar din+�micamente los archivos de fichas estatales disponibles.
 @api_view(["GET"])
 @authentication_classes([])
 @permission_classes([AllowAny])
@@ -193,14 +193,14 @@ def autenticar_usuario(request):
 
     if not usuario or not contrasena:
         return Response(
-            {"ok": False, "message": "Captura usuario y contraseña."},
+            {"ok": False, "message": "Captura usuario y contrase+�a."},
             status=400,
         )
 
     es_valido =  autenticar_ad(usuario, contrasena)
     if not es_valido:
         return Response(
-            {"ok": False, "message": "Usuario y contraseña incorrectos."},
+            {"ok": False, "message": "Usuario y contrase+�a incorrectos."},
             status=401,
         )
     # print("Datos regresado:", es_valido, flush=True)
@@ -211,7 +211,7 @@ def autenticar_usuario(request):
 
     if not es_valido:
         return Response(
-            {"ok": False, "message": "Usuario y contraseña incorrectos."},
+            {"ok": False, "message": "Usuario y contrase+�a incorrectos."},
             status=400,
         )
 
@@ -226,34 +226,36 @@ def autenticar_usuario(request):
         cursor.execute(query, [usuario])
         row = cursor.fetchone()
 
-    if row is None:
-        return Response(
-            {"ok": False, "message": "El Usuario no cuenta con los roles para acceder a la aplicación. Contacta al administrador."},
-            status=401,
-        )
+    acceso_restringido_solicitud = row is None
 
     #  GENERAR TOKEN
-    id_usuario = row[0]
+    id_usuario = row[0] if row else None
 
     user, _ = User.objects.get_or_create(username=usuario)
     refresh = RefreshToken.for_user(user)
-    refresh["id_usuario"] = id_usuario  #  
+    if id_usuario is not None:
+        refresh["id_usuario"] = id_usuario  #
 
     access_token = str(refresh.access_token)
     # 
  
 
-    valor_cambio_pwd = row[1]
-    valor_cambio_pwd_txt = str(valor_cambio_pwd).strip().upper()
+    valor_cambio_pwd = row[1] if row else None
+    valor_cambio_pwd_txt = str(valor_cambio_pwd).strip().upper() if valor_cambio_pwd is not None else ""
     requiere_cambio_pwd = valor_cambio_pwd_txt in {"1", "S", "SI", "TRUE", "T", "Y", "YES"}
+
+    mensaje = "Autenticacion correcta."
+    if acceso_restringido_solicitud:
+        mensaje = "Autenticacion correcta. Acceso limitado a Solicitud de Acceso a Base de Datos."
 
     return Response(
         {
             "ok": True,
-            "message": "Autenticación correcta.",
-            "usuario": usuario,
+            "message": mensaje,
+            "usuario": es_valido,
             "token": access_token,   # 
             "requiere_cambio_pwd": requiere_cambio_pwd,
+            "acceso_restringido_solicitud": acceso_restringido_solicitud,
         }
     )
 
@@ -393,7 +395,7 @@ def guardar_bitacora_revision(request):
             return Response(
                 {
                     "ok": False,
-                    "message": "Parámetros faltantes",
+                    "message": "Par+�metros faltantes",
                     "faltantes": [
                         key
                         for key, value in {
@@ -530,7 +532,7 @@ def guardar_bitacora_revision(request):
                 [id_registro, id_user, id_presentacion, id_objeto, comentario, estatus, fecha_actual],
             )
 
-    return Response({"ok": True, "message": f"Revisión {accion}"})
+    return Response({"ok": True, "message": f"Revisi+�n {accion}"})
     #Mario: Fin guardado de bitacora por pagina.
 #Mario: Fin endpoint guardar/consultar bitacora de revision.
 
@@ -599,9 +601,9 @@ def generar_reporte_excel_revision(request):
   <Worksheet ss:Name=\"ReporteRevision\">
     <Table>
       <Row>
-        <Cell><Data ss:Type=\"String\">Lámina</Data></Cell>
+        <Cell><Data ss:Type=\"String\">L+�mina</Data></Cell>
         <Cell><Data ss:Type=\"String\">ID usuario</Data></Cell>
-        <Cell><Data ss:Type=\"String\">Presentación</Data></Cell>
+        <Cell><Data ss:Type=\"String\">Presentaci+�n</Data></Cell>
         <Cell><Data ss:Type=\"String\">ID objeto</Data></Cell>
         <Cell><Data ss:Type=\"String\">Comentario</Data></Cell>
         <Cell><Data ss:Type=\"String\">Resultado</Data></Cell>
@@ -633,7 +635,7 @@ def subir_excel(request):
 
     if not archivo:
         
-        return Response({"error": "No se envió archivo"}, status=400)
+        return Response({"error": "No se envi+� archivo"}, status=400)
 
     try:
         # print(" Nombre:", archivo.name, flush=True)
@@ -681,7 +683,7 @@ def subir_excel(request):
         if faltantes_estructura  or extras:
             
             return Response({
-                "error": "Estructura de columnas inválida",
+                "error": "Estructura de columnas inv+�lida",
                 "faltantes": faltantes_estructura ,
                 "extras": extras,
                 "columnas_esperadas": columnas_esperadas
@@ -707,12 +709,12 @@ def subir_excel(request):
         filas_limpias = []
 
         for fila in filas:
-            # Detectar si TODA la fila está vacía
+            # Detectar si TODA la fila est+� vac+�a
             if all(
                 (v is None) or (str(v).strip() == "") or (pd.isna(v))
                 for v in fila.values()
             ):
-                # print("Fila vacía detectada, se detiene la carga", flush=True)
+                # print("Fila vac+�a detectada, se detiene la carga", flush=True)
                 break
 
             filas_limpias.append(fila)
@@ -739,7 +741,7 @@ def subir_excel(request):
                     errores.append({
                         "fila": i,
                         "columna": config["excel"],
-                        "error": "Campo obligatorio vacío"
+                        "error": "Campo obligatorio vac+�o"
                     })
                     continue
 
@@ -752,7 +754,7 @@ def subir_excel(request):
                             errores.append({
                                 "fila": i,
                                 "columna": config["excel"],
-                                "error": f"Valor inválido: {value}"
+                                "error": f"Valor inv+�lido: {value}"
                             })
 
                 #  tipo decimal
@@ -764,7 +766,7 @@ def subir_excel(request):
                             errores.append({
                                 "fila": i,
                                 "columna": config["excel"],
-                                "error": f"Debe ser numérico: {value}"
+                                "error": f"Debe ser num+�rico: {value}"
                             })
 
                 #  tipo fecha
@@ -777,7 +779,7 @@ def subir_excel(request):
                             errores.append({
                                 "fila": i,
                                 "columna": config["excel"],
-                                "error": f"Fecha inválida: {value}"
+                                "error": f"Fecha inv+�lida: {value}"
                             })      
                 if config.get("longitud") and len(str(value)) > config["longitud"]:
                     errores.append({
@@ -789,7 +791,7 @@ def subir_excel(request):
         if errores:
             # print(f"Errores encontrados: {errores[:20]}", flush=True)   
             return Response({
-                "error": "Errores de validación: " + str(errores[:5]),
+                "error": "Errores de validaci+�n: " + str(errores[:5]),
                 "detalle": errores[:20],
                 "total_errores": len(errores)
             }, status=400)        
@@ -824,7 +826,7 @@ def subir_excel(request):
                     nueva["pk_idUsuario"] = usuario
                     filas_con_auditoria.append(nueva)
 
-                #Construcción dinámica
+                #Construcci+�n din+�mica
                 cols = ", ".join([f"[{c}]" for c in filas_con_auditoria[0].keys()])
                 vals = ", ".join(["%s"] * len(filas_con_auditoria[0]))
 
@@ -866,7 +868,7 @@ def obtener_hojas_excel(request):
     archivo = request.FILES.get("file")
 
     if not archivo:
-        return Response({"error": "No se envió archivo"}, status=400)
+        return Response({"error": "No se envi+� archivo"}, status=400)
 
     try:
         xls = pd.ExcelFile(archivo, engine="openpyxl")
@@ -878,6 +880,148 @@ def obtener_hojas_excel(request):
 
     except Exception as e:
         return Response({"error": str(e)}, status=500)
+
+
+@api_view(["GET", "POST"])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def guardar_solicitud_acceso_bd(request):
+    """Registra una solicitud de acceso o consulta conteo de pendientes en dbo.solicitudes_acceso_bd."""
+    if request.method == "GET":
+        estatus = (request.query_params.get("estatus") or "pendiente").strip()
+        detalle = (request.query_params.get("detalle") or "").strip().lower()
+        correo = (request.query_params.get("correo") or "").strip().lower()
+        nom_cuenta = (request.query_params.get("nom_cuenta") or "").strip().lower()
+
+        try:
+            with connection.cursor() as cursor:
+                if detalle == "mis-solicitudes":
+                    filtros = []
+                    params = []
+
+                    if correo:
+                        filtros.append("LOWER(LTRIM(RTRIM(correo))) = %s")
+                        params.append(correo)
+                    if nom_cuenta:
+                        filtros.append("LOWER(LTRIM(RTRIM(correo))) = %s")
+                        params.append(nom_cuenta)
+
+                    if not filtros:
+                        return JsonResponse(
+                            {"ok": False, "mensaje": "Debes enviar correo o nom_cuenta para consultar solicitudes."},
+                            status=400,
+                        )
+
+                    where_filtro = " OR ".join(filtros)
+                    cursor.execute(
+                        f"""
+                        SELECT *
+                        FROM dbo.solicitudes_acceso_bd
+                        WHERE ({where_filtro})
+                        ORDER BY id_solicitud DESC
+                        """,
+                        params,
+                    )
+                    columns = [col[0] for col in cursor.description] if cursor.description else []
+                    rows = cursor.fetchall()
+                    items = [dict(zip(columns, row)) for row in rows]
+                    return JsonResponse({"ok": True, "items": items, "total": len(items)})
+
+                if detalle == "tabla":
+                    cursor.execute(
+                        """
+                        SELECT *
+                        FROM dbo.solicitudes_acceso_bd
+                        WHERE estatus = %s
+                        """,
+                        [estatus],
+                    )
+                    columns = [col[0] for col in cursor.description] if cursor.description else []
+                    rows = cursor.fetchall()
+                    items = [dict(zip(columns, row)) for row in rows]
+                    return JsonResponse({"ok": True, "estatus": estatus, "items": items, "total": len(items)})
+
+                cursor.execute(
+                    """
+                    SELECT COUNT(1)
+                    FROM dbo.solicitudes_acceso_bd
+                    WHERE estatus = %s
+                    """,
+                    [estatus],
+                )
+                row = cursor.fetchone()
+
+            total = int(row[0] if row and row[0] is not None else 0)
+            return JsonResponse({"ok": True, "estatus": estatus, "total": total})
+        except Exception as e:
+            return JsonResponse(
+                {"ok": False, "mensaje": f"Error al consultar solicitudes pendientes: {str(e)}"},
+                status=500,
+            )
+
+    data = request.data
+    accion = (data.get("accion") or "").strip().lower()
+
+    if accion == "aprobar":
+        id_solicitud = data.get("id_solicitud")
+        usuario = (data.get("usuario") or "").strip()
+        contrasena = (data.get("contrasena") or "").strip()
+
+        if not id_solicitud or not usuario or not contrasena:
+            return JsonResponse(
+                {"ok": False, "mensaje": "id_solicitud, usuario y contrasena son obligatorios para aprobar."},
+                status=400,
+            )
+
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    """
+                    UPDATE dbo.solicitudes_acceso_bd
+                    SET usuario = %s,
+                        contrasena = %s,
+                        estatus = 'CONFIRMADO'
+                    WHERE id_solicitud = %s
+                    """,
+                    [usuario, contrasena, id_solicitud],
+                )
+
+                if cursor.rowcount == 0:
+                    return JsonResponse(
+                        {"ok": False, "mensaje": "No se encontro la solicitud para aprobar."},
+                        status=404,
+                    )
+
+            return JsonResponse({"ok": True, "mensaje": "Solicitud aprobada correctamente."})
+        except Exception as e:
+            return JsonResponse({"ok": False, "mensaje": f"Error al aprobar la solicitud: {str(e)}"}, status=500)
+
+    nombre_completo = (data.get("nombre_completo") or "").strip()
+    correo = (data.get("correo") or "").strip()
+    coordinacion = (data.get("coordinacion") or "").strip() or None
+    matricula = (data.get("matricula") or "").strip() or None
+    rol = (data.get("rol") or "").strip() or None
+    bases_datos_csv = (data.get("bases_datos_csv") or "").strip()
+
+    if not nombre_completo or not correo or not bases_datos_csv:
+        return JsonResponse(
+            {"ok": False, "mensaje": "nombre_completo, correo y bases_datos_csv son obligatorios."},
+            status=400,
+        )
+
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                INSERT INTO dbo.solicitudes_acceso_bd
+                    (nombre_completo, correo, coordinacion, matricula, rol, bases_datos_csv)
+                VALUES (%s, %s, %s, %s, %s, %s)
+                """,
+                [nombre_completo, correo, coordinacion, matricula, rol, bases_datos_csv],
+            )
+        return JsonResponse({"ok": True, "mensaje": "Solicitud registrada correctamente."})
+    except Exception as e:
+        return JsonResponse({"ok": False, "mensaje": f"Error al guardar la solicitud: {str(e)}"}, status=500)
     
 
 
@@ -1043,10 +1187,10 @@ def convertir_pptx_a_pdf_local(pptx_path: Path, pdf_path: Path):
     result = subprocess.run(cmd, capture_output=True, text=True)
     if result.returncode != 0:
         raise RuntimeError(
-            f"LibreOffice falló ({result.returncode}): {result.stderr or result.stdout}"
+            f"LibreOffice fall+� ({result.returncode}): {result.stderr or result.stdout}"
         )
     if not pdf_path.exists():
-        raise RuntimeError("LibreOffice terminó sin generar el PDF")
+        raise RuntimeError("LibreOffice termin+� sin generar el PDF")
 
 
 @api_view(["GET"])
@@ -1072,7 +1216,7 @@ def getGeneraFicha(request):
     # Genera el pptx
     ruta = engine.generar_ficha(idUnidad)
 
-    # Mario: valida que el motor regrese una ruta válida antes de procesar salida.
+    # Mario: valida que el motor regrese una ruta v+�lida antes de procesar salida.
     if not ruta:
         return JsonResponse({
             "ok": False,
@@ -1092,9 +1236,9 @@ def getGeneraFicha(request):
 
     try:
         convertir_pptx_a_pdf_local(pptx_path, pdf_path)
-        # print(f"Conversión local exitosa: {pdf_path}", flush=True)
+        # print(f"Conversi+�n local exitosa: {pdf_path}", flush=True)
     except Exception as exc:
-        # print(f"Error conversión local: {exc}", flush=True)
+        # print(f"Error conversi+�n local: {exc}", flush=True)
         # Si se requiere mantener el fallback a Windows + COM, puedes
         # volver a activar este bloque, pero se recomienda usar LibreOffice.
         raise
@@ -1105,4 +1249,150 @@ def getGeneraFicha(request):
         "url": f"/media/{nombre_pdf}",
         "pptx_url": f"/media/{nombre_archivo}"
     })
+
+
+@api_view(["POST"])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def chatbot_query(request):
+    """
+    Chatbot local sin IA externa.
+    Interpreta preguntas comunes y ejecuta consultas seguras sobre
+    [DB_Catalogos].[dbo].[Cat_IFU_Actual].
+    """
+    import re
+    import unicodedata
+
+    def normalizar(texto: str) -> str:
+        t = (texto or '').lower().strip()
+        t = ''.join(
+            c for c in unicodedata.normalize('NFD', t)
+            if unicodedata.category(c) != 'Mn'
+        )
+        return t
+
+    def obtener_numero(texto: str, default: int = 10, minimo: int = 1, maximo: int = 100) -> int:
+        m = re.search(r'\b(\d{1,3})\b', texto)
+        if not m:
+            return default
+        n = int(m.group(1))
+        return max(min(n, maximo), minimo)
+
+    pregunta = request.data.get("pregunta", "").strip()
+    if not pregunta:
+        return Response({"error": "La pregunta no puede estar vacía."}, status=400)
+
+    pnorm = normalizar(pregunta)
+
+    try:
+        with connection.cursor() as cursor:
+            # Evita que una espera por bloqueo deje la petición colgada.
+            cursor.execute("SET LOCK_TIMEOUT 5000")
+            cursor.execute("SELECT TOP 1 * FROM [DB_Catalogos].[dbo].[Cat_IFU_Actual]")
+            columnas = [col[0] for col in cursor.description]
+
+            if not columnas:
+                return Response(
+                    {"respuesta": "No encontré columnas en la tabla Cat_IFU_Actual."},
+                    status=200,
+                )
+
+            col_norm = {normalizar(col): col for col in columnas}
+
+            if 'columna' in pnorm or 'campos' in pnorm or 'estructura' in pnorm:
+                return Response({
+                    "respuesta": (
+                        f"La tabla Cat_IFU_Actual tiene {len(columnas)} columnas: "
+                        + ', '.join(columnas)
+                    )
+                })
+
+            columna_objetivo = None
+            for cnorm, coriginal in col_norm.items():
+                if cnorm and cnorm in pnorm:
+                    columna_objetivo = coriginal
+                    break
+
+            if columna_objetivo and (
+                'distintos' in pnorm or 'diferentes' in pnorm or 'unicos' in pnorm
+            ):
+                cursor.execute(
+                    f"SELECT COUNT(DISTINCT [{columna_objetivo}]) FROM [DB_Catalogos].[dbo].[Cat_IFU_Actual]"
+                )
+                total_distintos = cursor.fetchone()[0]
+                return Response({
+                    "respuesta": (
+                        f"La columna {columna_objetivo} tiene {total_distintos} valores distintos."
+                    )
+                })
+
+            if columna_objetivo and ('por ' in pnorm or 'agrupa' in pnorm or 'group by' in pnorm):
+                top_n = obtener_numero(pnorm, default=10, minimo=1, maximo=50)
+                cursor.execute(
+                    f"SELECT TOP ({top_n}) [{columna_objetivo}], COUNT(*) AS total "
+                    f"FROM [DB_Catalogos].[dbo].[Cat_IFU_Actual] "
+                    f"GROUP BY [{columna_objetivo}] ORDER BY total DESC"
+                )
+                rows = cursor.fetchall()
+                if not rows:
+                    return Response({"respuesta": "No encontré datos para agrupar con ese criterio."})
+
+                lineas = []
+                for valor, total in rows:
+                    lineas.append(f"- {valor}: {total}")
+                return Response({
+                    "respuesta": (
+                        f"Top {len(rows)} valores de {columna_objetivo} por cantidad:\n" + '\n'.join(lineas)
+                    )
+                })
+
+            pregunta_total = (
+                'en total' in pnorm
+                or 'total de registros' in pnorm
+                or 'cuantos registros hay' in pnorm
+                or 'cuantas filas hay' in pnorm
+            )
+
+            if pregunta_total:
+                cursor.execute("SELECT COUNT(*) FROM [DB_Catalogos].[dbo].[Cat_IFU_Actual]")
+                total = cursor.fetchone()[0]
+                return Response({
+                    "respuesta": f"La tabla Cat_IFU_Actual tiene {total} registros en total."
+                })
+
+            if ('cuantos' in pnorm or 'cuantas' in pnorm) and not columna_objetivo:
+                return Response({
+                    "respuesta": (
+                        "Puedo ayudarte con el total general o con una columna específica. "
+                        "Ejemplos: 'cuantos registros hay en total' o "
+                        "'top 10 por EntidadFederativa'."
+                    )
+                })
+
+            top_n = obtener_numero(pnorm, default=10, minimo=1, maximo=50)
+            cursor.execute(f"SELECT TOP ({top_n}) * FROM [DB_Catalogos].[dbo].[Cat_IFU_Actual]")
+            rows = cursor.fetchall()
+            if not rows:
+                return Response({"respuesta": "La tabla Cat_IFU_Actual no tiene registros."})
+
+            resumen = []
+            for i, row in enumerate(rows, start=1):
+                pares = []
+                for col, val in zip(columnas, row):
+                    if val is None:
+                        continue
+                    texto_val = str(val).strip()
+                    if texto_val:
+                        pares.append(f"{col}: {texto_val}")
+                resumen.append(f"{i}. " + '; '.join(pares[:6]))
+
+            return Response({
+                "respuesta": (
+                    f"Te comparto una muestra de {len(rows)} registros de Cat_IFU_Actual:\n"
+                    + '\n'.join(resumen)
+                )
+            })
+
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
 

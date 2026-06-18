@@ -35,8 +35,14 @@ export class LoginComponent {
         console.log('RESPUESTA LOGIN:', res);
 
         if (res.ok) {
-          this.authService.setSession(res.token, res.usuario);
-          this.router.navigate(['/home']);
+          const accesoRestringido = !!res.acceso_restringido_solicitud;
+          this.authService.setSession(res.token, res.usuario, res, accesoRestringido);
+
+          if (accesoRestringido) {
+            this.router.navigate(['/solicitud-acceso-bd']);
+          } else {
+            this.router.navigate(['/home']);
+          }
         } else {
           this.error = res.message || 'Error en login';
         }

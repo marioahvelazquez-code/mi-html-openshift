@@ -1,0 +1,317 @@
+.solicitud-acceso-bd {
+  width: min(900px, 98vw);
+  margin: 1.2rem auto 2.5rem auto;
+  background: rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  border-radius: 18px;
+  box-shadow: 0 4px 32px rgba(0,0,0,0.22);
+  padding: 1.5rem 3.5rem 2.5rem 3.5rem;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  color: #fff;
+  border: 2px solid rgba(255,255,255,0.10);
+}
+.solicitud-acceso-bd h2,
+.solicitud-acceso-bd h3 {
+  color: #fff;
+}
+.solicitud-acceso-bd p {
+  color: #e0e0e0;
+}
+
+.form-section {
+  margin-bottom: 2em;
+}
+.form-group {
+  margin-bottom: 1.5em;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.form-group label {
+  font-weight: 600;
+  margin-bottom: 0.3em;
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  color: #fff;
+  align-self: flex-start;
+}
+.form-group input,
+.form-group select {
+  padding: 0.5em 0.9em;
+  border: 1.5px solid #00515e;
+  border-radius: 8px;
+  font-size: 0.98em;
+  background: rgba(0, 0, 0, 0.4);
+  color: #fff;
+  margin-top: 0.2em;
+  outline: none;
+  transition: border 0.2s;
+  width: 95%;
+  min-width: 220px;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+  box-sizing: border-box;
+}
+
+/* Mantener comportamiento nativo del combo para que despliegue correctamente */
+.form-group select {
+  appearance: auto;
+  -webkit-appearance: menulist;
+  -moz-appearance: menulist;
+  cursor: pointer;
+}
+
+/* Forzar contraste en el desplegable del sistema */
+.form-group select option {
+  color: #111;
+  background: #fff;
+}
+
+/* For readonly fields, force white text and higher contrast */
+.form-group input[readonly] {
+  color: #fff !important;
+  background: rgba(0,0,0,0.55) !important;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  opacity: 1;
+  border: 1.5px solid #00acae;
+}
+.form-group input:focus,
+.form-group select:focus {
+  border: 1.5px solid #00acae;
+  box-shadow: 0 0 0 2px rgba(0, 172, 174, 0.18);
+}
+.roles-inline {
+  display: flex;
+  gap: 1em;
+  margin-top: 0.5em;
+}
+.rol {
+  padding: 0.3em 1em;
+  border-radius: 16px;
+  font-size: 0.95em;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.3em;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid #3a4a4a;
+  color: #fff;
+}
+.rol.avanzado {
+  border-left: 5px solid #b39ddb;
+}
+.rol.operativo {
+  border-left: 5px solid #4dd0e1;
+}
+.rol.consumo {
+  border-left: 5px solid #81c784;
+}
+.btn-enviar {
+  background: #006341;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.8em 2em;
+  font-size: 1.1em;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 1em;
+  transition: background 0.2s;
+}
+.btn-enviar:hover {
+  background: #004d32;
+}
+.btn-enviar:disabled {
+  background: #4a6e5e;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+.alert {
+  border-radius: 8px;
+  padding: 0.75rem 1.2rem;
+  margin-bottom: 1rem;
+  font-size: 0.97em;
+  font-weight: 500;
+}
+.alert-success {
+  background: rgba(0, 180, 100, 0.18);
+  border: 1px solid #00b464;
+  color: #a6ffd4;
+}
+.alert-error {
+  background: rgba(220, 50, 50, 0.18);
+  border: 1px solid #dc3232;
+  color: #ffb3b3;
+}
+.icon {
+  font-size: 1.3em;
+  vertical-align: middle;
+}
+
+.field-help {
+  align-self: flex-start;
+  margin-top: 0.45em;
+  color: #b8d8d8;
+  font-size: 0.85em;
+}
+
+.bases-disponibles {
+  width: 95%;
+  min-width: 220px;
+  max-width: 700px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55em;
+}
+
+.base-option-btn {
+  border: 1px solid rgba(0, 172, 174, 0.6);
+  background: rgba(0, 0, 0, 0.45);
+  color: #eafefe;
+  border-radius: 999px;
+  padding: 0.35em 0.85em;
+  font-size: 0.86em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.base-option-btn:hover {
+  border-color: #00acae;
+  background: rgba(0, 172, 174, 0.2);
+}
+
+.base-option-btn.is-selected {
+  border-color: #7ddcde;
+  background: rgba(0, 172, 174, 0.35);
+  color: #ffffff;
+}
+
+.bases-seleccionadas {
+  width: 95%;
+  min-width: 220px;
+  max-width: 700px;
+  align-self: center;
+  margin-top: 0.65em;
+}
+
+.revision-modal-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(7, 16, 24, 0.62);
+  backdrop-filter: blur(5px);
+  z-index: 2000;
+}
+
+.revision-modal-card {
+  width: min(480px, 100%);
+  padding: 28px;
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(6, 52, 60, 0.97) 0%, rgba(4, 32, 38, 0.97) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.32);
+  color: #fff;
+}
+
+.revision-modal-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.revision-modal-info {
+  background: rgba(95, 191, 249, 0.18);
+  color: #8fd9ff;
+}
+
+.revision-modal-warning {
+  background: rgba(255, 193, 7, 0.18);
+  color: #ffd667;
+}
+
+.revision-modal-success {
+  background: rgba(25, 135, 84, 0.18);
+  color: #7ef0b1;
+}
+
+.revision-modal-title {
+  margin: 14px 0 8px;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.revision-modal-message {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.bases-title {
+  margin: 0 0 0.35em 0;
+  font-size: 0.9em;
+  color: #d9ecec;
+  font-weight: 600;
+}
+
+.bases-lista {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5em;
+}
+
+.base-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+  padding: 0.3em 0.7em;
+  border-radius: 999px;
+  background: rgba(0, 172, 174, 0.2);
+  border: 1px solid rgba(0, 172, 174, 0.55);
+  color: #e8fbfb;
+  font-size: 0.86em;
+}
+
+.base-chip-remove {
+  border: none;
+  background: transparent;
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 1.1em;
+  line-height: 1;
+  padding: 0;
+}
+
+.solicitud-acceso-bd-title,
+.solicitud-acceso-bd-subtitle,
+.solicitud-acceso-bd-section,
+.solicitud-acceso-bd-desc {
+  text-align: left;
+}
+
+@media (max-width: 1000px) {
+  .solicitud-acceso-bd {
+    width: 98vw;
+    padding: 1.5rem 0.5rem;
+  }
+}
+
+@media (max-width: 1100px) {
+  .solicitud-acceso-bd {
+    width: 98vw;
+    padding: 1.5rem 0.5rem;
+  }
+}

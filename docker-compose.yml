@@ -5,8 +5,14 @@ services:
       - ./backend:/app
       - ./frontend-angular/app/public/nacional:/app/frontend-public/nacional:ro
       - ./frontend-angular/app/public/fichas:/app/frontend-public/fichas:ro
-      - "C:/Users/Administrador/OneDrive - imssmx/Archivos de Rohan Myron Oprisko - Fotos de Unidades Médicas  (File responses):/app/ficha/assets/fotos_origen:ro"
-      - "C:/Users/Administrador/OneDrive - imssmx/Archivos de Rohan Myron Oprisko - Fotos de FACHADASUnidades Médicas  (File responses):/app/ficha/assets/fotos_fachada:ro"
+      - type: bind
+        source: C:/Users/hp/OneDrive - imssmx/Archivos de Rohan Myron Oprisko - Fotos de Unidades Médicas  (File responses)
+        target: /app/ficha/assets/fotos_origen
+        read_only: true
+      - type: bind
+        source: C:/Users/hp/OneDrive - imssmx/Archivos de Rohan Myron Oprisko - Fotos de FACHADASUnidades Médicas  (File responses)
+        target: /app/ficha/assets/fotos_fachada
+        read_only: true
     expose:
       - "8100"
     env_file:

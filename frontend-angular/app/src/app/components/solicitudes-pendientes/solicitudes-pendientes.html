@@ -1,0 +1,81 @@
+<section class="sp-page">
+  <div class="sp-card">
+    <p class="sp-badge">Nuevo modulo</p>
+    <h2 class="sp-title">Solicitudes pendientes</h2>
+    <p class="sp-text">
+      Aqui veras el listado de solicitudes pendientes por revisar.
+    </p>
+
+    <div class="sp-counter">
+      <span class="sp-counter-label">Pendientes actuales</span>
+      <strong class="sp-counter-value">{{ cargando() ? '...' : totalPendientes() }}</strong>
+    </div>
+  </div>
+
+  <div class="sp-actions">
+    <button type="button" class="sp-btn-aprobar" (click)="aprobar()">
+      {{ mostrarTabla() ? 'Ocultar' : 'Aprobar' }}
+    </button>
+  </div>
+
+  <div class="sp-table-wrap" *ngIf="mostrarTabla()">
+    <div class="sp-table-loading" *ngIf="cargandoTabla()">Cargando solicitudes...</div>
+
+    <ng-container *ngIf="!cargandoTabla()">
+      <div class="sp-table-empty" *ngIf="filasTabla().length === 0">No hay solicitudes pendientes.</div>
+
+      <div class="sp-table-container" *ngIf="filasTabla().length > 0">
+        <table class="sp-table">
+          <thead>
+            <tr>
+              <th *ngFor="let columna of columnasTabla()">{{ columna }}</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let fila of filasTabla()">
+              <td *ngFor="let columna of columnasTabla()" [class.sp-col-bases]="columna === 'bases_datos_csv'">{{ fila[columna] }}</td>
+              <td class="sp-cell-acciones">
+                <button type="button" class="sp-btn-aprobar-fila" (click)="abrirModalAprobacion(fila)">Aprobar</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </ng-container>
+  </div>
+
+  <div class="sp-modal-overlay" *ngIf="modalAprobacionAbierto()" (click)="cerrarModalAprobacion()">
+    <div class="sp-modal" (click)="$event.stopPropagation()">
+      <h3 class="sp-modal-title">Aprobar solicitud</h3>
+      <p class="sp-modal-subtitle">Captura usuario y contrasena para aprobar esta solicitud.</p>
+
+      <label class="sp-modal-label" for="usuarioAprobacion">Usuario</label>
+      <input
+        id="usuarioAprobacion"
+        class="sp-modal-input"
+        type="text"
+        [(ngModel)]="usuarioAprobacion"
+        [ngModelOptions]="{ standalone: true }"
+      />
+
+      <label class="sp-modal-label" for="contrasenaAprobacion">Contrasena</label>
+      <input
+        id="contrasenaAprobacion"
+        class="sp-modal-input"
+        type="text"
+        [(ngModel)]="contrasenaAprobacion"
+        [ngModelOptions]="{ standalone: true }"
+      />
+
+      <p class="sp-modal-error" *ngIf="errorAprobacion()">{{ errorAprobacion() }}</p>
+
+      <div class="sp-modal-actions">
+        <button type="button" class="sp-btn-cancelar" (click)="cerrarModalAprobacion()" [disabled]="aprobandoSolicitud()">Cancelar</button>
+        <button type="button" class="sp-btn-confirmar" (click)="confirmarAprobacion()" [disabled]="aprobandoSolicitud()">
+          {{ aprobandoSolicitud() ? 'Aprobando...' : 'Confirmar' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</section>

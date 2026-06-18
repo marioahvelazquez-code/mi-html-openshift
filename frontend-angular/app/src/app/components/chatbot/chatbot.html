@@ -1,0 +1,41 @@
+<section class="chatbot-page container py-4">
+  <header class="mb-4">
+    <h1 class="title mb-2">Chatbot</h1>
+    <p class="subtitle mb-0">
+      Haz una pregunta en lenguaje natural sobre la tabla
+      <strong>[DB_Catalogos].[dbo].[Cat_IFU_Actual]</strong> y recibe una respuesta en texto.
+    </p>
+  </header>
+
+  <div class="chatbot-shell">
+    <form class="chatbot-form" (ngSubmit)="enviarPregunta()" autocomplete="off">
+      <label class="field-label" for="pregunta">Pregunta (lenguaje natural)</label>
+      <div class="input-row">
+        <input
+          id="pregunta"
+          type="text"
+          class="chat-input"
+          name="pregunta"
+          [(ngModel)]="pregunta"
+          placeholder="Ejemplo: ¿Cuántos registros hay para una entidad específica?"
+          [disabled]="loading"
+        />
+        <button type="submit" class="send-btn" [disabled]="loading || !pregunta.trim()">
+          <lucide-icon name="send" [size]="16"></lucide-icon>
+          <span>{{ loading ? 'Consultando...' : 'Enviar' }}</span>
+        </button>
+      </div>
+
+      <label class="field-label mt-3" for="respuesta">Respuesta (lenguaje natural)</label>
+      <textarea
+        id="respuesta"
+        class="response-box"
+        [value]="respuesta"
+        placeholder="Aquí aparecerá la respuesta del chatbot..."
+        readonly
+      ></textarea>
+
+      <p class="error-text mt-2 mb-0" *ngIf="error">{{ error }}</p>
+    </form>
+  </div>
+</section>

@@ -12,29 +12,49 @@
 
     <!-- OPCIONES -->
     <ul class="menu-items list-unstyled">
-      <li class="menu-item" (click)="seleccionar(VISTAS.INICIO)">
+      <li class="menu-item" *ngIf="!accesoRestringidoSolicitud" (click)="seleccionar(VISTAS.INICIO)">
         <lucide-icon name="home" [size]="18" class="menu-icon"></lucide-icon>
         <span>Inicio</span>
       </li>
 
-      <li class="menu-item" (click)="seleccionar(VISTAS.REVISAPPTX)">
+      <li class="menu-item" *ngIf="!accesoRestringidoSolicitud" (click)="seleccionar(VISTAS.CHATBOT)">
+        <lucide-icon name="message-square" [size]="18" class="menu-icon"></lucide-icon>
+        <span>Chatbot</span>
+      </li>
+
+      <li class="menu-item" *ngIf="!accesoRestringidoSolicitud" (click)="seleccionar(VISTAS.REVISAPPTX)">
         <lucide-icon name="columns-4" [size]="18" class="menu-icon"></lucide-icon>
         <span>Revisar Fichas</span>
       </li>
 
-      <li class="menu-item" (click)="seleccionar(VISTAS.EXCEL)">
+      <li class="menu-item" *ngIf="!accesoRestringidoSolicitud" (click)="seleccionar(VISTAS.EXCEL)">
         <lucide-icon name="between-horizontal-start" [size]="18" class="menu-icon"></lucide-icon>
         <span>Carga de Información</span>
       </li>
 
-      <li class="menu-item" (click)="seleccionar(VISTAS.BITACORA)">
+      <li class="menu-item" *ngIf="!accesoRestringidoSolicitud" (click)="seleccionar(VISTAS.BITACORA)">
         <lucide-icon name="panels-top-left" [size]="18" class="menu-icon"></lucide-icon>
         <span>Bitácora - Carga de Información</span>
       </li>
 
-      <li class="menu-item" (click)="seleccionar(VISTAS.FICHAHOSPITALARIA)">
+      <li class="menu-item" *ngIf="!accesoRestringidoSolicitud" (click)="seleccionar(VISTAS.FICHAHOSPITALARIA)">
         <lucide-icon name="layout-dashboard" [size]="18" class="menu-icon"></lucide-icon>
         <span>Genera Ficha Hospitalaria</span>
+      </li>
+
+      <li class="menu-item" (click)="seleccionar(VISTAS.SOLICITUDACCESOBD)">
+        <lucide-icon name="database-search" [size]="18" class="menu-icon"></lucide-icon>
+        <span>Solicitud de Acceso a Base de Datos</span>
+      </li>
+
+      <li class="menu-item" (click)="seleccionar(VISTAS.SOLICITUDESREALIZADAS)">
+        <lucide-icon name="panels-top-left" [size]="18" class="menu-icon"></lucide-icon>
+        <span>Solicitudes realizadas</span>
+      </li>
+
+      <li class="menu-item" *ngIf="!accesoRestringidoSolicitud" (click)="seleccionar(VISTAS.SOLICITUDESPENDIENTES)">
+        <lucide-icon name="panels-top-left" [size]="18" class="menu-icon"></lucide-icon>
+        <span>Solicitudes pendientes</span>
       </li>
 
       <li class="menu-item" (click)="cerrarSesion()">

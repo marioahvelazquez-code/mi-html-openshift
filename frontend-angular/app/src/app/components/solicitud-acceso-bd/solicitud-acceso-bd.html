@@ -1,0 +1,77 @@
+<div class="solicitud-acceso-bd">
+  <h2 class="solicitud-acceso-bd-title">Solicitud de Datos</h2>
+  <p class="solicitud-acceso-bd-subtitle">Uso interno de la Coordinación</p>
+  <h3 class="solicitud-acceso-bd-section">Información del solicitante</h3>
+  <p class="solicitud-acceso-bd-desc">Complete la información requerida para registrar su solicitud de acceso a datos.</p>
+
+  <form (ngSubmit)="enviarSolicitud()">
+    <div class="form-section">
+      <div class="form-group">
+        <label for="nombre"><span class="icon">👤</span> Nombre completo</label>
+        <input id="nombre" name="nombre" type="text" [value]="nombre" readonly />
+      </div>
+      <div class="form-group">
+        <label for="correo"><span class="icon">✉️</span> Correo</label>
+        <input id="correo" name="correo" type="text" [value]="correo" readonly />
+      </div>
+      <div class="form-group">
+        <label for="coordinacion"><span class="icon">🏢</span> Coordinación a la que pertenece</label>
+        <input
+          id="coordinacion"
+          name="coordinacion"
+          type="text"
+          placeholder="Escriba su coordinación"
+          [(ngModel)]="coordinacion"
+        />
+      </div>
+      <div class="form-group">
+        <label for="matricula"><span class="icon">🪪</span> Matrícula</label>
+        <input id="matricula" name="matricula" type="text" placeholder="Ingrese su matrícula" [(ngModel)]="matricula" />
+      </div>
+      <div class="form-group">
+        <label for="rol"><span class="icon">🛡️</span> Rol</label>
+        <input id="rol" name="rol" type="text" [value]="rol" readonly />
+      </div>
+      <div class="form-group">
+        <label for="bd"><span class="icon">💾</span> Base de datos</label>
+        <div class="bases-disponibles">
+          <button type="button" class="base-option-btn" [class.is-selected]="basesSeleccionadas.includes('DB_PHEDS')" (click)="agregarBase('DB_PHEDS')">DB_PHEDS</button>
+          <button type="button" class="base-option-btn" [class.is-selected]="basesSeleccionadas.includes('DB_MOCE')" (click)="agregarBase('DB_MOCE')">DB_MOCE</button>
+          <button type="button" class="base-option-btn" [class.is-selected]="basesSeleccionadas.includes('DB_MedicinaFamiliar')" (click)="agregarBase('DB_MedicinaFamiliar')">DB_MedicinaFamiliar</button>
+          <button type="button" class="base-option-btn" [class.is-selected]="basesSeleccionadas.includes('DB_Laboratorios')" (click)="agregarBase('DB_Laboratorios')">DB_Laboratorios</button>
+          <button type="button" class="base-option-btn" [class.is-selected]="basesSeleccionadas.includes('DB_Indicadores')" (click)="agregarBase('DB_Indicadores')">DB_Indicadores</button>
+          <button type="button" class="base-option-btn" [class.is-selected]="basesSeleccionadas.includes('DB_PDA_MENSUAL')" (click)="agregarBase('DB_PDA_MENSUAL')">DB_PDA_MENSUAL</button>
+        </div>
+        <small class="field-help">Haga clic en una o varias bases para agregarlas.</small>
+
+        <div class="bases-seleccionadas" *ngIf="basesSeleccionadas.length > 0">
+          <p class="bases-title">Bases seleccionadas:</p>
+          <div class="bases-lista">
+            <span class="base-chip" *ngFor="let base of basesSeleccionadas">
+              {{ base }}
+              <button type="button" class="base-chip-remove" (click)="quitarBase(base)">×</button>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button type="submit" class="btn-enviar" [disabled]="enviando">
+      {{ enviando ? 'Enviando...' : 'Enviar solicitud' }}
+    </button>
+  </form>
+</div>
+
+<ng-container *ngIf="modalSolicitud.abierto">
+  <div class="revision-modal-overlay" (click)="cerrarModal()">
+    <div class="revision-modal-card" (click)="$event.stopPropagation()">
+      <div class="revision-modal-badge" [ngClass]="'revision-modal-' + modalSolicitud.tipo">
+        {{ modalSolicitud.tipo === 'success' ? 'Completado' : modalSolicitud.tipo === 'warning' ? 'Atencion' : 'Informacion' }}
+      </div>
+      <h3 class="revision-modal-title">{{ modalSolicitud.titulo }}</h3>
+      <p class="revision-modal-message">{{ modalSolicitud.mensaje }}</p>
+      <div class="d-flex justify-content-center mt-4">
+        <button class="btn-enviar" type="button" (click)="cerrarModalIrMenuPrincipal()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</ng-container>

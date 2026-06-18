@@ -1,10 +1,11 @@
 # ===== Build Angular =====
-FROM node:20-alpine AS build
+# pdfjs-dist@5.x requiere Node >=22.13 en build.
+FROM node:22-alpine AS build
 
 WORKDIR /app
 
 COPY frontend-angular/app/package*.json ./
-RUN npm install
+RUN npm ci --no-audit --no-fund
 
 COPY frontend-angular/app .
 

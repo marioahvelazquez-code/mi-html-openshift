@@ -19,6 +19,11 @@ export const routes: Routes = [
     loadComponent: () => import('./components/bitacora/bitacora').then((m) => m.BitacoraComponent),
   },
   {
+    path: 'chatbot',
+    canActivate: [authGuard],
+    loadComponent: () => import('./components/chatbot/chatbot').then((m) => m.ChatbotComponent),
+  },
+  {
     path: '',
     redirectTo: 'login',
     pathMatch: 'full',
@@ -42,5 +47,29 @@ export const routes: Routes = [
     canActivate: [authGuard],
     loadComponent: () =>
       import('./components/revisar-ficha/revisar-ficha').then((m) => m.RevisarFichaComponent),
+  },
+  {
+    path: 'solicitud-acceso-bd',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./components/solicitud-acceso-bd/solicitud-acceso-bd').then(
+        (m) => m.SolicitudAccesoBdComponent,
+      ),
+  },
+  {
+    path: 'solicitudes-pendientes',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./components/solicitudes-pendientes/solicitudes-pendientes').then(
+        (m) => m.SolicitudesPendientesComponent,
+      ),
+  },
+  {
+    path: 'solicitudes-realizadas',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./components/solicitudes-realizadas/solicitudes-realizadas').then(
+        (m) => m.SolicitudesRealizadasComponent,
+      ),
   },
 ];

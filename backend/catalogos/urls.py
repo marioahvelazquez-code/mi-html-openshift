@@ -26,4 +26,6 @@ urlpatterns = [
     path('getNivelAtencion/', views.getNivelAtencion),
     path('getUnidad/', views.getUnidad),  
     path('getGeneraFicha/', views.getGeneraFicha),  
+    path('chatbot/', views.chatbot_query),
+    path('solicitud-acceso-bd/', views.guardar_solicitud_acceso_bd),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

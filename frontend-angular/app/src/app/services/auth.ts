@@ -18,10 +18,19 @@ export class AuthService {
     return this.http.post('/api/catalogos/login/', { usuario: username, contrasena: password });
   }
 
-  setSession(token: string, usuario: string) {
+  setSession(token: string, usuario: any, userData?: any, accesoRestringidoSolicitud: boolean = false) {
     sessionStorage.setItem('token', token);
-    sessionStorage.setItem('usuario', usuario);
+    const usuarioSesion = typeof usuario === 'string' ? usuario : (usuario?.nomCuenta || usuario?.correo || '');
+    sessionStorage.setItem('usuario', usuarioSesion);
+    if (userData) {
+      sessionStorage.setItem('userData', JSON.stringify(userData));
+    }
+    sessionStorage.setItem('accesoRestringidoSolicitud', accesoRestringidoSolicitud ? 'true' : 'false');
     this.updateActivity(); // Iniciar tracking de actividad
+  }
+
+  hasRestrictedSolicitudAccess(): boolean {
+    return sessionStorage.getItem('accesoRestringidoSolicitud') === 'true';
   }
 
   // Actualizar timestamp de última actividad
@@ -39,6 +48,8 @@ export class AuthService {
   logout() {
     sessionStorage.removeItem('token');
     sessionStorage.removeItem('usuario');
+    sessionStorage.removeItem('userData');
+    sessionStorage.removeItem('accesoRestringidoSolicitud');
     sessionStorage.removeItem('lastActivity');
     this.router.navigate(['/login']);
   }
