@@ -18,13 +18,22 @@ interface MisSolicitudesResponse {
   styleUrl: './solicitudes-realizadas.css',
 })
 export class SolicitudesRealizadasComponent implements OnInit {
+  readonly columnasFijas = [
+    { campo: 'nombre_completo', etiqueta: 'Nombre completo' },
+    { campo: 'correo',         etiqueta: 'Correo' },
+    { campo: 'bases_datos_csv', etiqueta: 'Bases de datos' },
+    { campo: 'fecha_solicitud', etiqueta: 'Fecha de solicitud' },
+    { campo: 'estatus',        etiqueta: 'Estatus' },
+    { campo: 'usuario',        etiqueta: 'Usuario asignado' },
+    { campo: 'contrasena',     etiqueta: 'Contraseña asignada' },
+  ];
   readonly totalSolicitudes = signal(0);
   readonly cargando = signal(true);
   readonly cargandoTabla = signal(false);
   readonly mostrarTabla = signal(false);
   readonly columnasTabla = signal<string[]>([]);
-  readonly filasTabla = signal<Record<string, unknown>[]>([]);
 
+  readonly filasTabla = signal<Record<string, unknown>[]>([]);
   private readonly correoUsuario: string;
   private readonly nomCuentaUsuario: string;
 
@@ -102,13 +111,7 @@ export class SolicitudesRealizadasComponent implements OnInit {
           }
 
           if (cargarTabla) {
-            const columnasOcultas = new Set(['usuario', 'contrasena']);
-            const columnas =
-              items.length > 0
-                ? Object.keys(items[0]).filter((columna) => !columnasOcultas.has(columna.toLowerCase()))
-                : [];
-
-            this.columnasTabla.set(columnas);
+            this.columnasTabla.set(this.columnasFijas.map((c) => c.campo));
             this.filasTabla.set(items);
             this.mostrarTabla.set(true);
           }

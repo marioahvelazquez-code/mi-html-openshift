@@ -36,7 +36,9 @@ export class LoginComponent {
 
         if (res.ok) {
           const accesoRestringido = !!res.acceso_restringido_solicitud;
-          this.authService.setSession(res.token, res.usuario, res, accesoRestringido);
+          const esAdmin = !!res.es_admin_solicitudes;
+          const esChatbot = !!res.es_chatbot_usuario;
+          this.authService.setSession(res.token, res.usuario, res, accesoRestringido, esAdmin, esChatbot);
 
           if (accesoRestringido) {
             this.router.navigate(['/solicitud-acceso-bd']);

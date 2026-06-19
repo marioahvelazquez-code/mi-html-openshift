@@ -216,7 +216,7 @@ def autenticar_usuario(request):
         )
 
     query = """
-        SELECT TOP 1 pk_idUsuario, fld_cambio_pwd
+        SELECT TOP 1 pk_idUsuario, fld_cambio_pwd, fld_statususuario
         FROM [dbo].[cat_usuarios]
         WHERE UPPER(LTRIM(RTRIM(fld_claveUsuario))) = UPPER(LTRIM(RTRIM(%s)))
           
@@ -227,6 +227,18 @@ def autenticar_usuario(request):
         row = cursor.fetchone()
 
     acceso_restringido_solicitud = row is None
+
+    # fld_statususuario = 2 otorga acceso a solicitudes pendientes (admin)
+    # fld_statususuario = 3 otorga acceso al chatbot
+    es_admin_solicitudes = False
+    es_chatbot_usuario = False
+    if row and len(row) >= 3:
+        try:
+            status = int(row[2])
+            es_admin_solicitudes = status == 2
+            es_chatbot_usuario = status == 3
+        except (TypeError, ValueError):
+            pass
 
     #  GENERAR TOKEN
     id_usuario = row[0] if row else None
@@ -240,7 +252,7 @@ def autenticar_usuario(request):
     # 
  
 
-    valor_cambio_pwd = row[1] if row else None
+    valor_cambio_pwd = row[1] if row and len(row) >= 2 else None
     valor_cambio_pwd_txt = str(valor_cambio_pwd).strip().upper() if valor_cambio_pwd is not None else ""
     requiere_cambio_pwd = valor_cambio_pwd_txt in {"1", "S", "SI", "TRUE", "T", "Y", "YES"}
 
@@ -256,6 +268,8 @@ def autenticar_usuario(request):
             "token": access_token,   # 
             "requiere_cambio_pwd": requiere_cambio_pwd,
             "acceso_restringido_solicitud": acceso_restringido_solicitud,
+            "es_admin_solicitudes": es_admin_solicitudes,
+            "es_chatbot_usuario": es_chatbot_usuario,
         }
     )
 

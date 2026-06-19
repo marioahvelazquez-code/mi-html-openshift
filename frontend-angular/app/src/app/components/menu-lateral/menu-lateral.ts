@@ -34,17 +34,23 @@ export class MenuLateralComponent implements OnChanges {
 
   VISTAS = VISTAS;
   accesoRestringidoSolicitud = false;
+  esAdminSolicitudes = false;
+  esChatbotUsuario = false;
 
   constructor(
     private router: Router,
     private authService: AuthService,
   ) {
     this.accesoRestringidoSolicitud = this.authService.hasRestrictedSolicitudAccess();
+    this.esAdminSolicitudes = this.authService.isAdminSolicitudes();
+    this.esChatbotUsuario = this.authService.isChatbotUsuario();
   }
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['show']) {
       this.accesoRestringidoSolicitud = this.authService.hasRestrictedSolicitudAccess();
+      this.esAdminSolicitudes = this.authService.isAdminSolicitudes();
+      this.esChatbotUsuario = this.authService.isChatbotUsuario();
     }
   }
 

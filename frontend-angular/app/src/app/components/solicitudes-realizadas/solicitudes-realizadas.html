@@ -28,13 +28,20 @@
         <table class="sp-table">
           <thead>
             <tr>
-              <th *ngFor="let columna of columnasTabla()">{{ columna }}</th>
+              <th *ngFor="let col of columnasFijas">{{ col.etiqueta }}</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let fila of filasTabla()">
-              <td *ngFor="let columna of columnasTabla()" [class.sp-col-bases]="columna === 'bases_datos_csv'">
-                {{ fila[columna] }}
+              <td
+                *ngFor="let col of columnasFijas"
+                [class.sp-col-bases]="col.campo === 'bases_datos_csv'"
+                [class.sp-col-cred]="col.campo === 'usuario' || col.campo === 'contrasena'"
+              >
+                <span *ngIf="fila[col.campo] !== null && fila[col.campo] !== undefined && fila[col.campo] !== ''; else sinDato">
+                  {{ fila[col.campo] }}
+                </span>
+                <ng-template #sinDato><span class="sp-pendiente">Pendiente</span></ng-template>
               </td>
             </tr>
           </tbody>

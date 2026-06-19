@@ -151,11 +151,22 @@
 }
 
 .sp-col-bases {
-  max-width: 120px;
-  width: 120px;
+  max-width: 160px;
+  width: 160px;
   font-size: 0.78rem;
-  line-height: 1.2;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.sp-col-cred {
+  font-family: monospace;
+  font-size: 0.82rem;
+  color: #c8f0ff;
+  word-break: break-all;
+}
+
+.sp-pendiente {
+  color: rgba(255, 255, 255, 0.4);
+  font-style: italic;
+  font-size: 0.82rem;
 }

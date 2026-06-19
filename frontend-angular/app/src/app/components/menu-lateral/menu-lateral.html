@@ -17,7 +17,7 @@
         <span>Inicio</span>
       </li>
 
-      <li class="menu-item" *ngIf="!accesoRestringidoSolicitud" (click)="seleccionar(VISTAS.CHATBOT)">
+      <li class="menu-item" *ngIf="!accesoRestringidoSolicitud && esChatbotUsuario" (click)="seleccionar(VISTAS.CHATBOT)">
         <lucide-icon name="message-square" [size]="18" class="menu-icon"></lucide-icon>
         <span>Chatbot</span>
       </li>
@@ -52,7 +52,7 @@
         <span>Solicitudes realizadas</span>
       </li>
 
-      <li class="menu-item" *ngIf="!accesoRestringidoSolicitud" (click)="seleccionar(VISTAS.SOLICITUDESPENDIENTES)">
+      <li class="menu-item" *ngIf="!accesoRestringidoSolicitud && esAdminSolicitudes" (click)="seleccionar(VISTAS.SOLICITUDESPENDIENTES)">
         <lucide-icon name="panels-top-left" [size]="18" class="menu-icon"></lucide-icon>
         <span>Solicitudes pendientes</span>
       </li>

@@ -18,7 +18,14 @@ export class AuthService {
     return this.http.post('/api/catalogos/login/', { usuario: username, contrasena: password });
   }
 
-  setSession(token: string, usuario: any, userData?: any, accesoRestringidoSolicitud: boolean = false) {
+  setSession(
+    token: string,
+    usuario: any,
+    userData?: any,
+    accesoRestringidoSolicitud: boolean = false,
+    esAdminSolicitudes: boolean = false,
+    esChatbotUsuario: boolean = false,
+  ) {
     sessionStorage.setItem('token', token);
     const usuarioSesion = typeof usuario === 'string' ? usuario : (usuario?.nomCuenta || usuario?.correo || '');
     sessionStorage.setItem('usuario', usuarioSesion);
@@ -26,11 +33,21 @@ export class AuthService {
       sessionStorage.setItem('userData', JSON.stringify(userData));
     }
     sessionStorage.setItem('accesoRestringidoSolicitud', accesoRestringidoSolicitud ? 'true' : 'false');
+    sessionStorage.setItem('esAdminSolicitudes', esAdminSolicitudes ? 'true' : 'false');
+    sessionStorage.setItem('esChatbotUsuario', esChatbotUsuario ? 'true' : 'false');
     this.updateActivity(); // Iniciar tracking de actividad
   }
 
   hasRestrictedSolicitudAccess(): boolean {
     return sessionStorage.getItem('accesoRestringidoSolicitud') === 'true';
+  }
+
+  isAdminSolicitudes(): boolean {
+    return sessionStorage.getItem('esAdminSolicitudes') === 'true';
+  }
+
+  isChatbotUsuario(): boolean {
+    return sessionStorage.getItem('esChatbotUsuario') === 'true';
   }
 
   // Actualizar timestamp de última actividad
@@ -50,6 +67,8 @@ export class AuthService {
     sessionStorage.removeItem('usuario');
     sessionStorage.removeItem('userData');
     sessionStorage.removeItem('accesoRestringidoSolicitud');
+    sessionStorage.removeItem('esAdminSolicitudes');
+    sessionStorage.removeItem('esChatbotUsuario');
     sessionStorage.removeItem('lastActivity');
     this.router.navigate(['/login']);
   }
