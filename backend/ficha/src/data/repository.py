@@ -33,6 +33,7 @@ class DataRepository:
 
     def _get_connection(self):
         server_completo = f"{self.creds['server']},{self.creds['port']}"
+        database = self.creds.get('database', 'DB_FichaEstatal')
         # conn_str = (
         #     f"DRIVER={self.driver};"
         #     f"SERVER={server_completo};"
@@ -46,7 +47,7 @@ class DataRepository:
         conn_str = pyodbc.connect(
                 f"DRIVER={self.driver};"
                 f"SERVER={server_completo};"
-                r"DATABASE=DB_FichaEstatal;"
+            f"DATABASE={database};"
                 f"UID={self.creds['user']};"
                 f"PWD={self.creds['password']};"      
                 r"TrustServerCertificate=yes;"  

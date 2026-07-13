@@ -1,6 +1,7 @@
 import json
 import yaml
 import platform
+import os
 from pathlib import Path
 
 
@@ -50,7 +51,35 @@ class AppConfig:
 
     @property
     def sql_creds(self):
-        return self.secrets['sql']
+        sql = dict(self.secrets.get('sql', {}))
+
+        host = os.getenv('DB_HOST', '').strip()
+        server = os.getenv('DB_SERVER', '').strip()
+        user = os.getenv('DB_USER', '').strip()
+        password = os.getenv('DB_PASS', '').strip()
+        database = os.getenv('DB_NAME', '').strip()
+
+        if host:
+            if ',' in host:
+                host_server, host_port = host.split(',', 1)
+                sql['server'] = host_server.strip()
+                sql['port'] = host_port.strip()
+            else:
+                sql['server'] = host
+
+        elif server:
+            sql['server'] = server
+
+        if user:
+            sql['user'] = user
+
+        if password:
+            sql['password'] = password
+
+        if database:
+            sql['database'] = database
+
+        return sql
 
     @property
     def ruta_fotos_origen(self) -> Path:

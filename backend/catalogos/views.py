@@ -147,6 +147,7 @@ def autenticar_ad(usuario, password):
 
     payload = {
         "claveUsusaio": usuario,
+        "claveUsuario": usuario,
         "dominio": "metro",
         "password": password
     }
@@ -170,12 +171,14 @@ def autenticar_ad(usuario, password):
         # print("Respuesta:", response.text, flush=True)
 
         response.raise_for_status()
-
-        return response.json()
+        return True, None
 
     except requests.exceptions.RequestException as e:
-        # print("Error AD:", e, flush=True)
-        return False
+        status_code = getattr(getattr(e, "response", None), "status_code", None)
+        detail = f"AD auth failed: {type(e).__name__}"
+        if status_code:
+            detail += f" (status={status_code})"
+        return False, detail
 
     
 
@@ -197,23 +200,22 @@ def autenticar_usuario(request):
             status=400,
         )
 
-    es_valido =  autenticar_ad(usuario, contrasena)
+    es_valido, detalle_ad = autenticar_ad(usuario, contrasena)
     if not es_valido:
+        status_code = 503 if detalle_ad and "Connection" in detalle_ad else 401
         return Response(
-            {"ok": False, "message": "Usuario y contrase+�a incorrectos."},
-            status=401,
+            {
+                "ok": False,
+                "message": "No fue posible autenticar al usuario.",
+                "detail": detalle_ad or "Usuario y contrase+�a incorrectos.",
+            },
+            status=status_code,
         )
     # print("Datos regresado:", es_valido, flush=True)
     # correo = es_valido.get('correo')
     # nombre = es_valido.get('nombre')
     # primerApellido = es_valido.get('primerApellido')
     # segundoApellido = es_valido.get('segundoApellido')
-
-    if not es_valido:
-        return Response(
-            {"ok": False, "message": "Usuario y contrase+�a incorrectos."},
-            status=400,
-        )
 
     query = """
         SELECT TOP 1 pk_idUsuario, fld_cambio_pwd, fld_statususuario
