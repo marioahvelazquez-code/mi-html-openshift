@@ -1,0 +1,162 @@
+[
+  {
+    "id": "01",
+    "desc_original": "Aguascalientes",
+    "desc_normalizada": "aguascalientes"
+  },
+  {
+    "id": "02",
+    "desc_original": "Baja California",
+    "desc_normalizada": "baja california"
+  },
+  {
+    "id": "03",
+    "desc_original": "Baja California Sur",
+    "desc_normalizada": "baja california sur"
+  },
+  {
+    "id": "04",
+    "desc_original": "Campeche",
+    "desc_normalizada": "campeche"
+  },
+  {
+    "id": "07",
+    "desc_original": "Chiapas",
+    "desc_normalizada": "chiapas"
+  },
+  {
+    "id": "08",
+    "desc_original": "Chihuahua",
+    "desc_normalizada": "chihuahua"
+  },
+  {
+    "id": "09",
+    "desc_original": "Ciudad de México",
+    "desc_normalizada": "ciudad de mexico"
+  },
+  {
+    "id": "05",
+    "desc_original": "Coahuila de Zaragoza",
+    "desc_normalizada": "coahuila"
+  },
+  {
+    "id": "06",
+    "desc_original": "Colima",
+    "desc_normalizada": "colima"
+  },
+  {
+    "id": "10",
+    "desc_original": "Durango",
+    "desc_normalizada": "durango"
+  },
+  {
+    "id": "15",
+    "desc_original": "Estado de México",
+    "desc_normalizada": "estado de mexico"
+  },
+  {
+    "id": "11",
+    "desc_original": "Guanajuato",
+    "desc_normalizada": "guanajuato"
+  },
+  {
+    "id": "12",
+    "desc_original": "Guerrero",
+    "desc_normalizada": "guerrero"
+  },
+  {
+    "id": "13",
+    "desc_original": "Hidalgo",
+    "desc_normalizada": "hidalgo"
+  },
+  {
+    "id": "14",
+    "desc_original": "Jalisco",
+    "desc_normalizada": "jalisco"
+  },
+  {
+    "id": "16",
+    "desc_original": "Michoacán de Ocampo",
+    "desc_normalizada": "michoacan"
+  },
+  {
+    "id": "17",
+    "desc_original": "Morelos",
+    "desc_normalizada": "morelos"
+  },
+  {
+    "id": "18",
+    "desc_original": "Nayarit",
+    "desc_normalizada": "nayarit"
+  },
+  {
+    "id": "19",
+    "desc_original": "Nuevo León",
+    "desc_normalizada": "nuevo leon"
+  },
+  {
+    "id": "20",
+    "desc_original": "Oaxaca",
+    "desc_normalizada": "oaxaca"
+  },
+  {
+    "id": "21",
+    "desc_original": "Puebla",
+    "desc_normalizada": "puebla"
+  },
+  {
+    "id": "22",
+    "desc_original": "Querétaro de Arteaga",
+    "desc_normalizada": "queretaro"
+  },
+  {
+    "id": "23",
+    "desc_original": "Quintana Roo",
+    "desc_normalizada": "quintana roo"
+  },
+  {
+    "id": "24",
+    "desc_original": "San Luis Potosí",
+    "desc_normalizada": "san luis potosi"
+  },
+  {
+    "id": "25",
+    "desc_original": "Sinaloa",
+    "desc_normalizada": "sinaloa"
+  },
+  {
+    "id": "26",
+    "desc_original": "Sonora",
+    "desc_normalizada": "sonora"
+  },
+  {
+    "id": "27",
+    "desc_original": "Tabasco",
+    "desc_normalizada": "tabasco"
+  },
+  {
+    "id": "28",
+    "desc_original": "Tamaulipas",
+    "desc_normalizada": "tamaulipas"
+  },
+  {
+    "id": "29",
+    "desc_original": "Tlaxcala",
+    "desc_normalizada": "tlaxcala"
+  },
+  {
+    "id": "30",
+    "desc_original": "Veracruz de Ignacio de la Llave",
+    "desc_normalizada": "veracruz"
+  },
+  {
+    "id": "31",
+    "desc_original": "Yucatán",
+    "desc_normalizada": "yucatan"
+  },
+  {
+    "id": "32",
+    "desc_original": "Zacatecas",
+    "desc_normalizada": "zacatecas"
+  }
+]

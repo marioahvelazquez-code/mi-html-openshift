@@ -1,0 +1,27 @@
+[
+  {
+    "id": "Centro",
+    "desc_original": "Centro",
+    "desc_normalizada": "centro"
+  },
+  {
+    "id": "Norte",
+    "desc_original": "Norte",
+    "desc_normalizada": "norte"
+  },
+  {
+    "id": "Occidente",
+    "desc_original": "Occidente",
+    "desc_normalizada": "occidente"
+  },
+  {
+    "id": "Sureste",
+    "desc_original": "Sureste",
+    "desc_normalizada": "sureste"
+  },
+  {
+    "id": "Sureste",
+    "desc_original": "Sureste",
+    "desc_normalizada": "sur"
+  }
+]

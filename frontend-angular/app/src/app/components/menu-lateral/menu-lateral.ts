@@ -7,7 +7,7 @@ import { AuthService } from '../../services/auth';
 export const VISTAS = {
   MENU: 'menu',
   INICIO: 'inicio',
-  CHATBOT: 'chatbot',
+  CHAT: 'chat',
   EXCEL: 'excel',
   FICHAHOSPITALARIA: 'FichaHospitalaria',
   CONSULTAS_SQL: 'consultassql',
@@ -65,7 +65,7 @@ export class MenuLateralComponent implements OnChanges {
       return;
     }
 
-    if (vista === 'chatbot') {
+    if (vista === 'chat') {
       this.router.navigate(['/chatbot']);
     }
     if (vista === 'excel') {

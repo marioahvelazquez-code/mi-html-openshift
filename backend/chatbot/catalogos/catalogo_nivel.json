@@ -1,0 +1,17 @@
+[
+  {
+    "id": "Primer Nivel",
+    "desc_original": "Primer Nivel",
+    "desc_normalizada": "primer nivel"
+  },
+  {
+    "id": "Segundo Nivel",
+    "desc_original": "Segundo Nivel",
+    "desc_normalizada": "segundo nivel"
+  },
+  {
+    "id": "Tercer Nivel",
+    "desc_original": "Tercer Nivel",
+    "desc_normalizada": "tercer nivel"
+  }
+]

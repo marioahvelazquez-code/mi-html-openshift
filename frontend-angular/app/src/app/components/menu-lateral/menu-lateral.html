@@ -12,17 +12,20 @@
 
     <!-- OPCIONES -->
     <ul class="menu-items list-unstyled">
-      <li class="menu-item" *ngIf="!accesoRestringidoSolicitud" (click)="seleccionar(VISTAS.INICIO)">
+      <li
+        class="menu-item"
+        *ngIf="!accesoRestringidoSolicitud"
+        (click)="seleccionar(VISTAS.INICIO)"
+      >
         <lucide-icon name="home" [size]="18" class="menu-icon"></lucide-icon>
         <span>Inicio</span>
       </li>
 
-      <li class="menu-item" *ngIf="!accesoRestringidoSolicitud && esChatbotUsuario" (click)="seleccionar(VISTAS.CHATBOT)">
-        <lucide-icon name="message-square" [size]="18" class="menu-icon"></lucide-icon>
-        <span>Chatbot</span>
-      </li>
-
-      <li class="menu-item" *ngIf="!accesoRestringidoSolicitud" (click)="seleccionar(VISTAS.REVISAPPTX)">
+      <li
+        class="menu-item"
+        *ngIf="!accesoRestringidoSolicitud"
+        (click)="seleccionar(VISTAS.REVISAPPTX)"
+      >
         <lucide-icon name="columns-4" [size]="18" class="menu-icon"></lucide-icon>
         <span>Revisar Fichas</span>
       </li>
@@ -32,14 +35,27 @@
         <span>Carga de Información</span>
       </li>
 
-      <li class="menu-item" *ngIf="!accesoRestringidoSolicitud" (click)="seleccionar(VISTAS.BITACORA)">
+      <li
+        class="menu-item"
+        *ngIf="!accesoRestringidoSolicitud"
+        (click)="seleccionar(VISTAS.BITACORA)"
+      >
         <lucide-icon name="panels-top-left" [size]="18" class="menu-icon"></lucide-icon>
         <span>Bitácora - Carga de Información</span>
       </li>
 
-      <li class="menu-item" *ngIf="!accesoRestringidoSolicitud" (click)="seleccionar(VISTAS.FICHAHOSPITALARIA)">
+      <li
+        class="menu-item"
+        *ngIf="!accesoRestringidoSolicitud"
+        (click)="seleccionar(VISTAS.FICHAHOSPITALARIA)"
+      >
         <lucide-icon name="layout-dashboard" [size]="18" class="menu-icon"></lucide-icon>
         <span>Genera Ficha Hospitalaria</span>
+      </li>
+
+      <li class="menu-item" *ngIf="!accesoRestringidoSolicitud" (click)="seleccionar(VISTAS.CHAT)">
+        <lucide-icon name="MessageCircleMore" [size]="18" class="menu-icon"></lucide-icon>
+        <span>Chatbot - Inventario Físico de Unidades (IFU)</span>
       </li>
 
       <li class="menu-item" (click)="seleccionar(VISTAS.SOLICITUDACCESOBD)">
@@ -52,7 +68,11 @@
         <span>Solicitudes realizadas</span>
       </li>
 
-      <li class="menu-item" *ngIf="!accesoRestringidoSolicitud && esAdminSolicitudes" (click)="seleccionar(VISTAS.SOLICITUDESPENDIENTES)">
+      <li
+        class="menu-item"
+        *ngIf="!accesoRestringidoSolicitud && esAdminSolicitudes"
+        (click)="seleccionar(VISTAS.SOLICITUDESPENDIENTES)"
+      >
         <lucide-icon name="panels-top-left" [size]="18" class="menu-icon"></lucide-icon>
         <span>Solicitudes pendientes</span>
       </li>

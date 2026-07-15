@@ -21,6 +21,7 @@
             "tsConfig": "tsconfig.app.json",
             "assets": ["src/favicon.ico", "src/assets", "public"],
             "styles": [
+              "src/material-theme.scss",
               "src/styles.css",
               "src/assets/css/bootstrap.css",
               "node_modules/bootstrap-icons/font/bootstrap-icons.css",
@@ -38,8 +39,8 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "4kB",
-                  "maximumError": "8kB"
+                  "maximumWarning": "15kB",
+                  "maximumError": "25kB"
                 }
               ],
               "outputHashing": "all"

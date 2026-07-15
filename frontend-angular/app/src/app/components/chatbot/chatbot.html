@@ -1,41 +1,242 @@
-<section class="chatbot-page container py-4">
-  <header class="mb-4">
-    <h1 class="title mb-2">Chatbot</h1>
-    <p class="subtitle mb-0">
-      Haz una pregunta en lenguaje natural sobre la tabla
-      <strong>[DB_Catalogos].[dbo].[Cat_IFU_Actual]</strong> y recibe una respuesta en texto.
-    </p>
-  </header>
+<div class="container chatbot-page">
+  <div class="contenedor-formulario chatbot-layout">
+    <div class="lado-izquierdo">
+      <h3 class="chatbot-title">Chatbot IFU</h3>
+      <div class="bloque-info chat-panel">
+        <div class="chat-messages" #chatMessages>
+          <div
+            *ngFor="let msg of historial"
+            class="chat-message"
+            [ngClass]="{ 'msg-usuario': msg.emisor === 'usuario', 'msg-bot': msg.emisor === 'bot' }"
+          >
+            <p *ngIf="!msg.isAmbiguous">{{ msg.texto }}</p>
 
-  <div class="chatbot-shell">
-    <form class="chatbot-form" (ngSubmit)="enviarPregunta()" autocomplete="off">
-      <label class="field-label" for="pregunta">Pregunta (lenguaje natural)</label>
-      <div class="input-row">
-        <input
-          id="pregunta"
-          type="text"
-          class="chat-input"
-          name="pregunta"
-          [(ngModel)]="pregunta"
-          placeholder="Ejemplo: ¿Cuántos registros hay para una entidad específica?"
-          [disabled]="loading"
-        />
-        <button type="submit" class="send-btn" [disabled]="loading || !pregunta.trim()">
-          <lucide-icon name="send" [size]="16"></lucide-icon>
-          <span>{{ loading ? 'Consultando...' : 'Enviar' }}</span>
-        </button>
+            <div *ngIf="msg.isAmbiguous" class="desambiguacion-container">
+              <p class="msg-texto-ambiguo">{{ msg.texto }}</p>
+
+              <mat-card class="interactive-card" appearance="outlined">
+                <mat-card-content>
+                  <div
+                    class="option-group"
+                    *ngIf="msg.hospitalesOptions && msg.hospitalesOptions.length > 0"
+                  >
+                    <label class="group-label">Unidades medicas candidatas:</label>
+                    <mat-chip-listbox [disabled]="msg.confirmado">
+                      <mat-chip-option
+                        *ngFor="let hosp of msg.hospitalesOptions"
+                        [selected]="msg.hospitalSeleccionadoId === hosp.id"
+                        (click)="seleccionarHospitalOpcion(msg, hosp.id)"
+                        color="accent"
+                      >
+                        {{ hosp.descripcion }} ({{ formatearScore(hosp.score) }})
+                      </mat-chip-option>
+                    </mat-chip-listbox>
+                  </div>
+
+                  <div
+                    class="option-group"
+                    *ngIf="msg.variablesOptions && msg.variablesOptions.length > 0"
+                    style="margin-top: 12px"
+                  >
+                    <label class="group-label">Variables candidatas:</label>
+                    <mat-chip-listbox [disabled]="msg.confirmado">
+                      <mat-chip-option
+                        *ngFor="let varMed of msg.variablesOptions"
+                        [selected]="msg.variableSeleccionadaId === varMed.id"
+                        (click)="seleccionarVariableOpcion(msg, varMed.id)"
+                        color="primary"
+                      >
+                        {{ varMed.descripcion }} ({{ formatearScore(varMed.score) }})
+                      </mat-chip-option>
+                    </mat-chip-listbox>
+                  </div>
+                </mat-card-content>
+
+                <mat-card-actions align="end">
+                  <button
+                    mat-flat-button
+                    color="primary"
+                    [disabled]="!puedeConfirmarDesambiguacion(msg)"
+                    (click)="enviarDesambiguacion(msg)"
+                  >
+                    <mat-icon>check</mat-icon> Confirmar Selección
+                  </button>
+                </mat-card-actions>
+              </mat-card>
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-input-area">
+          <mat-form-field class="full-width chat-field" appearance="outline">
+            <mat-label>Preguntame algo del IFU...</mat-label>
+
+            <input
+              type="text"
+              matInput
+              [formControl]="chatControl"
+              [matAutocomplete]="auto"
+              (keyup.enter)="enviarMensaje()"
+            />
+
+            <mat-autocomplete
+              #auto="matAutocomplete"
+              [displayWith]="mostrarSugerencia"
+              (optionSelected)="alSeleccionarSugerencia($event)"
+            >
+              <mat-option
+                *ngFor="let sugerencia of sugerenciasFiltradas | async"
+                class="autocomplete-option"
+                [value]="sugerencia"
+              >
+                <span class="autocomplete-kind-badge">
+                  {{ sugerencia.tipo === 'hospital' ? 'Hospital' : 'Variable' }}
+                </span>
+                <span class="autocomplete-id-badge">{{ sugerencia.id }}</span>
+                <span class="autocomplete-label-text">
+                  -
+                  {{
+                    sugerencia.tipo === 'hospital'
+                      ? sugerencia.nombre_original
+                      : sugerencia.descripcion
+                  }}
+                </span>
+              </mat-option>
+            </mat-autocomplete>
+
+            <button mat-icon-button matSuffix class="send-button" (click)="enviarMensaje()">
+              <mat-icon>send</mat-icon>
+            </button>
+          </mat-form-field>
+        </div>
       </div>
+    </div>
 
-      <label class="field-label mt-3" for="respuesta">Respuesta (lenguaje natural)</label>
-      <textarea
-        id="respuesta"
-        class="response-box"
-        [value]="respuesta"
-        placeholder="Aquí aparecerá la respuesta del chatbot..."
-        readonly
-      ></textarea>
+    <div class="lado-derecho">
+      <h3 class="chatbot-title">Consulta actual</h3>
+      <div class="bloque-info results-panel">
+        <div class="results-empty" *ngIf="!resultadoDeteccion">
+          La unidad medica y la variable detectadas apareceran aqui.
+        </div>
 
-      <p class="error-text mt-2 mb-0" *ngIf="error">{{ error }}</p>
-    </form>
+        <div class="results-list" *ngIf="resultadoDeteccion">
+          <div class="result-card">
+            <div class="card-header-result">
+              <span class="result-index">{{ panelAmbito.titulo }}</span>
+              <span class="result-value-badge">
+                {{ etiquetaStatus(resultadoDeteccion.hospital.status) }}
+              </span>
+            </div>
+            <div class="card-body-result">
+              <p><strong>Detectado:</strong> {{ panelAmbito.valor }}</p>
+            </div>
+          </div>
+
+          <div class="result-card">
+            <div class="card-header-result">
+              <span class="result-index">Variable</span>
+              <span class="result-value-badge">
+                {{ etiquetaStatus(resultadoDeteccion.variable.status) }}
+              </span>
+            </div>
+            <div class="card-body-result">
+              <p>
+                <strong>Detectada:</strong> {{ descripcionVariable(resultadoDeteccion.variable) }}
+              </p>
+            </div>
+          </div>
+
+          <section class="result-card ifu-dashboard" *ngIf="resultados.length > 0">
+            <header class="ifu-dashboard__header">
+              <h4>Datos IFU</h4>
+              <span class="result-value-badge">{{ resultados.length }} registro(s)</span>
+            </header>
+
+            <div
+              class="ifu-record"
+              *ngFor="let fila of resultados; let i = index"
+              [class.ifu-record--multiple]="resultados.length > 1"
+            >
+              <div class="ifu-record__label" *ngIf="resultados.length > 1">
+                Registro {{ i + 1 }}
+              </div>
+
+              <div class="ifu-summary">
+                <div class="ifu-value-card">
+                  <div class="ifu-section-heading">
+                    <lucide-icon name="chart-column" aria-hidden="true"></lucide-icon>
+                    <span>Valor</span>
+                  </div>
+                  <div class="ifu-value">
+                    {{ valorNumerico(fila.valor) | number: '1.0-0' }}
+                  </div>
+                  <div class="ifu-value-description">{{ fila.descripcion }}</div>
+                </div>
+
+                <div class="ifu-variable-card">
+                  <div class="ifu-section-heading">
+                    <lucide-icon name="file-text" aria-hidden="true"></lucide-icon>
+                    <span>Variable</span>
+                  </div>
+                  <div class="ifu-variable-description">{{ fila.descripcion }}</div>
+                  <div class="ifu-variable-id">ID: {{ fila.variable_nva }}</div>
+                </div>
+              </div>
+
+              <dl class="ifu-metadata">
+                <div class="ifu-metadata__row ifu-metadata__row--unit">
+                  <lucide-icon name="hospital" aria-hidden="true"></lucide-icon>
+                  <dt>Unidad</dt>
+                  <dd>
+                    <strong>{{ fila.DenominacionUnidad }}</strong>
+                    <span class="ifu-unit-key">
+                      <lucide-icon name="hash" aria-hidden="true"></lucide-icon>
+                      Clave: {{ fila.ClavePresupuestal }}
+                    </span>
+                  </dd>
+                </div>
+                <div class="ifu-metadata__row">
+                  <lucide-icon name="map-pin" aria-hidden="true"></lucide-icon>
+                  <dt>Región</dt>
+                  <dd>{{ fila.Region }}</dd>
+                </div>
+                <div class="ifu-metadata__row">
+                  <lucide-icon name="building-2" aria-hidden="true"></lucide-icon>
+                  <dt>Delegación/UMAE</dt>
+                  <dd>{{ fila.NombreDelegacionUMAE }}</dd>
+                </div>
+                <div class="ifu-metadata__row">
+                  <lucide-icon name="shield-check" aria-hidden="true"></lucide-icon>
+                  <dt>Nivel</dt>
+                  <dd>{{ fila.NivelAtencion }}</dd>
+                </div>
+              </dl>
+            </div>
+          </section>
+
+          <div
+            class="result-card"
+            *ngIf="
+              (resultadoDeteccion.hospital.candidatos?.length || 0) > 0 ||
+              (resultadoDeteccion.variable.candidatos?.length || 0) > 0
+            "
+          >
+            <div class="card-header-result">
+              <span class="result-index">Candidatos</span>
+            </div>
+            <div class="card-body-result">
+              <p *ngFor="let hosp of resultadoDeteccion.hospital.candidatos || []">
+                <strong>Hospital:</strong> {{ hosp.descripcion }} ({{ formatearScore(hosp.score) }})
+              </p>
+              <p *ngFor="let varMed of resultadoDeteccion.variable.candidatos || []">
+                <strong>Variable:</strong> {{ varMed.descripcion }} ({{
+                  formatearScore(varMed.score)
+                }})
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-</section>
+</div>

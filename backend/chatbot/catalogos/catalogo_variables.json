@@ -1,0 +1,3652 @@
+[
+  {
+    "id": 50,
+    "desc_original": "Superficie total en metros cuadrados.",
+    "desc_normalizada": "superficie total en metros cuadrados"
+  },
+  {
+    "id": 51,
+    "desc_original": "Superficie construida en metros cuadrados.",
+    "desc_normalizada": "superficie construida en metros cuadrados"
+  },
+  {
+    "id": 50100,
+    "desc_original": "Total de Camas Censables de la unidad.",
+    "desc_normalizada": "total de camas censables de la unidad"
+  },
+  {
+    "id": 50200,
+    "desc_original": "Cama de Alergía e Inmunología",
+    "desc_normalizada": "cama de alergia e inmunologia"
+  },
+  {
+    "id": 50400,
+    "desc_original": "Cama de Angiología",
+    "desc_normalizada": "cama de angiologia"
+  },
+  {
+    "id": 50500,
+    "desc_original": "Cama de Cirugía Maxilofacial",
+    "desc_normalizada": "cama de cirugia maxilofacial"
+  },
+  {
+    "id": 50600,
+    "desc_original": "Cama de Cardiología",
+    "desc_normalizada": "cama de cardiologia"
+  },
+  {
+    "id": 50700,
+    "desc_original": "Cama de Cirugía Cardiovascular y Torácica",
+    "desc_normalizada": "cama de cirugia cardiovascular y toracica"
+  },
+  {
+    "id": 50800,
+    "desc_original": "Cama de Cirugía General",
+    "desc_normalizada": "cama de cirugia general"
+  },
+  {
+    "id": 50801,
+    "desc_original": "Cama de extensión Cirugía General",
+    "desc_normalizada": "cama de extension cirugia general"
+  },
+  {
+    "id": 50900,
+    "desc_original": "Cama de Dermatología",
+    "desc_normalizada": "cama de dermatologia"
+  },
+  {
+    "id": 51000,
+    "desc_original": "Cama de Endocrinología",
+    "desc_normalizada": "cama de endocrinologia"
+  },
+  {
+    "id": 51100,
+    "desc_original": "Cama de Gastroenterología",
+    "desc_normalizada": "cama de gastroenterologia"
+  },
+  {
+    "id": 51200,
+    "desc_original": "Total de Camas de Ginecología y Obstetricia",
+    "desc_normalizada": "total de camas de ginecologia y obstetricia"
+  },
+  {
+    "id": 51201,
+    "desc_original": "Cama de Ginecología",
+    "desc_normalizada": "cama de ginecologia"
+  },
+  {
+    "id": 51202,
+    "desc_original": "Cama de Biología de la Reproducción",
+    "desc_normalizada": "cama de biologia de la reproduccion"
+  },
+  {
+    "id": 51203,
+    "desc_original": "Cama de Obstetricia",
+    "desc_normalizada": "cama de obstetricia"
+  },
+  {
+    "id": 51204,
+    "desc_original": "Cama de Perinatología",
+    "desc_normalizada": "cama de perinatologia"
+  },
+  {
+    "id": 51205,
+    "desc_original": "Cama de Medicina Materno Fetal",
+    "desc_normalizada": "cama de medicina materno fetal"
+  },
+  {
+    "id": 51207,
+    "desc_original": "Cama de Embarazo de Alto Riesgo",
+    "desc_normalizada": "cama de embarazo de alto riesgo"
+  },
+  {
+    "id": 51300,
+    "desc_original": "Cama de Hematología",
+    "desc_normalizada": "cama de hematologia"
+  },
+  {
+    "id": 51400,
+    "desc_original": "Cama de Infectología",
+    "desc_normalizada": "cama de infectologia"
+  },
+  {
+    "id": 51500,
+    "desc_original": "Cama de Medicina Interna",
+    "desc_normalizada": "cama de medicina interna"
+  },
+  {
+    "id": 51501,
+    "desc_original": "Cama de Extensión Medicina Interna",
+    "desc_normalizada": "cama de extension medicina interna"
+  },
+  {
+    "id": 51600,
+    "desc_original": "Cama de Nefrología",
+    "desc_normalizada": "cama de nefrologia"
+  },
+  {
+    "id": 51700,
+    "desc_original": "Cama de Neumología",
+    "desc_normalizada": "cama de neumologia"
+  },
+  {
+    "id": 51800,
+    "desc_original": "Cama de Neurología",
+    "desc_normalizada": "cama de neurologia"
+  },
+  {
+    "id": 52000,
+    "desc_original": "Cama de Oftalmología",
+    "desc_normalizada": "cama de oftalmologia"
+  },
+  {
+    "id": 52100,
+    "desc_original": "Cama de Otorrinolaringología",
+    "desc_normalizada": "cama de otorrinolaringologia"
+  },
+  {
+    "id": 52301,
+    "desc_original": "Cama de Pediatría Médica",
+    "desc_normalizada": "cama de pediatria medica"
+  },
+  {
+    "id": 52305,
+    "desc_original": "Cama de Escolares y Adolescentes",
+    "desc_normalizada": "cama de escolares y adolescentes"
+  },
+  {
+    "id": 52310,
+    "desc_original": "Cama/Cuna de Lactantes",
+    "desc_normalizada": "cama cuna de lactantes"
+  },
+  {
+    "id": 52316,
+    "desc_original": "Cama/Cuna de Preescolares",
+    "desc_normalizada": "cama cuna de preescolares"
+  },
+  {
+    "id": 52400,
+    "desc_original": "Total de Incubadoras y Cunas de Calor Radiante",
+    "desc_normalizada": "total de incubadoras y cunas de calor radiante"
+  },
+  {
+    "id": 52401,
+    "desc_original": "Cuna de Pediatría Médica",
+    "desc_normalizada": "cuna de pediatria medica"
+  },
+  {
+    "id": 52418,
+    "desc_original": "Cuna de Neonatología",
+    "desc_normalizada": "cuna de neonatologia"
+  },
+  {
+    "id": 52500,
+    "desc_original": "Incubadora en Prematuros",
+    "desc_normalizada": "incubadora en prematuros"
+  },
+  {
+    "id": 52502,
+    "desc_original": "Cuna de Calor Radiante (Cunero patológico)",
+    "desc_normalizada": "cuna de calor radiante cunero patologico"
+  },
+  {
+    "id": 52503,
+    "desc_original": "Cuna de calor radiante en prematuros",
+    "desc_normalizada": "cuna de calor radiante en prematuros"
+  },
+  {
+    "id": 52600,
+    "desc_original": "Incubadora para Prematuros y Patológicos",
+    "desc_normalizada": "incubadora para prematuros y patologicos"
+  },
+  {
+    "id": 52700,
+    "desc_original": "Incubadora en cunero patológico",
+    "desc_normalizada": "incubadora en cunero patologico"
+  },
+  {
+    "id": 52703,
+    "desc_original": "Cuna de calor radiante en cunero patológico",
+    "desc_normalizada": "cuna de calor radiante en cunero patologico"
+  },
+  {
+    "id": 52802,
+    "desc_original": "Cama de Coloproctología",
+    "desc_normalizada": "cama de coloproctologia"
+  },
+  {
+    "id": 52900,
+    "desc_original": "Total de Camas de Psiquiatría",
+    "desc_normalizada": "total de camas de psiquiatria"
+  },
+  {
+    "id": 52901,
+    "desc_original": "Cama de Psiquiatría Adultos",
+    "desc_normalizada": "cama de psiquiatria adultos"
+  },
+  {
+    "id": 52902,
+    "desc_original": "Cama de Psiquiatría Pediátrica",
+    "desc_normalizada": "cama de psiquiatria pediatrica"
+  },
+  {
+    "id": 52903,
+    "desc_original": "Cama de Psiquiatría Tiempo Parcial",
+    "desc_normalizada": "cama de psiquiatria tiempo parcial"
+  },
+  {
+    "id": 53000,
+    "desc_original": "Cama de Reumatología",
+    "desc_normalizada": "cama de reumatologia"
+  },
+  {
+    "id": 53200,
+    "desc_original": "Total de Camas de Traumatología y Ortopedia",
+    "desc_normalizada": "total de camas de traumatologia y ortopedia"
+  },
+  {
+    "id": 53201,
+    "desc_original": "Cama de Traumatología",
+    "desc_normalizada": "cama de traumatologia"
+  },
+  {
+    "id": 53202,
+    "desc_original": "Cama de Rodilla",
+    "desc_normalizada": "cama de rodilla"
+  },
+  {
+    "id": 53203,
+    "desc_original": "Cama de Miembro Torácico",
+    "desc_normalizada": "cama de miembro toracico"
+  },
+  {
+    "id": 53204,
+    "desc_original": "Cama de Trauma Polifracturas y Expuestas",
+    "desc_normalizada": "cama de trauma polifracturas y expuestas"
+  },
+  {
+    "id": 53205,
+    "desc_original": "Cama de Tobillo y Pie",
+    "desc_normalizada": "cama de tobillo y pie"
+  },
+  {
+    "id": 53206,
+    "desc_original": "Cadera y Pelvis",
+    "desc_normalizada": "cadera y pelvis"
+  },
+  {
+    "id": 53207,
+    "desc_original": "Cama de Columna",
+    "desc_normalizada": "cama de columna"
+  },
+  {
+    "id": 53208,
+    "desc_original": "Cirugía Mano",
+    "desc_normalizada": "cirugia mano"
+  },
+  {
+    "id": 53209,
+    "desc_original": "Cama de Ortopedia",
+    "desc_normalizada": "cama de ortopedia"
+  },
+  {
+    "id": 53210,
+    "desc_original": "Cama de Cirugía cabeza y Cuello",
+    "desc_normalizada": "cama de cirugia cabeza y cuello"
+  },
+  {
+    "id": 53211,
+    "desc_original": "Cama de Cirugía Toraco Abdominal",
+    "desc_normalizada": "cama de cirugia toraco abdominal"
+  },
+  {
+    "id": 53212,
+    "desc_original": "Cama de Columna y Cadera",
+    "desc_normalizada": "cama de columna y cadera"
+  },
+  {
+    "id": 53213,
+    "desc_original": "Cama de Diáfisis",
+    "desc_normalizada": "cama de diafisis"
+  },
+  {
+    "id": 53216,
+    "desc_original": "Cama de Reemplazos Articulares",
+    "desc_normalizada": "cama de reemplazos articulares"
+  },
+  {
+    "id": 53218,
+    "desc_original": "Cama de Traumatología y Ortopedia Pediátrica",
+    "desc_normalizada": "cama de traumatologia y ortopedia pediatrica"
+  },
+  {
+    "id": 53219,
+    "desc_original": "Cuna de Traumatología y Ortopedia Pediátrica",
+    "desc_normalizada": "cuna de traumatologia y ortopedia pediatrica"
+  },
+  {
+    "id": 53300,
+    "desc_original": "Cama de Geriatría",
+    "desc_normalizada": "cama de geriatria"
+  },
+  {
+    "id": 53400,
+    "desc_original": "Cama de Urología",
+    "desc_normalizada": "cama de urologia"
+  },
+  {
+    "id": 53500,
+    "desc_original": "Cama de Neurocirugía",
+    "desc_normalizada": "cama de neurocirugia"
+  },
+  {
+    "id": 53600,
+    "desc_original": "Total de Camas y/o Cunas de Cirugía Pediátrica",
+    "desc_normalizada": "total de camas y o cunas de cirugia pediatrica"
+  },
+  {
+    "id": 53601,
+    "desc_original": "Cama y/o Cuna de Cirugía Pediátrica",
+    "desc_normalizada": "cama y o cuna de cirugia pediatrica"
+  },
+  {
+    "id": 53602,
+    "desc_original": "Cama y/o Cuna de Traumatología Pediátrica",
+    "desc_normalizada": "cama y o cuna de traumatologia pediatrica"
+  },
+  {
+    "id": 53603,
+    "desc_original": "Cama y/o Cuna de Ortopedia Pediátrica",
+    "desc_normalizada": "cama y o cuna de ortopedia pediatrica"
+  },
+  {
+    "id": 53604,
+    "desc_original": "Cama y/o Cuna de Cirugía Cardiovascular Pediátrica",
+    "desc_normalizada": "cama y o cuna de cirugia cardiovascular pediatrica"
+  },
+  {
+    "id": 53606,
+    "desc_original": "Cama y/o Cuna de Cirugía Maxilofacial Pediátrica",
+    "desc_normalizada": "cama y o cuna de cirugia maxilofacial pediatrica"
+  },
+  {
+    "id": 53608,
+    "desc_original": "Cama y/o Cuna de Cirugía Reconstructiva Pediátrica",
+    "desc_normalizada": "cama y o cuna de cirugia reconstructiva pediatrica"
+  },
+  {
+    "id": 53610,
+    "desc_original": "Cama y/o Cuna de Neurocirugía Pediátrica",
+    "desc_normalizada": "cama y o cuna de neurocirugia pediatrica"
+  },
+  {
+    "id": 53611,
+    "desc_original": "Cama y/o Cuna de Oftalmología Pediátrica",
+    "desc_normalizada": "cama y o cuna de oftalmologia pediatrica"
+  },
+  {
+    "id": 53612,
+    "desc_original": "Cama y/o Cuna de Otorrinolaringología Pediátrica",
+    "desc_normalizada": "cama y o cuna de otorrinolaringologia pediatrica"
+  },
+  {
+    "id": 53613,
+    "desc_original": "Cama y/o Cuna de Urología Pediátrica",
+    "desc_normalizada": "cama y o cuna de urologia pediatrica"
+  },
+  {
+    "id": 53620,
+    "desc_original": "Total Cama/Cuna Pediátrica Médica",
+    "desc_normalizada": "total cama cuna pediatrica medica"
+  },
+  {
+    "id": 53622,
+    "desc_original": "Cama/Cuna de Cardiología Pediátrica",
+    "desc_normalizada": "cama cuna de cardiologia pediatrica"
+  },
+  {
+    "id": 53624,
+    "desc_original": "Cama/Cuna de Endocrinología Pediátrica",
+    "desc_normalizada": "cama cuna de endocrinologia pediatrica"
+  },
+  {
+    "id": 53625,
+    "desc_original": "Cama/Cuna de Gastroenterología Pediátrica",
+    "desc_normalizada": "cama cuna de gastroenterologia pediatrica"
+  },
+  {
+    "id": 53627,
+    "desc_original": "Cama/Cuna de Hematología Pediátrica",
+    "desc_normalizada": "cama cuna de hematologia pediatrica"
+  },
+  {
+    "id": 53628,
+    "desc_original": "Cama/Cuna de Infectología Pediátrica",
+    "desc_normalizada": "cama cuna de infectologia pediatrica"
+  },
+  {
+    "id": 53629,
+    "desc_original": "Cama/Cuna de Medicina Interna Pediátrica",
+    "desc_normalizada": "cama cuna de medicina interna pediatrica"
+  },
+  {
+    "id": 53630,
+    "desc_original": "Cama/Cuna de Nefrología Pediátrica",
+    "desc_normalizada": "cama cuna de nefrologia pediatrica"
+  },
+  {
+    "id": 53631,
+    "desc_original": "Cama/Cuna de Neumología Pediátrica",
+    "desc_normalizada": "cama cuna de neumologia pediatrica"
+  },
+  {
+    "id": 53632,
+    "desc_original": "Cama/Cuna de Neurología Pediátrica",
+    "desc_normalizada": "cama cuna de neurologia pediatrica"
+  },
+  {
+    "id": 53633,
+    "desc_original": "Cama/Cuna de Oncología Pediátrica",
+    "desc_normalizada": "cama cuna de oncologia pediatrica"
+  },
+  {
+    "id": 53634,
+    "desc_original": "Carro/cuna/bacinete en alojamiento conjunto",
+    "desc_normalizada": "carro cuna bacinete en alojamiento conjunto"
+  },
+  {
+    "id": 53635,
+    "desc_original": "Cama/Cuna de Reumatología Pediátrica",
+    "desc_normalizada": "cama cuna de reumatologia pediatrica"
+  },
+  {
+    "id": 53700,
+    "desc_original": "Cama de Oncología Médica",
+    "desc_normalizada": "cama de oncologia medica"
+  },
+  {
+    "id": 53800,
+    "desc_original": "Cama de Cirugía Plástica y Reconstructiva",
+    "desc_normalizada": "cama de cirugia plastica y reconstructiva"
+  },
+  {
+    "id": 53900,
+    "desc_original": "Total de Camas de  Quemados",
+    "desc_normalizada": "total de camas de quemados"
+  },
+  {
+    "id": 53901,
+    "desc_original": "Cama en Unidad de Quemados Adultos",
+    "desc_normalizada": "cama en unidad de quemados adultos"
+  },
+  {
+    "id": 53902,
+    "desc_original": "Cama en Unidad de Quemados Pediátricos",
+    "desc_normalizada": "cama en unidad de quemados pediatricos"
+  },
+  {
+    "id": 54000,
+    "desc_original": "Total de Camas de Oncología Quirúrgica",
+    "desc_normalizada": "total de camas de oncologia quirurgica"
+  },
+  {
+    "id": 54001,
+    "desc_original": "Cama de Tumores Colon y Recto",
+    "desc_normalizada": "cama de tumores colon y recto"
+  },
+  {
+    "id": 54002,
+    "desc_original": "Cama de Sarcomas",
+    "desc_normalizada": "cama de sarcomas"
+  },
+  {
+    "id": 54003,
+    "desc_original": "Cama de Tumores Cabeza y Cuello",
+    "desc_normalizada": "cama de tumores cabeza y cuello"
+  },
+  {
+    "id": 54004,
+    "desc_original": "Cama de Oncología Ginecológica",
+    "desc_normalizada": "cama de oncologia ginecologica"
+  },
+  {
+    "id": 54005,
+    "desc_original": "Cama de Tumores de Mama",
+    "desc_normalizada": "cama de tumores de mama"
+  },
+  {
+    "id": 54006,
+    "desc_original": "Cama de Tumores Tórax",
+    "desc_normalizada": "cama de tumores torax"
+  },
+  {
+    "id": 54007,
+    "desc_original": "Cama de Oncología Quirúrgica",
+    "desc_normalizada": "cama de oncologia quirurgica"
+  },
+  {
+    "id": 54200,
+    "desc_original": "Cama de Medicina Física y Rehabilitación",
+    "desc_normalizada": "cama de medicina fisica y rehabilitacion"
+  },
+  {
+    "id": 54300,
+    "desc_original": "Cama de la Unidad Metabólica",
+    "desc_normalizada": "cama de la unidad metabolica"
+  },
+  {
+    "id": 54400,
+    "desc_original": "Total de Cama de Trasplantes",
+    "desc_normalizada": "total de cama de trasplantes"
+  },
+  {
+    "id": 54401,
+    "desc_original": "Cama en Unidad de Trasplantes Adultos",
+    "desc_normalizada": "cama en unidad de trasplantes adultos"
+  },
+  {
+    "id": 54402,
+    "desc_original": "Cama en Unidad de Trasplantes Pediatrico",
+    "desc_normalizada": "cama en unidad de trasplantes pediatrico"
+  },
+  {
+    "id": 54403,
+    "desc_original": "Cama de Trasplante de células progenitoras hematopoyéticas adultos",
+    "desc_normalizada": "cama de trasplante de celulas progenitoras hematopoyeticas adultos"
+  },
+  {
+    "id": 54404,
+    "desc_original": "Cama de Trasplante de células progenitoras hematopoyéticas pediátrica",
+    "desc_normalizada": "cama de trasplante de celulas progenitoras hematopoyeticas pediatrica"
+  },
+  {
+    "id": 55000,
+    "desc_original": "Total de Camas Censables de Cirugía",
+    "desc_normalizada": "total de camas censables de cirugia"
+  },
+  {
+    "id": 56000,
+    "desc_original": "Total de Camas Censables de Medicina",
+    "desc_normalizada": "total de camas censables de medicina"
+  },
+  {
+    "id": 60000,
+    "desc_original": "Total de Camas No Censables en la Unidad.",
+    "desc_normalizada": "total de camas no censables en la unidad"
+  },
+  {
+    "id": 60100,
+    "desc_original": "Total de Camas de Urgencias",
+    "desc_normalizada": "total de camas de urgencias"
+  },
+  {
+    "id": 60103,
+    "desc_original": "Cama de Urgencias Tococirugía",
+    "desc_normalizada": "cama de urgencias tococirugia"
+  },
+  {
+    "id": 60104,
+    "desc_original": "Cama de Urgencias Médicas Corta Estancia",
+    "desc_normalizada": "cama de urgencias medicas corta estancia"
+  },
+  {
+    "id": 60105,
+    "desc_original": "Cama en el Área de Reanimación Adulto",
+    "desc_normalizada": "cama en el area de reanimacion adulto"
+  },
+  {
+    "id": 60106,
+    "desc_original": "Cama en el Área de Reanimación Pediátrica",
+    "desc_normalizada": "cama en el area de reanimacion pediatrica"
+  },
+  {
+    "id": 60200,
+    "desc_original": "Total de Camas de Urgencias Médicas Observación",
+    "desc_normalizada": "total de camas de urgencias medicas observacion"
+  },
+  {
+    "id": 60201,
+    "desc_original": "Cama de Urgencias Médicas Observación Pediátrica",
+    "desc_normalizada": "cama de urgencias medicas observacion pediatrica"
+  },
+  {
+    "id": 60202,
+    "desc_original": "Cama de Urgencias Médicas Observación Adulto",
+    "desc_normalizada": "cama de urgencias medicas observacion adulto"
+  },
+  {
+    "id": 60300,
+    "desc_original": "Total de Camillas de Atención Médica Continua",
+    "desc_normalizada": "total de camillas de atencion medica continua"
+  },
+  {
+    "id": 60301,
+    "desc_original": "Camilla de Atención Médica Continua Observación Adulto",
+    "desc_normalizada": "camilla de atencion medica continua observacion adulto"
+  },
+  {
+    "id": 60302,
+    "desc_original": "Camilla de Atención Médica Continua Observación Pediátrica",
+    "desc_normalizada": "camilla de atencion medica continua observacion pediatrica"
+  },
+  {
+    "id": 60400,
+    "desc_original": "Total de Camas de Admisión Continua Observación (UMAE)",
+    "desc_normalizada": "total de camas de admision continua observacion umae"
+  },
+  {
+    "id": 60401,
+    "desc_original": "Cama de Admisión Continua Observación Adulto",
+    "desc_normalizada": "cama de admision continua observacion adulto"
+  },
+  {
+    "id": 60402,
+    "desc_original": "Cama de Admisión Continua Observación Pediátrica",
+    "desc_normalizada": "cama de admision continua observacion pediatrica"
+  },
+  {
+    "id": 60405,
+    "desc_original": "Cama de Admisión Continua Observación GinecoObstetricia",
+    "desc_normalizada": "cama de admision continua observacion ginecoobstetricia"
+  },
+  {
+    "id": 60406,
+    "desc_original": "Cama de Recuperación Postquirúrgica de Sala de Operaciones de Urgencias",
+    "desc_normalizada": "cama de recuperacion postquirurgica de sala de operaciones de urgencias"
+  },
+  {
+    "id": 60407,
+    "desc_original": "Incubadora en urgencias o admisión continua",
+    "desc_normalizada": "incubadora en urgencias o admision continua"
+  },
+  {
+    "id": 60500,
+    "desc_original": "Total de Camas de Ginecología y Obstetricia",
+    "desc_normalizada": "total de camas de ginecologia y obstetricia"
+  },
+  {
+    "id": 60501,
+    "desc_original": "Cama de Trabajo de Parto (Labor)",
+    "desc_normalizada": "cama de trabajo de parto labor"
+  },
+  {
+    "id": 60502,
+    "desc_original": "Cama de Recuperación PostParto",
+    "desc_normalizada": "cama de recuperacion postparto"
+  },
+  {
+    "id": 60504,
+    "desc_original": "Cama de Monitorización Fetal",
+    "desc_normalizada": "cama de monitorizacion fetal"
+  },
+  {
+    "id": 60506,
+    "desc_original": "Cama de Recuperación Post Quirúrgica Tococirugía",
+    "desc_normalizada": "cama de recuperacion post quirurgica tococirugia"
+  },
+  {
+    "id": 60600,
+    "desc_original": "Recién Nacido Sano (cunero fisiológico)",
+    "desc_normalizada": "recien nacido sano cunero fisiologico"
+  },
+  {
+    "id": 60700,
+    "desc_original": "Incubadora para Recién Nacido",
+    "desc_normalizada": "incubadora para recien nacido"
+  },
+  {
+    "id": 60800,
+    "desc_original": "Cama de Braquiterapia",
+    "desc_normalizada": "cama de braquiterapia"
+  },
+  {
+    "id": 60900,
+    "desc_original": "Cama de Recuperación Post Endoscopía",
+    "desc_normalizada": "cama de recuperacion post endoscopia"
+  },
+  {
+    "id": 61000,
+    "desc_original": "Cama de Recuperación PostRadioterapia",
+    "desc_normalizada": "cama de recuperacion postradioterapia"
+  },
+  {
+    "id": 61100,
+    "desc_original": "Cama de Recuperación PostQuirúrgica",
+    "desc_normalizada": "cama de recuperacion postquirurgica"
+  },
+  {
+    "id": 61200,
+    "desc_original": "Cama de Diálisis Peritoneal Ambulatoria",
+    "desc_normalizada": "cama de dialisis peritoneal ambulatoria"
+  },
+  {
+    "id": 61300,
+    "desc_original": "Total de Camas de Cuidados Intensivos",
+    "desc_normalizada": "total de camas de cuidados intensivos"
+  },
+  {
+    "id": 61301,
+    "desc_original": "Cama de Cuidados Intensivos Adultos",
+    "desc_normalizada": "cama de cuidados intensivos adultos"
+  },
+  {
+    "id": 61302,
+    "desc_original": "Cama de Cuidados intensivos Postquirúrgicos",
+    "desc_normalizada": "cama de cuidados intensivos postquirurgicos"
+  },
+  {
+    "id": 61303,
+    "desc_original": "Cama de Cuidados intensivos Respiratorios",
+    "desc_normalizada": "cama de cuidados intensivos respiratorios"
+  },
+  {
+    "id": 61304,
+    "desc_original": "Cama de Cuidados intensivos Coronarios",
+    "desc_normalizada": "cama de cuidados intensivos coronarios"
+  },
+  {
+    "id": 61306,
+    "desc_original": "Total de Camas de Cuidados Intensivos de Quemados",
+    "desc_normalizada": "total de camas de cuidados intensivos de quemados"
+  },
+  {
+    "id": 61307,
+    "desc_original": "Cama de Cuidados Intensivos de Quemados Adulto",
+    "desc_normalizada": "cama de cuidados intensivos de quemados adulto"
+  },
+  {
+    "id": 61308,
+    "desc_original": "Cama de Cuidados Intensivos de Quemados Pediátrico",
+    "desc_normalizada": "cama de cuidados intensivos de quemados pediatrico"
+  },
+  {
+    "id": 61350,
+    "desc_original": "Cama/Cuna en cuarto de presión negativa",
+    "desc_normalizada": "cama cuna en cuarto de presion negativa"
+  },
+  {
+    "id": 61400,
+    "desc_original": "Cama /Cuna de Cuidados Intensivos Pediátricos",
+    "desc_normalizada": "cama cuna de cuidados intensivos pediatricos"
+  },
+  {
+    "id": 61401,
+    "desc_original": "Cama/Cuna de Cuidados Intensivos Pediátrícos",
+    "desc_normalizada": "cama cuna de cuidados intensivos pediatricos"
+  },
+  {
+    "id": 61402,
+    "desc_original": "Cuna de Cuidados Intensivos Pediátrícos",
+    "desc_normalizada": "cuna de cuidados intensivos pediatricos"
+  },
+  {
+    "id": 61403,
+    "desc_original": "Cama de Cuidados Intensivos Postquirúrgica Pediátrica",
+    "desc_normalizada": "cama de cuidados intensivos postquirurgica pediatrica"
+  },
+  {
+    "id": 61404,
+    "desc_original": "Cuna de calor radiante en unidades de Cuidados Intensivos Neonatales",
+    "desc_normalizada": "cuna de calor radiante en unidades de cuidados intensivos neonatales"
+  },
+  {
+    "id": 61405,
+    "desc_original": "Cuna de calor radiante en área de tococirugía y quirofáno",
+    "desc_normalizada": "cuna de calor radiante en area de tococirugia y quirofano"
+  },
+  {
+    "id": 61409,
+    "desc_original": "Incubadora en el área de tococirugía y quirófano",
+    "desc_normalizada": "incubadora en el area de tococirugia y quirofano"
+  },
+  {
+    "id": 61500,
+    "desc_original": "Cama de Recuperación PostCirugía Ambulatoria",
+    "desc_normalizada": "cama de recuperacion postcirugia ambulatoria"
+  },
+  {
+    "id": 61600,
+    "desc_original": "Sillón de Quimioterapia y otras terapias biológicas",
+    "desc_normalizada": "sillon de quimioterapia y otras terapias biologicas"
+  },
+  {
+    "id": 61700,
+    "desc_original": "Otras Camas No Censables",
+    "desc_normalizada": "otras camas no censables"
+  },
+  {
+    "id": 61800,
+    "desc_original": "Cama de recuperación de Hemodinamia",
+    "desc_normalizada": "cama de recuperacion de hemodinamia"
+  },
+  {
+    "id": 70000,
+    "desc_original": "Total de Consultorios de la Unidad",
+    "desc_normalizada": "total de consultorios de la unidad"
+  },
+  {
+    "id": 70101,
+    "desc_original": "Consultorio de Medicina Familiar",
+    "desc_normalizada": "consultorio de medicina familiar"
+  },
+  {
+    "id": 70103,
+    "desc_original": "Consultorio de Medicina Familiar en Unidades Móviles para Trabajadores del Campo",
+    "desc_normalizada": "consultorio de medicina familiar en unidades moviles para trabajadores del campo"
+  },
+  {
+    "id": 70104,
+    "desc_original": "Módulo de Enfermera Especialista en Medicina de Familia",
+    "desc_normalizada": "modulo de enfermera especialista en medicina de familia"
+  },
+  {
+    "id": 70105,
+    "desc_original": "Consultorio Centro de Atención a la Diabetes en el IMSS (CADIMSS)",
+    "desc_normalizada": "consultorio centro de atencion a la diabetes en el imss cadimss"
+  },
+  {
+    "id": 70106,
+    "desc_original": "Consultorio de Planificación Familiar",
+    "desc_normalizada": "consultorio de planificacion familiar"
+  },
+  {
+    "id": 70107,
+    "desc_original": "Total de Consultorios Auxiliares de Medicina Familiar",
+    "desc_normalizada": "total de consultorios auxiliares de medicina familiar"
+  },
+  {
+    "id": 70108,
+    "desc_original": "Consultorio Médico Auxiliar",
+    "desc_normalizada": "consultorio medico auxiliar"
+  },
+  {
+    "id": 70109,
+    "desc_original": "Consultorio Auxiliar Puesto de Fábrica",
+    "desc_normalizada": "consultorio auxiliar puesto de fabrica"
+  },
+  {
+    "id": 70110,
+    "desc_original": "Consultorio Auxiliar Puesto de Enfermería",
+    "desc_normalizada": "consultorio auxiliar puesto de enfermeria"
+  },
+  {
+    "id": 70112,
+    "desc_original": "Consultorio de Medicina Familiar en UMTC",
+    "desc_normalizada": "consultorio de medicina familiar en umtc"
+  },
+  {
+    "id": 70150,
+    "desc_original": "Total de Consultorios para los Profesionales",
+    "desc_normalizada": "total de consultorios para los profesionales"
+  },
+  {
+    "id": 70200,
+    "desc_original": "Consultorio de Estomatología",
+    "desc_normalizada": "consultorio de estomatologia"
+  },
+  {
+    "id": 70300,
+    "desc_original": "Consultorio de Estomatología en Unidades Móviles para Trabajadores del Campo",
+    "desc_normalizada": "consultorio de estomatologia en unidades moviles para trabajadores del campo"
+  },
+  {
+    "id": 70400,
+    "desc_original": "Consultorio de Enfermera Prenatal de Hospital",
+    "desc_normalizada": "consultorio de enfermera prenatal de hospital"
+  },
+  {
+    "id": 70500,
+    "desc_original": "Consultorio de Enfermera Crónicos Degenerativos",
+    "desc_normalizada": "consultorio de enfermera cronicos degenerativos"
+  },
+  {
+    "id": 70600,
+    "desc_original": "Consultorio de Enfermera Materno Infantil (Enfermera Especialista)",
+    "desc_normalizada": "consultorio de enfermera materno infantil enfermera especialista"
+  },
+  {
+    "id": 70700,
+    "desc_original": "Consultorio de Optometría",
+    "desc_normalizada": "consultorio de optometria"
+  },
+  {
+    "id": 70800,
+    "desc_original": "Consultorio de Nutrición y Dietética",
+    "desc_normalizada": "consultorio de nutricion y dietetica"
+  },
+  {
+    "id": 70900,
+    "desc_original": "Total de Consultorios de Urgencias Médicas",
+    "desc_normalizada": "total de consultorios de urgencias medicas"
+  },
+  {
+    "id": 70901,
+    "desc_original": "Consultorio de Urgencias Médicas (primer contacto)",
+    "desc_normalizada": "consultorio de urgencias medicas primer contacto"
+  },
+  {
+    "id": 70902,
+    "desc_original": "Consultorio de Urgencias Tococirugía",
+    "desc_normalizada": "consultorio de urgencias tococirugia"
+  },
+  {
+    "id": 71000,
+    "desc_original": "Total de Consultorios de Atención Médica Continua",
+    "desc_normalizada": "total de consultorios de atencion medica continua"
+  },
+  {
+    "id": 71001,
+    "desc_original": "Consultorio de Atención Médica Continua para Adultos",
+    "desc_normalizada": "consultorio de atencion medica continua para adultos"
+  },
+  {
+    "id": 71002,
+    "desc_original": "Consultorio de Atención Medica Continua para Menores",
+    "desc_normalizada": "consultorio de atencion medica continua para menores"
+  },
+  {
+    "id": 71100,
+    "desc_original": "Total de Consultorios de Admisión Continua (UMAE)",
+    "desc_normalizada": "total de consultorios de admision continua umae"
+  },
+  {
+    "id": 71101,
+    "desc_original": "Consultorio de Admisión Continua Pediátricas",
+    "desc_normalizada": "consultorio de admision continua pediatricas"
+  },
+  {
+    "id": 71102,
+    "desc_original": "Consultorio de Admisión Continua Adultos",
+    "desc_normalizada": "consultorio de admision continua adultos"
+  },
+  {
+    "id": 71103,
+    "desc_original": "Consultorio de Admisión continua Urgencias Oftalmológicas",
+    "desc_normalizada": "consultorio de admision continua urgencias oftalmologicas"
+  },
+  {
+    "id": 71104,
+    "desc_original": "Consultorio de admisión continua Urgencias otorrinolaringología",
+    "desc_normalizada": "consultorio de admision continua urgencias otorrinolaringologia"
+  },
+  {
+    "id": 71200,
+    "desc_original": "Total de Consultorios de Especialidades",
+    "desc_normalizada": "total de consultorios de especialidades"
+  },
+  {
+    "id": 71250,
+    "desc_original": "Consultorio de Radio Oncología",
+    "desc_normalizada": "consultorio de radio oncologia"
+  },
+  {
+    "id": 71300,
+    "desc_original": "Consultorio de Epidemiología",
+    "desc_normalizada": "consultorio de epidemiologia"
+  },
+  {
+    "id": 71400,
+    "desc_original": "Consultorio de Alergia e Inmunología",
+    "desc_normalizada": "consultorio de alergia e inmunologia"
+  },
+  {
+    "id": 71500,
+    "desc_original": "Consultorio de Angiología",
+    "desc_normalizada": "consultorio de angiologia"
+  },
+  {
+    "id": 71550,
+    "desc_original": "Total de Consultorios de Especialidades Quirúrgicas",
+    "desc_normalizada": "total de consultorios de especialidades quirurgicas"
+  },
+  {
+    "id": 71600,
+    "desc_original": "Consultorio de Cirugía Maxilofacial",
+    "desc_normalizada": "consultorio de cirugia maxilofacial"
+  },
+  {
+    "id": 71700,
+    "desc_original": "Consultorio de Cardiología",
+    "desc_normalizada": "consultorio de cardiologia"
+  },
+  {
+    "id": 71800,
+    "desc_original": "Consultorio de Cirugía Cardiovascular y Torácica",
+    "desc_normalizada": "consultorio de cirugia cardiovascular y toracica"
+  },
+  {
+    "id": 71900,
+    "desc_original": "Consultorio de Cirugía General",
+    "desc_normalizada": "consultorio de cirugia general"
+  },
+  {
+    "id": 72000,
+    "desc_original": "Consultorio de Dermatología",
+    "desc_normalizada": "consultorio de dermatologia"
+  },
+  {
+    "id": 72100,
+    "desc_original": "Consultorio de Endocrinología",
+    "desc_normalizada": "consultorio de endocrinologia"
+  },
+  {
+    "id": 72200,
+    "desc_original": "Consultorio de Gastroenterología",
+    "desc_normalizada": "consultorio de gastroenterologia"
+  },
+  {
+    "id": 72400,
+    "desc_original": "Consultorio de Hemodinamia",
+    "desc_normalizada": "consultorio de hemodinamia"
+  },
+  {
+    "id": 72500,
+    "desc_original": "Total de Consultorios de Ginecología y Obstetricia",
+    "desc_normalizada": "total de consultorios de ginecologia y obstetricia"
+  },
+  {
+    "id": 72600,
+    "desc_original": "Total de Consultorios de Ginecología",
+    "desc_normalizada": "total de consultorios de ginecologia"
+  },
+  {
+    "id": 72601,
+    "desc_original": "Consultorio de Ginecología",
+    "desc_normalizada": "consultorio de ginecologia"
+  },
+  {
+    "id": 72602,
+    "desc_original": "Consultorio de Displasias Ginecológicas",
+    "desc_normalizada": "consultorio de displasias ginecologicas"
+  },
+  {
+    "id": 72603,
+    "desc_original": "Consultorio de Tracto Genital Superior",
+    "desc_normalizada": "consultorio de tracto genital superior"
+  },
+  {
+    "id": 72604,
+    "desc_original": "Consultorio de Endocrinología Ginecológica",
+    "desc_normalizada": "consultorio de endocrinologia ginecologica"
+  },
+  {
+    "id": 72605,
+    "desc_original": "Consultorio de Biología de la Reproducción Humana",
+    "desc_normalizada": "consultorio de biologia de la reproduccion humana"
+  },
+  {
+    "id": 72606,
+    "desc_original": "Consultorio de Urología Ginecológica",
+    "desc_normalizada": "consultorio de urologia ginecologica"
+  },
+  {
+    "id": 72607,
+    "desc_original": "Consultorio de Ginecología Oncológica",
+    "desc_normalizada": "consultorio de ginecologia oncologica"
+  },
+  {
+    "id": 72700,
+    "desc_original": "Total de Consultorios de Obstetricia",
+    "desc_normalizada": "total de consultorios de obstetricia"
+  },
+  {
+    "id": 72701,
+    "desc_original": "Consultorio de Obstetricia",
+    "desc_normalizada": "consultorio de obstetricia"
+  },
+  {
+    "id": 72702,
+    "desc_original": "Consultorio de Perinatología",
+    "desc_normalizada": "consultorio de perinatologia"
+  },
+  {
+    "id": 72707,
+    "desc_original": "Consultorio de Salud Reproductiva",
+    "desc_normalizada": "consultorio de salud reproductiva"
+  },
+  {
+    "id": 72800,
+    "desc_original": "Consultorio de Hematología",
+    "desc_normalizada": "consultorio de hematologia"
+  },
+  {
+    "id": 72900,
+    "desc_original": "Consultorio de Infectología",
+    "desc_normalizada": "consultorio de infectologia"
+  },
+  {
+    "id": 73000,
+    "desc_original": "Consultorio de Medicina Interna",
+    "desc_normalizada": "consultorio de medicina interna"
+  },
+  {
+    "id": 73100,
+    "desc_original": "Consultorio de Nefrología",
+    "desc_normalizada": "consultorio de nefrologia"
+  },
+  {
+    "id": 73200,
+    "desc_original": "Consultorio de Neumología",
+    "desc_normalizada": "consultorio de neumologia"
+  },
+  {
+    "id": 73300,
+    "desc_original": "Consultorio de Neurología",
+    "desc_normalizada": "consultorio de neurologia"
+  },
+  {
+    "id": 73501,
+    "desc_original": "Consultorio de Oftalmología",
+    "desc_normalizada": "consultorio de oftalmologia"
+  },
+  {
+    "id": 73600,
+    "desc_original": "Consultorio de Otorrinolaringología",
+    "desc_normalizada": "consultorio de otorrinolaringologia"
+  },
+  {
+    "id": 73700,
+    "desc_original": "Total de Consultorios de Pediatría Médica",
+    "desc_normalizada": "total de consultorios de pediatria medica"
+  },
+  {
+    "id": 73701,
+    "desc_original": "Consultorio de Pediatría Médica",
+    "desc_normalizada": "consultorio de pediatria medica"
+  },
+  {
+    "id": 73702,
+    "desc_original": "Consultorio de Dermatología Pediátrica",
+    "desc_normalizada": "consultorio de dermatologia pediatrica"
+  },
+  {
+    "id": 73703,
+    "desc_original": "Consultorio de Endocrinología Pediátrica",
+    "desc_normalizada": "consultorio de endocrinologia pediatrica"
+  },
+  {
+    "id": 73704,
+    "desc_original": "Consultorio de Gastroenterología Pediátrica",
+    "desc_normalizada": "consultorio de gastroenterologia pediatrica"
+  },
+  {
+    "id": 73705,
+    "desc_original": "Consultorio de Genética Pediátríca",
+    "desc_normalizada": "consultorio de genetica pediatrica"
+  },
+  {
+    "id": 73706,
+    "desc_original": "Consultorio de Hematología Pediátrica",
+    "desc_normalizada": "consultorio de hematologia pediatrica"
+  },
+  {
+    "id": 73707,
+    "desc_original": "Consultorio de Infectología Pediátrica",
+    "desc_normalizada": "consultorio de infectologia pediatrica"
+  },
+  {
+    "id": 73708,
+    "desc_original": "Consultorio de Medicina Interna Pediátrica",
+    "desc_normalizada": "consultorio de medicina interna pediatrica"
+  },
+  {
+    "id": 73709,
+    "desc_original": "Consultorio de Nefrología Pediátrica",
+    "desc_normalizada": "consultorio de nefrologia pediatrica"
+  },
+  {
+    "id": 73710,
+    "desc_original": "Consultorio de Neumología Pediátrica",
+    "desc_normalizada": "consultorio de neumologia pediatrica"
+  },
+  {
+    "id": 73711,
+    "desc_original": "Consultorio de Neurología Pediátrica",
+    "desc_normalizada": "consultorio de neurologia pediatrica"
+  },
+  {
+    "id": 73712,
+    "desc_original": "Consultorio de Oncología Pediátrica",
+    "desc_normalizada": "consultorio de oncologia pediatrica"
+  },
+  {
+    "id": 73713,
+    "desc_original": "Consultorio de Reumatología Pediátrica",
+    "desc_normalizada": "consultorio de reumatologia pediatrica"
+  },
+  {
+    "id": 74002,
+    "desc_original": "Consultorio de Coloproctología",
+    "desc_normalizada": "consultorio de coloproctologia"
+  },
+  {
+    "id": 74100,
+    "desc_original": "Total de Consultorios de Psiquiatría",
+    "desc_normalizada": "total de consultorios de psiquiatria"
+  },
+  {
+    "id": 74101,
+    "desc_original": "Consultorio de Psiquiatría",
+    "desc_normalizada": "consultorio de psiquiatria"
+  },
+  {
+    "id": 74103,
+    "desc_original": "Consultorio Psiquiatría Infantil y de la Adolescencia",
+    "desc_normalizada": "consultorio psiquiatria infantil y de la adolescencia"
+  },
+  {
+    "id": 74200,
+    "desc_original": "Consultorio de Reumatología",
+    "desc_normalizada": "consultorio de reumatologia"
+  },
+  {
+    "id": 74300,
+    "desc_original": "Total de Consultorios de Traumatología y Ortopedia",
+    "desc_normalizada": "total de consultorios de traumatologia y ortopedia"
+  },
+  {
+    "id": 74301,
+    "desc_original": "Consultorio de Traumatología y Ortopedia Pediátrica",
+    "desc_normalizada": "consultorio de traumatologia y ortopedia pediatrica"
+  },
+  {
+    "id": 74302,
+    "desc_original": "Consultorio de Traumatología",
+    "desc_normalizada": "consultorio de traumatologia"
+  },
+  {
+    "id": 74303,
+    "desc_original": "Consultorio de Ortopedia",
+    "desc_normalizada": "consultorio de ortopedia"
+  },
+  {
+    "id": 74304,
+    "desc_original": "Consultorio de Columna",
+    "desc_normalizada": "consultorio de columna"
+  },
+  {
+    "id": 74305,
+    "desc_original": "Consultorio de Rodilla",
+    "desc_normalizada": "consultorio de rodilla"
+  },
+  {
+    "id": 74306,
+    "desc_original": "Consultorio de Miembro Torácico",
+    "desc_normalizada": "consultorio de miembro toracico"
+  },
+  {
+    "id": 74307,
+    "desc_original": "Consultorio de Trauma Polifracturas y Expuestas",
+    "desc_normalizada": "consultorio de trauma polifracturas y expuestas"
+  },
+  {
+    "id": 74308,
+    "desc_original": "Consultorio de Tobillo y Pie",
+    "desc_normalizada": "consultorio de tobillo y pie"
+  },
+  {
+    "id": 74309,
+    "desc_original": "Consultorio de Cadera y Pelvis",
+    "desc_normalizada": "consultorio de cadera y pelvis"
+  },
+  {
+    "id": 74310,
+    "desc_original": "Consultorio de Cirugía Mano",
+    "desc_normalizada": "consultorio de cirugia mano"
+  },
+  {
+    "id": 74312,
+    "desc_original": "Consultorio de Cirugía ToracoAbdominal",
+    "desc_normalizada": "consultorio de cirugia toracoabdominal"
+  },
+  {
+    "id": 74313,
+    "desc_original": "Consultorio de Columna y Cadera",
+    "desc_normalizada": "consultorio de columna y cadera"
+  },
+  {
+    "id": 74314,
+    "desc_original": "Consultorio de Diáfisis",
+    "desc_normalizada": "consultorio de diafisis"
+  },
+  {
+    "id": 74316,
+    "desc_original": "Consultorio de Miembro Pélvico",
+    "desc_normalizada": "consultorio de miembro pelvico"
+  },
+  {
+    "id": 74317,
+    "desc_original": "Consultorio de Reemplazos Articulares",
+    "desc_normalizada": "consultorio de reemplazos articulares"
+  },
+  {
+    "id": 74400,
+    "desc_original": "Consultorio de Clínica del Dolor y Cuidados Paliativos",
+    "desc_normalizada": "consultorio de clinica del dolor y cuidados paliativos"
+  },
+  {
+    "id": 74401,
+    "desc_original": "Consultorio de Cuidados Paliativos",
+    "desc_normalizada": "consultorio de cuidados paliativos"
+  },
+  {
+    "id": 74500,
+    "desc_original": "Consultorio de Geriatría",
+    "desc_normalizada": "consultorio de geriatria"
+  },
+  {
+    "id": 74600,
+    "desc_original": "Consultorio de Urología",
+    "desc_normalizada": "consultorio de urologia"
+  },
+  {
+    "id": 74700,
+    "desc_original": "Consultorio de Audiología y Otoneurología",
+    "desc_normalizada": "consultorio de audiologia y otoneurologia"
+  },
+  {
+    "id": 74800,
+    "desc_original": "Consultorio de Neurocirugía",
+    "desc_normalizada": "consultorio de neurocirugia"
+  },
+  {
+    "id": 74900,
+    "desc_original": "Total de Consultorios de Cirugía Pediátrica",
+    "desc_normalizada": "total de consultorios de cirugia pediatrica"
+  },
+  {
+    "id": 74901,
+    "desc_original": "Consultorio de Cirugía Pediátrica",
+    "desc_normalizada": "consultorio de cirugia pediatrica"
+  },
+  {
+    "id": 74902,
+    "desc_original": "Consultorio de Traumatología Pediátrica",
+    "desc_normalizada": "consultorio de traumatologia pediatrica"
+  },
+  {
+    "id": 74903,
+    "desc_original": "Consultorio de Ortopedia Pediátrica",
+    "desc_normalizada": "consultorio de ortopedia pediatrica"
+  },
+  {
+    "id": 74904,
+    "desc_original": "Consultorio de Cirugía Cardiovascular Pediátrica",
+    "desc_normalizada": "consultorio de cirugia cardiovascular pediatrica"
+  },
+  {
+    "id": 74905,
+    "desc_original": "Consultorio de Cirugía Gastroembrionaria",
+    "desc_normalizada": "consultorio de cirugia gastroembrionaria"
+  },
+  {
+    "id": 74906,
+    "desc_original": "Consultorio de Cirugía Maxilofacial Pediátrica",
+    "desc_normalizada": "consultorio de cirugia maxilofacial pediatrica"
+  },
+  {
+    "id": 74910,
+    "desc_original": "Consultorio de Neurocirugía Pediátrica",
+    "desc_normalizada": "consultorio de neurocirugia pediatrica"
+  },
+  {
+    "id": 74911,
+    "desc_original": "Consultorio de Oftalmología Pediátrica",
+    "desc_normalizada": "consultorio de oftalmologia pediatrica"
+  },
+  {
+    "id": 74912,
+    "desc_original": "Consultorio de Otorrinolaringología Pediátrica",
+    "desc_normalizada": "consultorio de otorrinolaringologia pediatrica"
+  },
+  {
+    "id": 74913,
+    "desc_original": "Consultorio de Urología Pediátrica",
+    "desc_normalizada": "consultorio de urologia pediatrica"
+  },
+  {
+    "id": 75000,
+    "desc_original": "Consultorio de Oncología Médica",
+    "desc_normalizada": "consultorio de oncologia medica"
+  },
+  {
+    "id": 75100,
+    "desc_original": "Consultorio de Cirugía Plástica y Reconstructiva",
+    "desc_normalizada": "consultorio de cirugia plastica y reconstructiva"
+  },
+  {
+    "id": 75200,
+    "desc_original": "Consultorio de Quemados",
+    "desc_normalizada": "consultorio de quemados"
+  },
+  {
+    "id": 75300,
+    "desc_original": "Total de Consultorios de Oncología Quirúrgica",
+    "desc_normalizada": "total de consultorios de oncologia quirurgica"
+  },
+  {
+    "id": 75301,
+    "desc_original": "Consultorio de Oncología Quirúrgica",
+    "desc_normalizada": "consultorio de oncologia quirurgica"
+  },
+  {
+    "id": 75302,
+    "desc_original": "Consultorio de Sarcomas y Tejidos Blandos",
+    "desc_normalizada": "consultorio de sarcomas y tejidos blandos"
+  },
+  {
+    "id": 75303,
+    "desc_original": "Consultorio de Tumores Cabeza, Cuello y Piel",
+    "desc_normalizada": "consultorio de tumores cabeza cuello y piel"
+  },
+  {
+    "id": 75304,
+    "desc_original": "Consultorio de Oncología Ginecológica",
+    "desc_normalizada": "consultorio de oncologia ginecologica"
+  },
+  {
+    "id": 75305,
+    "desc_original": "Consultorio de Tumores de Mama",
+    "desc_normalizada": "consultorio de tumores de mama"
+  },
+  {
+    "id": 75306,
+    "desc_original": "Consultorio de Tumores Tórax",
+    "desc_normalizada": "consultorio de tumores torax"
+  },
+  {
+    "id": 75307,
+    "desc_original": "Consultorio de Urología Oncológica",
+    "desc_normalizada": "consultorio de urologia oncologica"
+  },
+  {
+    "id": 75309,
+    "desc_original": "Consultorio de Oftalmología Oncológica",
+    "desc_normalizada": "consultorio de oftalmologia oncologica"
+  },
+  {
+    "id": 75310,
+    "desc_original": "Consultorio de HematoOncología",
+    "desc_normalizada": "consultorio de hematooncologia"
+  },
+  {
+    "id": 75400,
+    "desc_original": "Consultorio de Psicología",
+    "desc_normalizada": "consultorio de psicologia"
+  },
+  {
+    "id": 75500,
+    "desc_original": "Consultorio de Genética",
+    "desc_normalizada": "consultorio de genetica"
+  },
+  {
+    "id": 75600,
+    "desc_original": "Total de Consultorios de Medicina Física y Rehabilitación",
+    "desc_normalizada": "total de consultorios de medicina fisica y rehabilitacion"
+  },
+  {
+    "id": 75601,
+    "desc_original": "Consultorio de Medicina Física y Rehabilitación",
+    "desc_normalizada": "consultorio de medicina fisica y rehabilitacion"
+  },
+  {
+    "id": 75602,
+    "desc_original": "Consultorio de Rehabilitación Profesional",
+    "desc_normalizada": "consultorio de rehabilitacion profesional"
+  },
+  {
+    "id": 75603,
+    "desc_original": "Consultorio de Electromiografía y Potenciales Evocados",
+    "desc_normalizada": "consultorio de electromiografia y potenciales evocados"
+  },
+  {
+    "id": 75604,
+    "desc_original": "Consultorio de Comunicación Humana",
+    "desc_normalizada": "consultorio de comunicacion humana"
+  },
+  {
+    "id": 75700,
+    "desc_original": "Consultorio de Unidad Metabólica",
+    "desc_normalizada": "consultorio de unidad metabolica"
+  },
+  {
+    "id": 75800,
+    "desc_original": "Consultorio de Trasplantes",
+    "desc_normalizada": "consultorio de trasplantes"
+  },
+  {
+    "id": 76100,
+    "desc_original": "Consultorio de Tabaquismo",
+    "desc_normalizada": "consultorio de tabaquismo"
+  },
+  {
+    "id": 76200,
+    "desc_original": "Consultorio de Telemedicina",
+    "desc_normalizada": "consultorio de telemedicina"
+  },
+  {
+    "id": 76300,
+    "desc_original": "Consultorio de Cirugía Bariátrica",
+    "desc_normalizada": "consultorio de cirugia bariatrica"
+  },
+  {
+    "id": 76400,
+    "desc_original": "Consultorio de Valoración Preanestésica",
+    "desc_normalizada": "consultorio de valoracion preanestesica"
+  },
+  {
+    "id": 76500,
+    "desc_original": "Consultorio de Valoración Preoperatoria",
+    "desc_normalizada": "consultorio de valoracion preoperatoria"
+  },
+  {
+    "id": 76600,
+    "desc_original": "Consultorio de Endoscopia Gástrica",
+    "desc_normalizada": "consultorio de endoscopia gastrica"
+  },
+  {
+    "id": 76700,
+    "desc_original": "Consultorio de Endoscopía Urológica",
+    "desc_normalizada": "consultorio de endoscopia urologica"
+  },
+  {
+    "id": 77010,
+    "desc_original": "Total de Consultorio de Endoscopia",
+    "desc_normalizada": "total de consultorio de endoscopia"
+  },
+  {
+    "id": 77050,
+    "desc_original": "Consultorio de Banco de Sangre",
+    "desc_normalizada": "consultorio de banco de sangre"
+  },
+  {
+    "id": 77060,
+    "desc_original": "Consultorio para Clínica de Mama en Unidad Médica",
+    "desc_normalizada": "consultorio para clinica de mama en unidad medica"
+  },
+  {
+    "id": 77101,
+    "desc_original": "Servicio de Salud en el Trabajo",
+    "desc_normalizada": "servicio de salud en el trabajo"
+  },
+  {
+    "id": 77200,
+    "desc_original": "Otros Consultorios",
+    "desc_normalizada": "otros consultorios"
+  },
+  {
+    "id": 77300,
+    "desc_original": "Consultorio de Clínica de Sueño",
+    "desc_normalizada": "consultorio de clinica de sueno"
+  },
+  {
+    "id": 77500,
+    "desc_original": "Total de Consultorios de Medicina",
+    "desc_normalizada": "total de consultorios de medicina"
+  },
+  {
+    "id": 80002,
+    "desc_original": "Área de Trabajo de Enfermería en Hospitalización",
+    "desc_normalizada": "area de trabajo de enfermeria en hospitalizacion"
+  },
+  {
+    "id": 80003,
+    "desc_original": "Sala de Trabajo de Enfermeras",
+    "desc_normalizada": "sala de trabajo de enfermeras"
+  },
+  {
+    "id": 80004,
+    "desc_original": "CADIT (Centro Automatizado de Distribución de Insumos Terapéuticos)",
+    "desc_normalizada": "cadit centro automatizado de distribucion de insumos terapeuticos"
+  },
+  {
+    "id": 80006,
+    "desc_original": "Subcentral de Equipo y Esterilización",
+    "desc_normalizada": "subcentral de equipo y esterilizacion"
+  },
+  {
+    "id": 80008,
+    "desc_original": "CIETDCP (Centro Interdisciplinario para el Estudio y Tratamientos del Dolor y Cuidados Paliativos) (Clínica del Dolor)",
+    "desc_normalizada": "cietdcp centro interdisciplinario para el estudio y tratamientos del dolor y cuidados paliativos clinica del dolor"
+  },
+  {
+    "id": 80014,
+    "desc_original": "Cubículo de Entrevistas de Nutrición",
+    "desc_normalizada": "cubiculo de entrevistas de nutricion"
+  },
+  {
+    "id": 80015,
+    "desc_original": "Área de Hospitalización",
+    "desc_normalizada": "area de hospitalizacion"
+  },
+  {
+    "id": 80016,
+    "desc_original": "Admisión Hospitalaria",
+    "desc_normalizada": "admision hospitalaria"
+  },
+  {
+    "id": 80017,
+    "desc_original": "Área de Reanimación en Hospitalización",
+    "desc_normalizada": "area de reanimacion en hospitalizacion"
+  },
+  {
+    "id": 80018,
+    "desc_original": "Nutrición Parenteral",
+    "desc_normalizada": "nutricion parenteral"
+  },
+  {
+    "id": 80019,
+    "desc_original": "Laboratorio de formula láctea y dietas enterales",
+    "desc_normalizada": "laboratorio de formula lactea y dietas enterales"
+  },
+  {
+    "id": 80020,
+    "desc_original": "Central de Esterilización",
+    "desc_normalizada": "central de esterilizacion"
+  },
+  {
+    "id": 80021,
+    "desc_original": "Servicio de Nutrición y Dietética",
+    "desc_normalizada": "servicio de nutricion y dietetica"
+  },
+  {
+    "id": 80022,
+    "desc_original": "Área de \"Sigamos Aprendiendo en el Hospital\"",
+    "desc_normalizada": "area de sigamos aprendiendo en el hospital"
+  },
+  {
+    "id": 80023,
+    "desc_original": "Área de Dormitorio o Cuarto de Descanso para Residentes",
+    "desc_normalizada": "area de dormitorio o cuarto de descanso para residentes"
+  },
+  {
+    "id": 80024,
+    "desc_original": "Modulo de Enfermería Especialista en Geriatría",
+    "desc_normalizada": "modulo de enfermeria especialista en geriatria"
+  },
+  {
+    "id": 80025,
+    "desc_original": "Módulo de prevención y curación de heridas y estomas",
+    "desc_normalizada": "modulo de prevencion y curacion de heridas y estomas"
+  },
+  {
+    "id": 80026,
+    "desc_original": "Cubículo anexo de Oftamología para Campimetría",
+    "desc_normalizada": "cubiculo anexo de oftamologia para campimetria"
+  },
+  {
+    "id": 80027,
+    "desc_original": "Cubículo anexo de Oftamología para Fluorangiografía",
+    "desc_normalizada": "cubiculo anexo de oftamologia para fluorangiografia"
+  },
+  {
+    "id": 80028,
+    "desc_original": "Cubículo anexo de Oftamología para Ultrasonido Ocular",
+    "desc_normalizada": "cubiculo anexo de oftamologia para ultrasonido ocular"
+  },
+  {
+    "id": 80029,
+    "desc_original": "Cubículo para Atención Domiciliaria del Enfermo Crónico (ADEC)",
+    "desc_normalizada": "cubiculo para atencion domiciliaria del enfermo cronico adec"
+  },
+  {
+    "id": 80030,
+    "desc_original": "Cubículo para cambio de Línea de Transferencia a Pacientes en Diálisis Peritoneal",
+    "desc_normalizada": "cubiculo para cambio de linea de transferencia a pacientes en dialisis peritoneal"
+  },
+  {
+    "id": 80031,
+    "desc_original": "Cubículo para realización de Ecocardiograma",
+    "desc_normalizada": "cubiculo para realizacion de ecocardiograma"
+  },
+  {
+    "id": 80032,
+    "desc_original": "Cubículo para realización de Prueba de Esfuerzo",
+    "desc_normalizada": "cubiculo para realizacion de prueba de esfuerzo"
+  },
+  {
+    "id": 80033,
+    "desc_original": "Cubículo para toma de Electrocardiograma",
+    "desc_normalizada": "cubiculo para toma de electrocardiograma"
+  },
+  {
+    "id": 80034,
+    "desc_original": "Lactario",
+    "desc_normalizada": "lactario"
+  },
+  {
+    "id": 80035,
+    "desc_original": "Esterilizador de vapor directo",
+    "desc_normalizada": "esterilizador de vapor directo"
+  },
+  {
+    "id": 80036,
+    "desc_original": "Esterilizador de baja temperatura a través de plasma",
+    "desc_normalizada": "esterilizador de baja temperatura a traves de plasma"
+  },
+  {
+    "id": 80037,
+    "desc_original": "Esterilizador de alta y baja temperatura a través de gas",
+    "desc_normalizada": "esterilizador de alta y baja temperatura a traves de gas"
+  },
+  {
+    "id": 80038,
+    "desc_original": "Otros esterilizadores",
+    "desc_normalizada": "otros esterilizadores"
+  },
+  {
+    "id": 80039,
+    "desc_original": "Sala de Lactancia",
+    "desc_normalizada": "sala de lactancia"
+  },
+  {
+    "id": 80040,
+    "desc_original": "Sala de estimulación temprana",
+    "desc_normalizada": "sala de estimulacion temprana"
+  },
+  {
+    "id": 80041,
+    "desc_original": "Aula de Atención Amigable",
+    "desc_normalizada": "aula de atencion amigable"
+  },
+  {
+    "id": 80042,
+    "desc_original": "Área de PreLabor",
+    "desc_normalizada": "area de prelabor"
+  },
+  {
+    "id": 80043,
+    "desc_original": "Banco de Leche Humana",
+    "desc_normalizada": "banco de leche humana"
+  },
+  {
+    "id": 80045,
+    "desc_original": "Área de tamiz neonatal",
+    "desc_normalizada": "area de tamiz neonatal"
+  },
+  {
+    "id": 80050,
+    "desc_original": "Área de Consulta Externa (si, no)",
+    "desc_normalizada": "area de consulta externa si no"
+  },
+  {
+    "id": 80051,
+    "desc_original": "Módulos de Asistentes Médicas (Control Central)",
+    "desc_normalizada": "modulos de asistentes medicas control central"
+  },
+  {
+    "id": 80052,
+    "desc_original": "Asistentes Médicas (Control)",
+    "desc_normalizada": "asistentes medicas control"
+  },
+  {
+    "id": 80053,
+    "desc_original": "Módulo de Nutrición y Dietética",
+    "desc_normalizada": "modulo de nutricion y dietetica"
+  },
+  {
+    "id": 80054,
+    "desc_original": "Aula del Centro de Atención a la Diabetes en el IMSS (CADIMSS)",
+    "desc_normalizada": "aula del centro de atencion a la diabetes en el imss cadimss"
+  },
+  {
+    "id": 80055,
+    "desc_original": "Oficina de la Coordinación de Asistentes Médicas",
+    "desc_normalizada": "oficina de la coordinacion de asistentes medicas"
+  },
+  {
+    "id": 80056,
+    "desc_original": "Oficina de Jefe de Grupo de ARIMAC",
+    "desc_normalizada": "oficina de jefe de grupo de arimac"
+  },
+  {
+    "id": 80057,
+    "desc_original": "Sala de Altas",
+    "desc_normalizada": "sala de altas"
+  },
+  {
+    "id": 80058,
+    "desc_original": "Modulo de terapia de infusión",
+    "desc_normalizada": "modulo de terapia de infusion"
+  },
+  {
+    "id": 80059,
+    "desc_original": "Medicamentos a granel en servicio de urgencias",
+    "desc_normalizada": "medicamentos a granel en servicio de urgencias"
+  },
+  {
+    "id": 80060,
+    "desc_original": "Módulo de Salud Mental",
+    "desc_normalizada": "modulo de salud mental"
+  },
+  {
+    "id": 80065,
+    "desc_original": "Módulo Unifila",
+    "desc_normalizada": "modulo unifila"
+  },
+  {
+    "id": 80100,
+    "desc_original": "Área Admistrativa",
+    "desc_normalizada": "area admistrativa"
+  },
+  {
+    "id": 80101,
+    "desc_original": "Módulo de Atención y Orientación al Derechohabiente",
+    "desc_normalizada": "modulo de atencion y orientacion al derechohabiente"
+  },
+  {
+    "id": 80102,
+    "desc_original": "Control de Prestaciones",
+    "desc_normalizada": "control de prestaciones"
+  },
+  {
+    "id": 80103,
+    "desc_original": "Sector Técnico (si, no)",
+    "desc_normalizada": "sector tecnico si no"
+  },
+  {
+    "id": 80105,
+    "desc_original": "Oficina de Información Médica y Archivo Clinico OIMAC (si, no)",
+    "desc_normalizada": "oficina de informacion medica y archivo clinico oimac si no"
+  },
+  {
+    "id": 80109,
+    "desc_original": "Local de Refrigerios (si, no)",
+    "desc_normalizada": "local de refrigerios si no"
+  },
+  {
+    "id": 80110,
+    "desc_original": "Farmacia (si, no)",
+    "desc_normalizada": "farmacia si no"
+  },
+  {
+    "id": 80111,
+    "desc_original": "Lavandería (si, no)",
+    "desc_normalizada": "lavanderia si no"
+  },
+  {
+    "id": 80112,
+    "desc_original": "Almacén de Víveres (si, no)",
+    "desc_normalizada": "almacen de viveres si no"
+  },
+  {
+    "id": 80113,
+    "desc_original": "Almacén de la Unidad (si, no)",
+    "desc_normalizada": "almacen de la unidad si no"
+  },
+  {
+    "id": 80114,
+    "desc_original": "Taller de Conservación y Mantenimiento (si, no)",
+    "desc_normalizada": "taller de conservacion y mantenimiento si no"
+  },
+  {
+    "id": 80115,
+    "desc_original": "Comedor para Personal (si, no)",
+    "desc_normalizada": "comedor para personal si no"
+  },
+  {
+    "id": 80116,
+    "desc_original": "Cocina (si, no)",
+    "desc_normalizada": "cocina si no"
+  },
+  {
+    "id": 80117,
+    "desc_original": "Área de Información Médica y Archivo Clínico (ARIMAC)",
+    "desc_normalizada": "area de informacion medica y archivo clinico arimac"
+  },
+  {
+    "id": 80150,
+    "desc_original": "Área de Atención Preventiva Integrada (PrevenIMSS) (si, no)",
+    "desc_normalizada": "area de atencion preventiva integrada prevenimss si no"
+  },
+  {
+    "id": 80151,
+    "desc_original": "Módulo PrevenIMSS",
+    "desc_normalizada": "modulo prevenimss"
+  },
+  {
+    "id": 80152,
+    "desc_original": "Local Vacunadores y Programas Especiales",
+    "desc_normalizada": "local vacunadores y programas especiales"
+  },
+  {
+    "id": 80153,
+    "desc_original": "Local de la Red de Frío",
+    "desc_normalizada": "local de la red de frio"
+  },
+  {
+    "id": 80154,
+    "desc_original": "Cubículo de Estomatología Preventiva",
+    "desc_normalizada": "cubiculo de estomatologia preventiva"
+  },
+  {
+    "id": 80155,
+    "desc_original": "Sillones Dentales de Medicina Preventiva",
+    "desc_normalizada": "sillones dentales de medicina preventiva"
+  },
+  {
+    "id": 80157,
+    "desc_original": "Módulo de los Servicios de Prevención y Promoción de la Salud para Trabajadores (SPPSTIMSS)",
+    "desc_normalizada": "modulo de los servicios de prevencion y promocion de la salud para trabajadores sppstimss"
+  },
+  {
+    "id": 80159,
+    "desc_original": "Central de preparación de medicamentos",
+    "desc_normalizada": "central de preparacion de medicamentos"
+  },
+  {
+    "id": 80200,
+    "desc_original": "Área de Estomatología Consulta Externa",
+    "desc_normalizada": "area de estomatologia consulta externa"
+  },
+  {
+    "id": 80201,
+    "desc_original": "Sillones Dentales Consulta Externa",
+    "desc_normalizada": "sillones dentales consulta externa"
+  },
+  {
+    "id": 80250,
+    "desc_original": "Área de Trabajo Social",
+    "desc_normalizada": "area de trabajo social"
+  },
+  {
+    "id": 80251,
+    "desc_original": "Oficina de Trabajo Social",
+    "desc_normalizada": "oficina de trabajo social"
+  },
+  {
+    "id": 80252,
+    "desc_original": "Módulo de Trabajo Social",
+    "desc_normalizada": "modulo de trabajo social"
+  },
+  {
+    "id": 80253,
+    "desc_original": "Cubículo de entrevistas de Trabajo Social",
+    "desc_normalizada": "cubiculo de entrevistas de trabajo social"
+  },
+  {
+    "id": 80254,
+    "desc_original": "Centro de invitación organizada",
+    "desc_normalizada": "centro de invitacion organizada"
+  },
+  {
+    "id": 80300,
+    "desc_original": "Área de Urgencias",
+    "desc_normalizada": "area de urgencias"
+  },
+  {
+    "id": 80301,
+    "desc_original": "Área de TRIAGE",
+    "desc_normalizada": "area de triage"
+  },
+  {
+    "id": 80302,
+    "desc_original": "Atención Médica Continua",
+    "desc_normalizada": "atencion medica continua"
+  },
+  {
+    "id": 80303,
+    "desc_original": "Área de Primer contacto",
+    "desc_normalizada": "area de primer contacto"
+  },
+  {
+    "id": 80304,
+    "desc_original": "Área de Observación Urgencias",
+    "desc_normalizada": "area de observacion urgencias"
+  },
+  {
+    "id": 80308,
+    "desc_original": "Área de Hidratación",
+    "desc_normalizada": "area de hidratacion"
+  },
+  {
+    "id": 80309,
+    "desc_original": "Admisión Continua",
+    "desc_normalizada": "admision continua"
+  },
+  {
+    "id": 80310,
+    "desc_original": "Observación Admisión Continua",
+    "desc_normalizada": "observacion admision continua"
+  },
+  {
+    "id": 80311,
+    "desc_original": "Área de Reanimación en urgencias",
+    "desc_normalizada": "area de reanimacion en urgencias"
+  },
+  {
+    "id": 80312,
+    "desc_original": "Área de Corta Estancia",
+    "desc_normalizada": "area de corta estancia"
+  },
+  {
+    "id": 80313,
+    "desc_original": "TRIAGE de urgencias en Tococirugía",
+    "desc_normalizada": "triage de urgencias en tococirugia"
+  },
+  {
+    "id": 80349,
+    "desc_original": "Electrofisiología cardiaca",
+    "desc_normalizada": "electrofisiologia cardiaca"
+  },
+  {
+    "id": 80351,
+    "desc_original": "Área de Cirugía Ambulatoria",
+    "desc_normalizada": "area de cirugia ambulatoria"
+  },
+  {
+    "id": 80354,
+    "desc_original": "Sala de Operaciones Híbrida (Hemodinamia/Cirugía Cardiaca)",
+    "desc_normalizada": "sala de operaciones hibrida hemodinamia cirugia cardiaca"
+  },
+  {
+    "id": 80355,
+    "desc_original": "Bombas de Circulación Extra Corpórea",
+    "desc_normalizada": "bombas de circulacion extra corporea"
+  },
+  {
+    "id": 80356,
+    "desc_original": "Equipos Succión",
+    "desc_normalizada": "equipos succion"
+  },
+  {
+    "id": 80357,
+    "desc_original": "Fuentes de Marcapasos",
+    "desc_normalizada": "fuentes de marcapasos"
+  },
+  {
+    "id": 80358,
+    "desc_original": "Histeroscopios",
+    "desc_normalizada": "histeroscopios"
+  },
+  {
+    "id": 80359,
+    "desc_original": "Microscopios Quirúrgicos",
+    "desc_normalizada": "microscopios quirurgicos"
+  },
+  {
+    "id": 80361,
+    "desc_original": "Sala de Operaciones en Urgencias (Quirófano)",
+    "desc_normalizada": "sala de operaciones en urgencias quirofano"
+  },
+  {
+    "id": 80362,
+    "desc_original": "Área de Preparación de Pacientes Común para Quirófano y Endoscopías",
+    "desc_normalizada": "area de preparacion de pacientes comun para quirofano y endoscopias"
+  },
+  {
+    "id": 80363,
+    "desc_original": "Área Quirúrgica",
+    "desc_normalizada": "area quirurgica"
+  },
+  {
+    "id": 80364,
+    "desc_original": "Sala de Quirófano",
+    "desc_normalizada": "sala de quirofano"
+  },
+  {
+    "id": 80365,
+    "desc_original": "Cuarto de hospitalización para aislamiento",
+    "desc_normalizada": "cuarto de hospitalizacion para aislamiento"
+  },
+  {
+    "id": 80402,
+    "desc_original": "Sala Mixta Cirugía y Tococirugía (Quirófano)",
+    "desc_normalizada": "sala mixta cirugia y tococirugia quirofano"
+  },
+  {
+    "id": 80403,
+    "desc_original": "Sala de Expulsión",
+    "desc_normalizada": "sala de expulsion"
+  },
+  {
+    "id": 80404,
+    "desc_original": "Local Perinatología",
+    "desc_normalizada": "local perinatologia"
+  },
+  {
+    "id": 80405,
+    "desc_original": "Incubadora de Traslado",
+    "desc_normalizada": "incubadora de traslado"
+  },
+  {
+    "id": 80406,
+    "desc_original": "Área de Tococirugía",
+    "desc_normalizada": "area de tococirugia"
+  },
+  {
+    "id": 80407,
+    "desc_original": "Quirófanos en Tococirugía",
+    "desc_normalizada": "quirofanos en tococirugia"
+  },
+  {
+    "id": 80408,
+    "desc_original": "Sala de Procedimientos Quirúrgicos",
+    "desc_normalizada": "sala de procedimientos quirurgicos"
+  },
+  {
+    "id": 80409,
+    "desc_original": "Sala de Procedimientos Médicos",
+    "desc_normalizada": "sala de procedimientos medicos"
+  },
+  {
+    "id": 80410,
+    "desc_original": "Sala de Labor, Parto y Recuperación",
+    "desc_normalizada": "sala de labor parto y recuperacion"
+  },
+  {
+    "id": 80450,
+    "desc_original": "Área de Endoscopía (si, no)",
+    "desc_normalizada": "area de endoscopia si no"
+  },
+  {
+    "id": 80451,
+    "desc_original": "Sala de Endoscopías Altas",
+    "desc_normalizada": "sala de endoscopias altas"
+  },
+  {
+    "id": 80452,
+    "desc_original": "Sala de Endoscopías Bajas",
+    "desc_normalizada": "sala de endoscopias bajas"
+  },
+  {
+    "id": 80453,
+    "desc_original": "Endoscopios",
+    "desc_normalizada": "endoscopios"
+  },
+  {
+    "id": 80454,
+    "desc_original": "Endoscopio Neuroquirúrgico",
+    "desc_normalizada": "endoscopio neuroquirurgico"
+  },
+  {
+    "id": 80455,
+    "desc_original": "Equipo para CEPRE (Colangiopancreatografía retrógrada endoscópica)",
+    "desc_normalizada": "equipo para cepre colangiopancreatografia retrograda endoscopica"
+  },
+  {
+    "id": 80500,
+    "desc_original": "Área de Hemodinámica y Fisiología Vascular (si, no)",
+    "desc_normalizada": "area de hemodinamica y fisiologia vascular si no"
+  },
+  {
+    "id": 80501,
+    "desc_original": "Unidad de cuidados intensivos coronarios",
+    "desc_normalizada": "unidad de cuidados intensivos coronarios"
+  },
+  {
+    "id": 80502,
+    "desc_original": "Aparatos de Rayos X de Hemodinámica",
+    "desc_normalizada": "aparatos de rayos x de hemodinamica"
+  },
+  {
+    "id": 80503,
+    "desc_original": "Balón de Contrapulsación Intraaórtico",
+    "desc_normalizada": "balon de contrapulsacion intraaortico"
+  },
+  {
+    "id": 80505,
+    "desc_original": "Equipo para la medición de Gases Arteriales",
+    "desc_normalizada": "equipo para la medicion de gases arteriales"
+  },
+  {
+    "id": 80507,
+    "desc_original": "Equipo para Prueba de Esfuerzo",
+    "desc_normalizada": "equipo para prueba de esfuerzo"
+  },
+  {
+    "id": 80508,
+    "desc_original": "Cardiotocógrafos",
+    "desc_normalizada": "cardiotocografos"
+  },
+  {
+    "id": 80509,
+    "desc_original": "Angiógrafo",
+    "desc_normalizada": "angiografo"
+  },
+  {
+    "id": 80510,
+    "desc_original": "Pletismógrafo.",
+    "desc_normalizada": "pletismografo"
+  },
+  {
+    "id": 80511,
+    "desc_original": "Espirómetro",
+    "desc_normalizada": "espirometro"
+  },
+  {
+    "id": 80512,
+    "desc_original": "Equipos Holter",
+    "desc_normalizada": "equipos holter"
+  },
+  {
+    "id": 80513,
+    "desc_original": "Equipos de monitor",
+    "desc_normalizada": "equipos de monitor"
+  },
+  {
+    "id": 80514,
+    "desc_original": "Pletismógrafo corporal neonatal",
+    "desc_normalizada": "pletismografo corporal neonatal"
+  },
+  {
+    "id": 80515,
+    "desc_original": "Pletismógrafo corporal pediátricoadulto",
+    "desc_normalizada": "pletismografo corporal pediatricoadulto"
+  },
+  {
+    "id": 80517,
+    "desc_original": "Ergoespirómetro en pruebas de ejercicio",
+    "desc_normalizada": "ergoespirometro en pruebas de ejercicio"
+  },
+  {
+    "id": 80518,
+    "desc_original": "Espirómetro computarizado con neumotocógrafo",
+    "desc_normalizada": "espirometro computarizado con neumotocografo"
+  },
+  {
+    "id": 80519,
+    "desc_original": "Espirómetro con neumotocógrafo",
+    "desc_normalizada": "espirometro con neumotocografo"
+  },
+  {
+    "id": 80520,
+    "desc_original": "Espirómetro tipo Wrigth",
+    "desc_normalizada": "espirometro tipo wrigth"
+  },
+  {
+    "id": 80521,
+    "desc_original": "Lámpara de fototerapia",
+    "desc_normalizada": "lampara de fototerapia"
+  },
+  {
+    "id": 80522,
+    "desc_original": "Sistema de fototerapia BiliBlanket",
+    "desc_normalizada": "sistema de fototerapia biliblanket"
+  },
+  {
+    "id": 80523,
+    "desc_original": "Tromboelastógrafo",
+    "desc_normalizada": "tromboelastografo"
+  },
+  {
+    "id": 80524,
+    "desc_original": "Unidad de secado para equipo de inhaloterapia",
+    "desc_normalizada": "unidad de secado para equipo de inhaloterapia"
+  },
+  {
+    "id": 80550,
+    "desc_original": "Área de Medicina Nuclear (si, no)",
+    "desc_normalizada": "area de medicina nuclear si no"
+  },
+  {
+    "id": 80551,
+    "desc_original": "Sala de Diagnóstico y Tratamiento",
+    "desc_normalizada": "sala de diagnostico y tratamiento"
+  },
+  {
+    "id": 80554,
+    "desc_original": "Contadores Radioactivos",
+    "desc_normalizada": "contadores radioactivos"
+  },
+  {
+    "id": 80555,
+    "desc_original": "Gamma Cámara",
+    "desc_normalizada": "gamma camara"
+  },
+  {
+    "id": 80556,
+    "desc_original": "Laboratorio de Medicina Nuclear (si, no)",
+    "desc_normalizada": "laboratorio de medicina nuclear si no"
+  },
+  {
+    "id": 80602,
+    "desc_original": "Aparatos de Tomografía",
+    "desc_normalizada": "aparatos de tomografia"
+  },
+  {
+    "id": 80604,
+    "desc_original": "Unidad para ultrasonografía coloproctológica",
+    "desc_normalizada": "unidad para ultrasonografia coloproctologica"
+  },
+  {
+    "id": 80605,
+    "desc_original": "Unidad para ultrasonografía oftalmológica",
+    "desc_normalizada": "unidad para ultrasonografia oftalmologica"
+  },
+  {
+    "id": 80606,
+    "desc_original": "Ultrasonógrafo endoscópico",
+    "desc_normalizada": "ultrasonografo endoscopico"
+  },
+  {
+    "id": 80607,
+    "desc_original": "Unidad para ultrasonografía transcraneal con código de color",
+    "desc_normalizada": "unidad para ultrasonografia transcraneal con codigo de color"
+  },
+  {
+    "id": 80651,
+    "desc_original": "Sala de Radiodiagnóstico",
+    "desc_normalizada": "sala de radiodiagnostico"
+  },
+  {
+    "id": 80652,
+    "desc_original": "Sala de Interpretación de Radiodiagnóstico",
+    "desc_normalizada": "sala de interpretacion de radiodiagnostico"
+  },
+  {
+    "id": 80653,
+    "desc_original": "Unidades Radiográficas / Fluoroscopia",
+    "desc_normalizada": "unidades radiograficas fluoroscopia"
+  },
+  {
+    "id": 80654,
+    "desc_original": "Sistema de Fluoroscopía de Propósito General",
+    "desc_normalizada": "sistema de fluoroscopia de proposito general"
+  },
+  {
+    "id": 80655,
+    "desc_original": "Equipos de Resonancia Magnética",
+    "desc_normalizada": "equipos de resonancia magnetica"
+  },
+  {
+    "id": 80656,
+    "desc_original": "Aparatos de Ultrasonografía",
+    "desc_normalizada": "aparatos de ultrasonografia"
+  },
+  {
+    "id": 80657,
+    "desc_original": "Aparatos de Rayos X Dentales",
+    "desc_normalizada": "aparatos de rayos x dentales"
+  },
+  {
+    "id": 80658,
+    "desc_original": "Aparatos de Rayos X Fijos",
+    "desc_normalizada": "aparatos de rayos x fijos"
+  },
+  {
+    "id": 80659,
+    "desc_original": "Aparatos de Rayos X Transportables",
+    "desc_normalizada": "aparatos de rayos x transportables"
+  },
+  {
+    "id": 80660,
+    "desc_original": "Mastógrafo Analógico",
+    "desc_normalizada": "mastografo analogico"
+  },
+  {
+    "id": 80661,
+    "desc_original": "Mastógrafo Digital",
+    "desc_normalizada": "mastografo digital"
+  },
+  {
+    "id": 80662,
+    "desc_original": "Revelador Automático",
+    "desc_normalizada": "revelador automatico"
+  },
+  {
+    "id": 80663,
+    "desc_original": "Esterotaxia para Mamografía",
+    "desc_normalizada": "esterotaxia para mamografia"
+  },
+  {
+    "id": 80664,
+    "desc_original": "Densitómetro Óseo",
+    "desc_normalizada": "densitometro oseo"
+  },
+  {
+    "id": 80665,
+    "desc_original": "Arcos en C",
+    "desc_normalizada": "arcos en c"
+  },
+  {
+    "id": 80666,
+    "desc_original": "Fantomas",
+    "desc_normalizada": "fantomas"
+  },
+  {
+    "id": 80667,
+    "desc_original": "Fonomecanocardiógrafos",
+    "desc_normalizada": "fonomecanocardiografos"
+  },
+  {
+    "id": 80668,
+    "desc_original": "Área de Imagenología",
+    "desc_normalizada": "area de imagenologia"
+  },
+  {
+    "id": 80669,
+    "desc_original": "Sistemas de archivo y comunicación de imágenes (PACS)",
+    "desc_normalizada": "sistemas de archivo y comunicacion de imagenes pacs"
+  },
+  {
+    "id": 80670,
+    "desc_original": "Impresoras en Seco y Revelador de Películas Radiográfica",
+    "desc_normalizada": "impresoras en seco y revelador de peliculas radiografica"
+  },
+  {
+    "id": 80671,
+    "desc_original": "Área de Radiodiagnóstico",
+    "desc_normalizada": "area de radiodiagnostico"
+  },
+  {
+    "id": 80672,
+    "desc_original": "Unidad de Flotofluorangiografia",
+    "desc_normalizada": "unidad de flotofluorangiografia"
+  },
+  {
+    "id": 80701,
+    "desc_original": "Sala de Radioterapia",
+    "desc_normalizada": "sala de radioterapia"
+  },
+  {
+    "id": 80702,
+    "desc_original": "Aparatos Radioterapia Profunda",
+    "desc_normalizada": "aparatos radioterapia profunda"
+  },
+  {
+    "id": 80703,
+    "desc_original": "Aparatos Radioterapia Superficial",
+    "desc_normalizada": "aparatos radioterapia superficial"
+  },
+  {
+    "id": 80704,
+    "desc_original": "Simulador para Radioterapia",
+    "desc_normalizada": "simulador para radioterapia"
+  },
+  {
+    "id": 80705,
+    "desc_original": "Sistema de planeación para tratamiento de radioterapia",
+    "desc_normalizada": "sistema de planeacion para tratamiento de radioterapia"
+  },
+  {
+    "id": 80706,
+    "desc_original": "Radiocirugía Robótica (Aparato de Ciberknife)",
+    "desc_normalizada": "radiocirugia robotica aparato de ciberknife"
+  },
+  {
+    "id": 80707,
+    "desc_original": "Radiocirugía (Aparato de Gammaknife)",
+    "desc_normalizada": "radiocirugia aparato de gammaknife"
+  },
+  {
+    "id": 80708,
+    "desc_original": "Braquiterapia de Alta Tasa de Dosis",
+    "desc_normalizada": "braquiterapia de alta tasa de dosis"
+  },
+  {
+    "id": 80709,
+    "desc_original": "Braquiterapia de Baja Tasa de Dosis",
+    "desc_normalizada": "braquiterapia de baja tasa de dosis"
+  },
+  {
+    "id": 80710,
+    "desc_original": "Aceleradores Lineales",
+    "desc_normalizada": "aceleradores lineales"
+  },
+  {
+    "id": 80711,
+    "desc_original": "Unidad de Radioterapia de Cobalto",
+    "desc_normalizada": "unidad de radioterapia de cobalto"
+  },
+  {
+    "id": 80712,
+    "desc_original": "Unidad de Terapia Superficial Ortovoltaje",
+    "desc_normalizada": "unidad de terapia superficial ortovoltaje"
+  },
+  {
+    "id": 80713,
+    "desc_original": "Unidad Terapia Intracavitaria",
+    "desc_normalizada": "unidad terapia intracavitaria"
+  },
+  {
+    "id": 80714,
+    "desc_original": "Aspiradores Ultrasónicos",
+    "desc_normalizada": "aspiradores ultrasonicos"
+  },
+  {
+    "id": 80715,
+    "desc_original": "Bombas de Cobalto",
+    "desc_normalizada": "bombas de cobalto"
+  },
+  {
+    "id": 80716,
+    "desc_original": "Colimadores de Bloque",
+    "desc_normalizada": "colimadores de bloque"
+  },
+  {
+    "id": 80717,
+    "desc_original": "Colimadores para Teleterapia Multihoja",
+    "desc_normalizada": "colimadores para teleterapia multihoja"
+  },
+  {
+    "id": 80718,
+    "desc_original": "Equipos de Braquiterapia Convencional",
+    "desc_normalizada": "equipos de braquiterapia convencional"
+  },
+  {
+    "id": 80719,
+    "desc_original": "Equipos de radiocirugía Exterotáxica",
+    "desc_normalizada": "equipos de radiocirugia exterotaxica"
+  },
+  {
+    "id": 80720,
+    "desc_original": "Litotriptores",
+    "desc_normalizada": "litotriptores"
+  },
+  {
+    "id": 80721,
+    "desc_original": "Área de Radioterapia",
+    "desc_normalizada": "area de radioterapia"
+  },
+  {
+    "id": 80722,
+    "desc_original": "Cuarto de hospitalización  blindado para aplicación de material radiactivo",
+    "desc_normalizada": "cuarto de hospitalizacion blindado para aplicacion de material radiactivo"
+  },
+  {
+    "id": 80723,
+    "desc_original": "Área (Cuarto caliente) para preparación de material radiactivo",
+    "desc_normalizada": "area cuarto caliente para preparacion de material radiactivo"
+  },
+  {
+    "id": 80751,
+    "desc_original": "Electrocardiógrafos",
+    "desc_normalizada": "electrocardiografos"
+  },
+  {
+    "id": 80752,
+    "desc_original": "Electroencefalógrafos",
+    "desc_normalizada": "electroencefalografos"
+  },
+  {
+    "id": 80753,
+    "desc_original": "Electromiógrafos",
+    "desc_normalizada": "electromiografos"
+  },
+  {
+    "id": 80754,
+    "desc_original": "Ecocardiógrafo",
+    "desc_normalizada": "ecocardiografo"
+  },
+  {
+    "id": 80755,
+    "desc_original": "Impedanciómetros",
+    "desc_normalizada": "impedanciometros"
+  },
+  {
+    "id": 80756,
+    "desc_original": "Unidad de presentación topográfica de potenciales evocados",
+    "desc_normalizada": "unidad de presentacion topografica de potenciales evocados"
+  },
+  {
+    "id": 80757,
+    "desc_original": "Flexoextensor de muñeca (Amadeo)",
+    "desc_normalizada": "flexoextensor de muneca amadeo"
+  },
+  {
+    "id": 80758,
+    "desc_original": "Equipo para el fortalecimiento de cadera y miembros superiores e inferiores, intermedio (Contrex)",
+    "desc_normalizada": "equipo para el fortalecimiento de cadera y miembros superiores e inferiores intermedio contrex"
+  },
+  {
+    "id": 80759,
+    "desc_original": "Unidad para medir metabolismo",
+    "desc_normalizada": "unidad para medir metabolismo"
+  },
+  {
+    "id": 80761,
+    "desc_original": "Área de Electrodiagnóstico",
+    "desc_normalizada": "area de electrodiagnostico"
+  },
+  {
+    "id": 80800,
+    "desc_original": "Área de Medicina Física y Rehabilitación (si, no)",
+    "desc_normalizada": "area de medicina fisica y rehabilitacion si no"
+  },
+  {
+    "id": 80810,
+    "desc_original": "Módulo de Rehabilitación Integral (si, no)",
+    "desc_normalizada": "modulo de rehabilitacion integral si no"
+  },
+  {
+    "id": 80851,
+    "desc_original": "Cubículo de Compresas",
+    "desc_normalizada": "cubiculo de compresas"
+  },
+  {
+    "id": 80852,
+    "desc_original": "Cubículo Electroterapia",
+    "desc_normalizada": "cubiculo electroterapia"
+  },
+  {
+    "id": 80853,
+    "desc_original": "Cubículo de Corrientes Interferenciales",
+    "desc_normalizada": "cubiculo de corrientes interferenciales"
+  },
+  {
+    "id": 80854,
+    "desc_original": "Área de Electroterapia",
+    "desc_normalizada": "area de electroterapia"
+  },
+  {
+    "id": 80904,
+    "desc_original": "Sistema de soporte para entrenamiento de marcha, LOKOMAT",
+    "desc_normalizada": "sistema de soporte para entrenamiento de marcha lokomat"
+  },
+  {
+    "id": 80907,
+    "desc_original": "Equipo computarizado para simulación laboral, intermedio",
+    "desc_normalizada": "equipo computarizado para simulacion laboral intermedio"
+  },
+  {
+    "id": 80909,
+    "desc_original": "Sistema robotizado para entrenamiento de miembro superior (Armeo)",
+    "desc_normalizada": "sistema robotizado para entrenamiento de miembro superior armeo"
+  },
+  {
+    "id": 80910,
+    "desc_original": "Área de Mecanoterapia",
+    "desc_normalizada": "area de mecanoterapia"
+  },
+  {
+    "id": 80911,
+    "desc_original": "Gimnasio",
+    "desc_normalizada": "gimnasio"
+  },
+  {
+    "id": 80912,
+    "desc_original": "Isocinecia",
+    "desc_normalizada": "isocinecia"
+  },
+  {
+    "id": 80913,
+    "desc_original": "Marcha",
+    "desc_normalizada": "marcha"
+  },
+  {
+    "id": 80951,
+    "desc_original": "Cubículo de Hidroterapia Miembros Superiores",
+    "desc_normalizada": "cubiculo de hidroterapia miembros superiores"
+  },
+  {
+    "id": 80952,
+    "desc_original": "Cubículo de Hidroterapia Miembros Inferiores",
+    "desc_normalizada": "cubiculo de hidroterapia miembros inferiores"
+  },
+  {
+    "id": 80953,
+    "desc_original": "Cubículo de Fluidoterapia Miembros Superiores",
+    "desc_normalizada": "cubiculo de fluidoterapia miembros superiores"
+  },
+  {
+    "id": 80954,
+    "desc_original": "Cubículo de Fluidoterapia Miembros Inferiores",
+    "desc_normalizada": "cubiculo de fluidoterapia miembros inferiores"
+  },
+  {
+    "id": 80955,
+    "desc_original": "Cubículo Tina de Hubbard",
+    "desc_normalizada": "cubiculo tina de hubbard"
+  },
+  {
+    "id": 80956,
+    "desc_original": "Cubículo de Tina Horizontal",
+    "desc_normalizada": "cubiculo de tina horizontal"
+  },
+  {
+    "id": 80957,
+    "desc_original": "Cubículo Baño de Parafina",
+    "desc_normalizada": "cubiculo bano de parafina"
+  },
+  {
+    "id": 80958,
+    "desc_original": "Tanque Terapéutico",
+    "desc_normalizada": "tanque terapeutico"
+  },
+  {
+    "id": 80959,
+    "desc_original": "Baños y Vestidores para Pacientes en Hidroterapia",
+    "desc_normalizada": "banos y vestidores para pacientes en hidroterapia"
+  },
+  {
+    "id": 80960,
+    "desc_original": "Área de Hidroterapia",
+    "desc_normalizada": "area de hidroterapia"
+  },
+  {
+    "id": 81007,
+    "desc_original": "Área de Terapia Ocupacional",
+    "desc_normalizada": "area de terapia ocupacional"
+  },
+  {
+    "id": 81008,
+    "desc_original": "Actividades de la Vida Diaria",
+    "desc_normalizada": "actividades de la vida diaria"
+  },
+  {
+    "id": 81009,
+    "desc_original": "Rehabilitación Cardiaca",
+    "desc_normalizada": "rehabilitacion cardiaca"
+  },
+  {
+    "id": 81010,
+    "desc_original": "Higiene de Columna",
+    "desc_normalizada": "higiene de columna"
+  },
+  {
+    "id": 81011,
+    "desc_original": "Simulación Laboral",
+    "desc_normalizada": "simulacion laboral"
+  },
+  {
+    "id": 81012,
+    "desc_original": "Reeducación Laboral –Normativa DUSR/CPSMA",
+    "desc_normalizada": "reeducacion laboral normativa dusr cpsma"
+  },
+  {
+    "id": 81013,
+    "desc_original": "Niños",
+    "desc_normalizada": "ninos"
+  },
+  {
+    "id": 81051,
+    "desc_original": "Cámara Sonoamortiguada",
+    "desc_normalizada": "camara sonoamortiguada"
+  },
+  {
+    "id": 81052,
+    "desc_original": "Aparatos de Audiometría y Otoneurología",
+    "desc_normalizada": "aparatos de audiometria y otoneurologia"
+  },
+  {
+    "id": 81053,
+    "desc_original": "Electronistagmógrafo/ Videonistagmógrafo",
+    "desc_normalizada": "electronistagmografo videonistagmografo"
+  },
+  {
+    "id": 81054,
+    "desc_original": "Sillones de Giro",
+    "desc_normalizada": "sillones de giro"
+  },
+  {
+    "id": 81055,
+    "desc_original": "Área de Audiología y Otoneurología",
+    "desc_normalizada": "area de audiologia y otoneurologia"
+  },
+  {
+    "id": 81101,
+    "desc_original": "Área de Terapia de Lenguaje",
+    "desc_normalizada": "area de terapia de lenguaje"
+  },
+  {
+    "id": 81202,
+    "desc_original": "Local de Espacios para Terapia Respiratoria, (Inhaloterapia)",
+    "desc_normalizada": "local de espacios para terapia respiratoria inhaloterapia"
+  },
+  {
+    "id": 81203,
+    "desc_original": "Área de Espirometría",
+    "desc_normalizada": "area de espirometria"
+  },
+  {
+    "id": 81204,
+    "desc_original": "Área de Polisomnografía y Poligrafía adultos",
+    "desc_normalizada": "area de polisomnografia y poligrafia adultos"
+  },
+  {
+    "id": 81205,
+    "desc_original": "Unidad de Cuidados Intensivos Respiratorios",
+    "desc_normalizada": "unidad de cuidados intensivos respiratorios"
+  },
+  {
+    "id": 81251,
+    "desc_original": "Local de Diálisis",
+    "desc_normalizada": "local de dialisis"
+  },
+  {
+    "id": 81252,
+    "desc_original": "Área de Entrenamiento al Paciente de Diálisis",
+    "desc_normalizada": "area de entrenamiento al paciente de dialisis"
+  },
+  {
+    "id": 81253,
+    "desc_original": "Área de Diálisis",
+    "desc_normalizada": "area de dialisis"
+  },
+  {
+    "id": 81301,
+    "desc_original": "Máquinas Hemodiálisis Propias",
+    "desc_normalizada": "maquinas hemodialisis propias"
+  },
+  {
+    "id": 81302,
+    "desc_original": "Equipos Osmosis InversaPortátil",
+    "desc_normalizada": "equipos osmosis inversaportatil"
+  },
+  {
+    "id": 81303,
+    "desc_original": "Área de Hemodiálisis",
+    "desc_normalizada": "area de hemodialisis"
+  },
+  {
+    "id": 81304,
+    "desc_original": "Equipo para terapia de reemplazo renal continuo (CRRC)",
+    "desc_normalizada": "equipo para terapia de reemplazo renal continuo crrc"
+  },
+  {
+    "id": 81305,
+    "desc_original": "Máquinas Hemodiálisis Subrogado/Integral",
+    "desc_normalizada": "maquinas hemodialisis subrogado integral"
+  },
+  {
+    "id": 81351,
+    "desc_original": "Área de Quimioterapia",
+    "desc_normalizada": "area de quimioterapia"
+  },
+  {
+    "id": 81401,
+    "desc_original": "Cubículo Toma de Productos de Laboratorio Clínico.",
+    "desc_normalizada": "cubiculo toma de productos de laboratorio clinico"
+  },
+  {
+    "id": 81402,
+    "desc_original": "Peines de Laboratorio Clínico",
+    "desc_normalizada": "peines de laboratorio clinico"
+  },
+  {
+    "id": 81403,
+    "desc_original": "Laboratorio de Cuidados Intensivos",
+    "desc_normalizada": "laboratorio de cuidados intensivos"
+  },
+  {
+    "id": 81404,
+    "desc_original": "Laboratorio de Hormonas.",
+    "desc_normalizada": "laboratorio de hormonas"
+  },
+  {
+    "id": 81405,
+    "desc_original": "Cubículo Toma de Productos de Hormonas.",
+    "desc_normalizada": "cubiculo toma de productos de hormonas"
+  },
+  {
+    "id": 81406,
+    "desc_original": "Peines de Laboratorio de Hormonas",
+    "desc_normalizada": "peines de laboratorio de hormonas"
+  },
+  {
+    "id": 81407,
+    "desc_original": "Peine de Laboratorio de Genética",
+    "desc_normalizada": "peine de laboratorio de genetica"
+  },
+  {
+    "id": 81408,
+    "desc_original": "Peines de Laboratorio de Hemodinámica y Fisiología Cardiovascular",
+    "desc_normalizada": "peines de laboratorio de hemodinamica y fisiologia cardiovascular"
+  },
+  {
+    "id": 81409,
+    "desc_original": "Peines de Laboratorio de Medicina Nuclear",
+    "desc_normalizada": "peines de laboratorio de medicina nuclear"
+  },
+  {
+    "id": 81410,
+    "desc_original": "Área de Laboratorio Clínico",
+    "desc_normalizada": "area de laboratorio clinico"
+  },
+  {
+    "id": 81411,
+    "desc_original": "Laboratorio de preparación de sucedaneos de leche humana",
+    "desc_normalizada": "laboratorio de preparacion de sucedaneos de leche humana"
+  },
+  {
+    "id": 81412,
+    "desc_original": "Sala de Hemodinamia",
+    "desc_normalizada": "sala de hemodinamia"
+  },
+  {
+    "id": 81451,
+    "desc_original": "Peines de Laboratorio de Anatomía Patológica",
+    "desc_normalizada": "peines de laboratorio de anatomia patologica"
+  },
+  {
+    "id": 81452,
+    "desc_original": "Sala de Autopsia",
+    "desc_normalizada": "sala de autopsia"
+  },
+  {
+    "id": 81453,
+    "desc_original": "Refrigerador de Cadáveres",
+    "desc_normalizada": "refrigerador de cadaveres"
+  },
+  {
+    "id": 81455,
+    "desc_original": "Área de Anatomía Patológica",
+    "desc_normalizada": "area de anatomia patologica"
+  },
+  {
+    "id": 81500,
+    "desc_original": "Área de Educación e Investigación Médica (si, no)",
+    "desc_normalizada": "area de educacion e investigacion medica si no"
+  },
+  {
+    "id": 81501,
+    "desc_original": "Oficina de Educación e Investigación Médica (si, no)",
+    "desc_normalizada": "oficina de educacion e investigacion medica si no"
+  },
+  {
+    "id": 81502,
+    "desc_original": "Aulas",
+    "desc_normalizada": "aulas"
+  },
+  {
+    "id": 81503,
+    "desc_original": "Bibliohemeroteca (si, no)",
+    "desc_normalizada": "bibliohemeroteca si no"
+  },
+  {
+    "id": 81505,
+    "desc_original": "Auditorio",
+    "desc_normalizada": "auditorio"
+  },
+  {
+    "id": 81506,
+    "desc_original": "Salas de Consulta Electrónica",
+    "desc_normalizada": "salas de consulta electronica"
+  },
+  {
+    "id": 81507,
+    "desc_original": "Salas de Lectura",
+    "desc_normalizada": "salas de lectura"
+  },
+  {
+    "id": 81508,
+    "desc_original": "Centros de Documentación en Salud",
+    "desc_normalizada": "centros de documentacion en salud"
+  },
+  {
+    "id": 81550,
+    "desc_original": "Cubículo de Inyecciones y/o Curaciones",
+    "desc_normalizada": "cubiculo de inyecciones y o curaciones"
+  },
+  {
+    "id": 81551,
+    "desc_original": "Cubículo de retiro de Yesos",
+    "desc_normalizada": "cubiculo de retiro de yesos"
+  },
+  {
+    "id": 81552,
+    "desc_original": "Sala de Procedimientos Quirúrgica",
+    "desc_normalizada": "sala de procedimientos quirurgica"
+  },
+  {
+    "id": 81553,
+    "desc_original": "Sala de Espera en Áreas Comunes",
+    "desc_normalizada": "sala de espera en areas comunes"
+  },
+  {
+    "id": 81554,
+    "desc_original": "Baños y Vestidores para Pacientes",
+    "desc_normalizada": "banos y vestidores para pacientes"
+  },
+  {
+    "id": 81555,
+    "desc_original": "Cubículo para manejo de accesos vasculares",
+    "desc_normalizada": "cubiculo para manejo de accesos vasculares"
+  },
+  {
+    "id": 81608,
+    "desc_original": "Unidad de Cuidados Intensivos",
+    "desc_normalizada": "unidad de cuidados intensivos"
+  },
+  {
+    "id": 81609,
+    "desc_original": "Unidad de Cuidados Intensivos de Adultos",
+    "desc_normalizada": "unidad de cuidados intensivos de adultos"
+  },
+  {
+    "id": 81610,
+    "desc_original": "Unidad de Cuidados Intensivos Pediátricos",
+    "desc_normalizada": "unidad de cuidados intensivos pediatricos"
+  },
+  {
+    "id": 81611,
+    "desc_original": "Unidad de Cuidados Intensivos Neonatales",
+    "desc_normalizada": "unidad de cuidados intensivos neonatales"
+  },
+  {
+    "id": 81613,
+    "desc_original": "Unidad Metabólica",
+    "desc_normalizada": "unidad metabolica"
+  },
+  {
+    "id": 81614,
+    "desc_original": "Unidad de Cuidados Intensivos para paciente Quemados",
+    "desc_normalizada": "unidad de cuidados intensivos para paciente quemados"
+  },
+  {
+    "id": 81615,
+    "desc_original": "Unidad de Trasplantes",
+    "desc_normalizada": "unidad de trasplantes"
+  },
+  {
+    "id": 81616,
+    "desc_original": "Área de presión negativa",
+    "desc_normalizada": "area de presion negativa"
+  },
+  {
+    "id": 81658,
+    "desc_original": "Sala de Dictado de Médicos",
+    "desc_normalizada": "sala de dictado de medicos"
+  },
+  {
+    "id": 81712,
+    "desc_original": "Oficina del Director UMAE/Director Médico",
+    "desc_normalizada": "oficina del director umae director medico"
+  },
+  {
+    "id": 81713,
+    "desc_original": "Oficina de Director Administrativo UMAE/Administrador",
+    "desc_normalizada": "oficina de director administrativo umae administrador"
+  },
+  {
+    "id": 81714,
+    "desc_original": "Oficina del Director Médico de UMAE/ Subdirector Médico",
+    "desc_normalizada": "oficina del director medico de umae subdirector medico"
+  },
+  {
+    "id": 81715,
+    "desc_original": "Oficina de Jefatura de División",
+    "desc_normalizada": "oficina de jefatura de division"
+  },
+  {
+    "id": 81716,
+    "desc_original": "Oficina del Coordinador Clínico",
+    "desc_normalizada": "oficina del coordinador clinico"
+  },
+  {
+    "id": 81717,
+    "desc_original": "Oficina de Jefatura de Servicio/Especialidad en UMAE",
+    "desc_normalizada": "oficina de jefatura de servicio especialidad en umae"
+  },
+  {
+    "id": 81718,
+    "desc_original": "Oficina de Directora de Enfermería en UMAE",
+    "desc_normalizada": "oficina de directora de enfermeria en umae"
+  },
+  {
+    "id": 81719,
+    "desc_original": "Oficina de Jefatura de Enfermeras",
+    "desc_normalizada": "oficina de jefatura de enfermeras"
+  },
+  {
+    "id": 81720,
+    "desc_original": "Oficina de Ingeniería Biomedica",
+    "desc_normalizada": "oficina de ingenieria biomedica"
+  },
+  {
+    "id": 81721,
+    "desc_original": "Oficina de Nutrición y Dietética",
+    "desc_normalizada": "oficina de nutricion y dietetica"
+  },
+  {
+    "id": 81722,
+    "desc_original": "Servicios de Seguridad en el Trabajo Hospitales A y B",
+    "desc_normalizada": "servicios de seguridad en el trabajo hospitales a y b"
+  },
+  {
+    "id": 81723,
+    "desc_original": "Servicios de Seguridad en el Trabajo Hospitales C y D",
+    "desc_normalizada": "servicios de seguridad en el trabajo hospitales c y d"
+  },
+  {
+    "id": 81724,
+    "desc_original": "Oficina de Personal",
+    "desc_normalizada": "oficina de personal"
+  },
+  {
+    "id": 81725,
+    "desc_original": "Oficina de la Subjefatura de Enseñanza de Enfermería",
+    "desc_normalizada": "oficina de la subjefatura de ensenanza de enfermeria"
+  },
+  {
+    "id": 81730,
+    "desc_original": "Balanza Analítica",
+    "desc_normalizada": "balanza analitica"
+  },
+  {
+    "id": 81731,
+    "desc_original": "Campana de extracción",
+    "desc_normalizada": "campana de extraccion"
+  },
+  {
+    "id": 81732,
+    "desc_original": "Cromatógrafo de Gases",
+    "desc_normalizada": "cromatografo de gases"
+  },
+  {
+    "id": 81733,
+    "desc_original": "Cromatógrafo de líquidos de alta resolución",
+    "desc_normalizada": "cromatografo de liquidos de alta resolucion"
+  },
+  {
+    "id": 81734,
+    "desc_original": "Espectrofotómetro de Absorción atómica",
+    "desc_normalizada": "espectrofotometro de absorcion atomica"
+  },
+  {
+    "id": 81735,
+    "desc_original": "Espectrofotómetro Infrarrojo",
+    "desc_normalizada": "espectrofotometro infrarrojo"
+  },
+  {
+    "id": 81736,
+    "desc_original": "Espectrofotómetro UV/VIS",
+    "desc_normalizada": "espectrofotometro uv vis"
+  },
+  {
+    "id": 81737,
+    "desc_original": "Microbalanza",
+    "desc_normalizada": "microbalanza"
+  },
+  {
+    "id": 81738,
+    "desc_original": "Microscopio optico",
+    "desc_normalizada": "microscopio optico"
+  },
+  {
+    "id": 81750,
+    "desc_original": "Centrales de Monitoreo",
+    "desc_normalizada": "centrales de monitoreo"
+  },
+  {
+    "id": 81751,
+    "desc_original": "Monitores de Signos Vitales",
+    "desc_normalizada": "monitores de signos vitales"
+  },
+  {
+    "id": 81752,
+    "desc_original": "Colposcopios",
+    "desc_normalizada": "colposcopios"
+  },
+  {
+    "id": 81753,
+    "desc_original": "Unidades de oftalmología/optometría",
+    "desc_normalizada": "unidades de oftalmologia optometria"
+  },
+  {
+    "id": 81755,
+    "desc_original": "Unidades de facoemulsión",
+    "desc_normalizada": "unidades de facoemulsion"
+  },
+  {
+    "id": 81756,
+    "desc_original": "Láser YAG, Nd YAG, CO2",
+    "desc_normalizada": "laser yag nd yag co2"
+  },
+  {
+    "id": 81757,
+    "desc_original": "Bombas de infusión",
+    "desc_normalizada": "bombas de infusion"
+  },
+  {
+    "id": 81758,
+    "desc_original": "Calorímetros",
+    "desc_normalizada": "calorimetros"
+  },
+  {
+    "id": 81759,
+    "desc_original": "Cámaras hiperbáricas",
+    "desc_normalizada": "camaras hiperbaricas"
+  },
+  {
+    "id": 81760,
+    "desc_original": "Laparoscopios",
+    "desc_normalizada": "laparoscopios"
+  },
+  {
+    "id": 81762,
+    "desc_original": "Carro de paro con desfibrilador",
+    "desc_normalizada": "carro de paro con desfibrilador"
+  },
+  {
+    "id": 81763,
+    "desc_original": "Carro recolector de desechos hospitalarios",
+    "desc_normalizada": "carro recolector de desechos hospitalarios"
+  },
+  {
+    "id": 81764,
+    "desc_original": "Equipos de cómputo",
+    "desc_normalizada": "equipos de computo"
+  },
+  {
+    "id": 81765,
+    "desc_original": "Impresoras",
+    "desc_normalizada": "impresoras"
+  },
+  {
+    "id": 81766,
+    "desc_original": "Cámara para fondo de ojo no midriática",
+    "desc_normalizada": "camara para fondo de ojo no midriatica"
+  },
+  {
+    "id": 81767,
+    "desc_original": "Cámara digital no midriática para fondo de ojo",
+    "desc_normalizada": "camara digital no midriatica para fondo de ojo"
+  },
+  {
+    "id": 81768,
+    "desc_original": "Campímetro computarizado",
+    "desc_normalizada": "campimetro computarizado"
+  },
+  {
+    "id": 81769,
+    "desc_original": "Unidad de Criocirugia Ginecológica",
+    "desc_normalizada": "unidad de criocirugia ginecologica"
+  },
+  {
+    "id": 81770,
+    "desc_original": "Monitor de signos vitales para el traslado del paciente",
+    "desc_normalizada": "monitor de signos vitales para el traslado del paciente"
+  },
+  {
+    "id": 81771,
+    "desc_original": "Ventilador mecanico no invasivo (BIPAP y CPAP)",
+    "desc_normalizada": "ventilador mecanico no invasivo bipap y cpap"
+  },
+  {
+    "id": 81772,
+    "desc_original": "Ventilador soporte de vida de traslado",
+    "desc_normalizada": "ventilador soporte de vida de traslado"
+  },
+  {
+    "id": 81776,
+    "desc_original": "Angioscopio",
+    "desc_normalizada": "angioscopio"
+  },
+  {
+    "id": 81777,
+    "desc_original": "Artroscopio",
+    "desc_normalizada": "artroscopio"
+  },
+  {
+    "id": 81778,
+    "desc_original": "Broncoscopio",
+    "desc_normalizada": "broncoscopio"
+  },
+  {
+    "id": 81779,
+    "desc_original": "Cámara de centelleo de dos detectores de ángulo variable de aplicación general",
+    "desc_normalizada": "camara de centelleo de dos detectores de angulo variable de aplicacion general"
+  },
+  {
+    "id": 81780,
+    "desc_original": "Colonoscopio",
+    "desc_normalizada": "colonoscopio"
+  },
+  {
+    "id": 81781,
+    "desc_original": "Cistouretroscopio",
+    "desc_normalizada": "cistouretroscopio"
+  },
+  {
+    "id": 81782,
+    "desc_original": "Esofagogastroduodenoscopio",
+    "desc_normalizada": "esofagogastroduodenoscopio"
+  },
+  {
+    "id": 81784,
+    "desc_original": "Laringoscopio",
+    "desc_normalizada": "laringoscopio"
+  },
+  {
+    "id": 81785,
+    "desc_original": "Máquina de anestesia",
+    "desc_normalizada": "maquina de anestesia"
+  },
+  {
+    "id": 81786,
+    "desc_original": "Mesa de operación de la cirugía bariátrica",
+    "desc_normalizada": "mesa de operacion de la cirugia bariatrica"
+  },
+  {
+    "id": 81787,
+    "desc_original": "Nasofaringofibroscopio",
+    "desc_normalizada": "nasofaringofibroscopio"
+  },
+  {
+    "id": 81788,
+    "desc_original": "Pistola para biopsia percutánea",
+    "desc_normalizada": "pistola para biopsia percutanea"
+  },
+  {
+    "id": 81789,
+    "desc_original": "Rectosigmoidoscopio",
+    "desc_normalizada": "rectosigmoidoscopio"
+  },
+  {
+    "id": 81790,
+    "desc_original": "Sistema de Biopsia mamaria auto contenida asistida por vacío",
+    "desc_normalizada": "sistema de biopsia mamaria auto contenida asistida por vacio"
+  },
+  {
+    "id": 81791,
+    "desc_original": "Mediastinoscopio",
+    "desc_normalizada": "mediastinoscopio"
+  },
+  {
+    "id": 81805,
+    "desc_original": "Banco de Sangre",
+    "desc_normalizada": "banco de sangre"
+  },
+  {
+    "id": 81806,
+    "desc_original": "Puesto de Sangrado",
+    "desc_normalizada": "puesto de sangrado"
+  },
+  {
+    "id": 81807,
+    "desc_original": "Depósito de Sangre",
+    "desc_normalizada": "deposito de sangre"
+  },
+  {
+    "id": 81808,
+    "desc_original": "Servicio de transfusión sanguínea",
+    "desc_normalizada": "servicio de transfusion sanguinea"
+  },
+  {
+    "id": 81809,
+    "desc_original": "Área de Aféresis",
+    "desc_normalizada": "area de aferesis"
+  },
+  {
+    "id": 81810,
+    "desc_original": "Total de Ventiladores No Invasivos y Ventiladores Mecánica Invasivos de Soporte de Vida",
+    "desc_normalizada": "total de ventiladores no invasivos y ventiladores mecanica invasivos de soporte de vida"
+  },
+  {
+    "id": 81820,
+    "desc_original": "Total de ventiladores Mecánicos para soporte de vida",
+    "desc_normalizada": "total de ventiladores mecanicos para soporte de vida"
+  },
+  {
+    "id": 81821,
+    "desc_original": "Ventilador Mecánico NeonatalPediátricoAdulto",
+    "desc_normalizada": "ventilador mecanico neonatalpediatricoadulto"
+  },
+  {
+    "id": 81822,
+    "desc_original": "Ventilador Mecánico NeonatalPediátrico",
+    "desc_normalizada": "ventilador mecanico neonatalpediatrico"
+  },
+  {
+    "id": 81823,
+    "desc_original": "Ventilador Mecánico PediátricoAdulto",
+    "desc_normalizada": "ventilador mecanico pediatricoadulto"
+  },
+  {
+    "id": 81824,
+    "desc_original": "Ventilador de alta frecuencia oscilatoria pediátriconeonatal",
+    "desc_normalizada": "ventilador de alta frecuencia oscilatoria pediatriconeonatal"
+  },
+  {
+    "id": 81825,
+    "desc_original": "Ventilador de alta frecuencia oscilatoria adultopediátrico",
+    "desc_normalizada": "ventilador de alta frecuencia oscilatoria adultopediatrico"
+  },
+  {
+    "id": 81830,
+    "desc_original": "Total de Ventiladores no invasivos (BIPAP y CPAP)",
+    "desc_normalizada": "total de ventiladores no invasivos bipap y cpap"
+  },
+  {
+    "id": 81831,
+    "desc_original": "Ventilador no invasivo neonatal",
+    "desc_normalizada": "ventilador no invasivo neonatal"
+  },
+  {
+    "id": 81832,
+    "desc_original": "Ventilador no invasivo adultopediátrico",
+    "desc_normalizada": "ventilador no invasivo adultopediatrico"
+  },
+  {
+    "id": 81840,
+    "desc_original": "Total Ventiladores soporte de vida de traslado",
+    "desc_normalizada": "total ventiladores soporte de vida de traslado"
+  },
+  {
+    "id": 81841,
+    "desc_original": "Ventilador de traslado neonatal",
+    "desc_normalizada": "ventilador de traslado neonatal"
+  },
+  {
+    "id": 81842,
+    "desc_original": "Ventilador de traslado pediátricoadulto",
+    "desc_normalizada": "ventilador de traslado pediatricoadulto"
+  },
+  {
+    "id": 81851,
+    "desc_original": "Expediente clínico electrónico (si, no)",
+    "desc_normalizada": "expediente clinico electronico si no"
+  },
+  {
+    "id": 81852,
+    "desc_original": "Internet (si, no)",
+    "desc_normalizada": "internet si no"
+  },
+  {
+    "id": 81853,
+    "desc_original": "Telemedicina (si, no)",
+    "desc_normalizada": "telemedicina si no"
+  },
+  {
+    "id": 81854,
+    "desc_original": "Red de Datos (si, no)",
+    "desc_normalizada": "red de datos si no"
+  },
+  {
+    "id": 81858,
+    "desc_original": "Agua potable de la red municipal (si, no)",
+    "desc_normalizada": "agua potable de la red municipal si no"
+  },
+  {
+    "id": 81859,
+    "desc_original": "Cisterna (si, no)",
+    "desc_normalizada": "cisterna si no"
+  },
+  {
+    "id": 81860,
+    "desc_original": "Drenaje (si, no)",
+    "desc_normalizada": "drenaje si no"
+  },
+  {
+    "id": 81861,
+    "desc_original": "Planta Eléctrica (si, no)",
+    "desc_normalizada": "planta electrica si no"
+  },
+  {
+    "id": 81862,
+    "desc_original": "Pozo de Agua (si, no)",
+    "desc_normalizada": "pozo de agua si no"
+  },
+  {
+    "id": 81863,
+    "desc_original": "Sistema de Reciclaje de Agua (si, no)",
+    "desc_normalizada": "sistema de reciclaje de agua si no"
+  },
+  {
+    "id": 81864,
+    "desc_original": "Servicio Integral de Laboratorio",
+    "desc_normalizada": "servicio integral de laboratorio"
+  },
+  {
+    "id": 81865,
+    "desc_original": "Resguardo de Servicios de Telecomunicaciones Principal",
+    "desc_normalizada": "resguardo de servicios de telecomunicaciones principal"
+  },
+  {
+    "id": 81866,
+    "desc_original": "Área de Resguardo de Servicios de Telecomunicaciones Secundario",
+    "desc_normalizada": "area de resguardo de servicios de telecomunicaciones secundario"
+  },
+  {
+    "id": 81867,
+    "desc_original": "Ancho de Banda en Mbps",
+    "desc_normalizada": "ancho de banda en mbps"
+  },
+  {
+    "id": 81868,
+    "desc_original": "Enlace Satelital",
+    "desc_normalizada": "enlace satelital"
+  },
+  {
+    "id": 81869,
+    "desc_original": "Telefonía convencional",
+    "desc_normalizada": "telefonia convencional"
+  },
+  {
+    "id": 81900,
+    "desc_original": "Ambulancias",
+    "desc_normalizada": "ambulancias"
+  },
+  {
+    "id": 81901,
+    "desc_original": "Ambulancias equipadas",
+    "desc_normalizada": "ambulancias equipadas"
+  },
+  {
+    "id": 81902,
+    "desc_original": "Unidades de atención móviles",
+    "desc_normalizada": "unidades de atencion moviles"
+  },
+  {
+    "id": 81903,
+    "desc_original": "Otros vehículos automotores",
+    "desc_normalizada": "otros vehiculos automotores"
+  },
+  {
+    "id": 81910,
+    "desc_original": "Anexo para cambio de líneas de diálisis",
+    "desc_normalizada": "anexo para cambio de lineas de dialisis"
+  },
+  {
+    "id": 81911,
+    "desc_original": "Anexo para procedimientos dermatológicos",
+    "desc_normalizada": "anexo para procedimientos dermatologicos"
+  },
+  {
+    "id": 81912,
+    "desc_original": "Anexos de Cardiología (Prueba de Esfuerzo, Ecocardiografía, Holter, electrocardiografía)",
+    "desc_normalizada": "anexos de cardiologia prueba de esfuerzo ecocardiografia holter electrocardiografia"
+  },
+  {
+    "id": 81913,
+    "desc_original": "Anexos de Neurología (electronistgamografía, potenciales evocados, electroencefalografía)",
+    "desc_normalizada": "anexos de neurologia electronistgamografia potenciales evocados electroencefalografia"
+  },
+  {
+    "id": 81914,
+    "desc_original": "Anexos de oftalmología (fluoangiografía, fotocoagulación, laser)",
+    "desc_normalizada": "anexos de oftalmologia fluoangiografia fotocoagulacion laser"
+  },
+  {
+    "id": 81915,
+    "desc_original": "Anexos de otorrinolaringología (exploración vestivular; electronistagmografía)",
+    "desc_normalizada": "anexos de otorrinolaringologia exploracion vestivular electronistagmografia"
+  },
+  {
+    "id": 81950,
+    "desc_original": "Laboratorio de Salud en el Trabajo",
+    "desc_normalizada": "laboratorio de salud en el trabajo"
+  },
+  {
+    "id": 81951,
+    "desc_original": "Centro Regional de Seguridad en el Trabajo, Capacitación y Productividad (CRESTCAP)",
+    "desc_normalizada": "centro regional de seguridad en el trabajo capacitacion y productividad crestcap"
+  },
+  {
+    "id": 81952,
+    "desc_original": "Coordinación de Evaluación de Salud en el Trabajo (CEST)",
+    "desc_normalizada": "coordinacion de evaluacion de salud en el trabajo cest"
+  },
+  {
+    "id": 81953,
+    "desc_original": "Coordinación Clínica de Salud en el Trabajo",
+    "desc_normalizada": "coordinacion clinica de salud en el trabajo"
+  },
+  {
+    "id": 81954,
+    "desc_original": "Oficina del Laboratorio de Salud en el Trabajo",
+    "desc_normalizada": "oficina del laboratorio de salud en el trabajo"
+  },
+  {
+    "id": 81955,
+    "desc_original": "Cubículo para Analista del Laboratorio de Salud en el Trabajo",
+    "desc_normalizada": "cubiculo para analista del laboratorio de salud en el trabajo"
+  },
+  {
+    "id": 81956,
+    "desc_original": "Área de recepción de muestras ambientales",
+    "desc_normalizada": "area de recepcion de muestras ambientales"
+  },
+  {
+    "id": 81957,
+    "desc_original": "Cubículo de toma de muestras biológicas",
+    "desc_normalizada": "cubiculo de toma de muestras biologicas"
+  },
+  {
+    "id": 81958,
+    "desc_original": "Área de preparación de muestras",
+    "desc_normalizada": "area de preparacion de muestras"
+  },
+  {
+    "id": 81959,
+    "desc_original": "Área de Cromatografía",
+    "desc_normalizada": "area de cromatografia"
+  },
+  {
+    "id": 81960,
+    "desc_original": "Área de Espectrofotometría",
+    "desc_normalizada": "area de espectrofotometria"
+  },
+  {
+    "id": 81961,
+    "desc_original": "Almacén de material",
+    "desc_normalizada": "almacen de material"
+  },
+  {
+    "id": 81962,
+    "desc_original": "Almacén de gases",
+    "desc_normalizada": "almacen de gases"
+  },
+  {
+    "id": 81963,
+    "desc_original": "Almacén de reactivos",
+    "desc_normalizada": "almacen de reactivos"
+  },
+  {
+    "id": 81964,
+    "desc_original": "Almacén de residuos peligrosos",
+    "desc_normalizada": "almacen de residuos peligrosos"
+  },
+  {
+    "id": 81965,
+    "desc_original": "Almacén de Equipo de Higiene Industrial",
+    "desc_normalizada": "almacen de equipo de higiene industrial"
+  },
+  {
+    "id": 81966,
+    "desc_original": "Aula del Laboratorio de Salud en el Trabajo",
+    "desc_normalizada": "aula del laboratorio de salud en el trabajo"
+  },
+  {
+    "id": 81970,
+    "desc_original": "Oficina del Coordinador Hospitalario de Donación",
+    "desc_normalizada": "oficina del coordinador hospitalario de donacion"
+  },
+  {
+    "id": 81971,
+    "desc_original": "Área para procuración de tejido corneal",
+    "desc_normalizada": "area para procuracion de tejido corneal"
+  }
+]
