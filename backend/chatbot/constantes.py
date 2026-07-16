@@ -73,7 +73,7 @@ PALABRAS_BASURA_VARIABLE = {
     "la", "raza", "mc", "gregor", "magdalena", "salinas", "monterrey", "guadalajara",
 
     # Conectores, preposiciones y artículos
-    "del", "de", "la", "el", "los", "las", "en", "por", "para",
+    "y", "e", "ahora","del", "de", "la", "el", "los", "las", "en", "por", "para",
 
     # Verbos de petición y preguntas
     "cuanto", "cuantos", "cuanta", "cuantas", "tiene", "tienen", "hay", 

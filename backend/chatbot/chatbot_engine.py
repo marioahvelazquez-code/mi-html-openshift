@@ -4,6 +4,7 @@ from .consulta_ifu import ConsultaIFU
 from .buscador_hospital import BuscadorHospital
 from .buscador_variable import BuscadorVariable
 from .catalogos import catalogos
+from .constantes import VARIABLES_CANONICAS
 from .normalizador import normalizar_texto_completo
 from .buscador_ambito import BuscadorAmbito
 
@@ -592,6 +593,15 @@ class ChatbotEngine:
                 if len(token) >= 3
                 and token not in self.CONECTORES_SIN_VARIABLE
             )
+
+        for regla in VARIABLES_CANONICAS.values():
+            tokens.update(
+                token
+                for token in regla.get("tokens_genericos", set())
+                if len(token) >= 3
+                and token not in self.CONECTORES_SIN_VARIABLE
+            )
+
         return tokens
 
     def _crear_tokens_catalogo_hospitales(self):
