@@ -15,6 +15,12 @@ PARCHES_TEXTO = {
     "hospital de oncologia": "honco",
     "hospital de ginecologia": "hgo",
     "hospital de obstetricia": "hgo",
+    "tac": "tomografia",
+    "cat scan": "tomografia",
+    "catscan": "tomografia",
+    "cat-scan": "tomografia",
+    "ct scan": "tomografia",
+    "ctscan": "tomografia",    
 }
 
 PALABRAS_BASURA_HOSPITAL = {
@@ -152,6 +158,27 @@ VARIABLES_CANONICAS = {
         ),
         "descripcion_objetivo": "total de consultorios de la unidad",
     },
+    "tomografos": {
+        "tokens_genericos": {
+            "tomografo",
+            "tomografos",
+            "tomografia",
+            "tomografias",
+            "aparato",
+            "aparatos",
+            "equipo",
+            "equipos",
+        },
+        "grupos_requeridos": (
+            {
+                "tomografo",
+                "tomografos",
+                "tomografia",
+                "tomografias",
+            },
+        ),
+        "descripcion_objetivo": "aparatos de tomografia",
+    },  
 }
 
 UMBRAL_HOSPITAL = 0.80
