@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { finalize, timeout } from 'rxjs';
 import { AuthService } from '../../services/auth';
 
 interface ModalSolicitud {
@@ -38,6 +39,7 @@ export class SolicitudAccesoBdComponent implements OnInit {
     private authService: AuthService,
     private http: HttpClient,
     private router: Router,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit() {
@@ -115,9 +117,17 @@ export class SolicitudAccesoBdComponent implements OnInit {
     };
 
     this.enviando = true;
-    this.http.post<any>('/api/catalogos/solicitud-acceso-bd/', payload, { headers }).subscribe({
+    this.http
+      .post<any>('/api/catalogos/solicitud-acceso-bd/', payload, { headers })
+      .pipe(
+        timeout(15000),
+        finalize(() => {
+          this.enviando = false;
+          this.cdr.detectChanges();
+        }),
+      )
+      .subscribe({
       next: (res) => {
-        this.enviando = false;
         if (res.ok) {
           this.abrirModal(
             'Guardado exitoso',
@@ -130,10 +140,15 @@ export class SolicitudAccesoBdComponent implements OnInit {
         } else {
           this.abrirModal('Error al enviar', res.mensaje || 'Error al enviar la solicitud.', 'warning');
         }
+        this.cdr.detectChanges();
       },
       error: (err) => {
-        this.enviando = false;
-        this.abrirModal('Error de conexion', err?.error?.mensaje || 'Error al conectar con el servidor.', 'warning');
+        const mensaje =
+          err?.name === 'TimeoutError'
+            ? 'La solicitud esta tardando mas de lo esperado. Intente nuevamente en unos segundos.'
+            : (err?.error?.mensaje || 'Error al conectar con el servidor.');
+        this.abrirModal('Error de conexion', mensaje, 'warning');
+        this.cdr.detectChanges();
       },
     });
   }
