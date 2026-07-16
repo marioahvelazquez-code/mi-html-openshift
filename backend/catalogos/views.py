@@ -171,7 +171,29 @@ def autenticar_ad(usuario, password):
         # print("Respuesta:", response.text, flush=True)
 
         response.raise_for_status()
-        return True, None
+
+        # Normaliza la respuesta del servicio de AD para siempre devolver
+        # un objeto de usuario utilizable por el frontend.
+        try:
+            data = response.json()
+        except ValueError:
+            data = {}
+
+        if isinstance(data, dict) and isinstance(data.get("data"), dict):
+            usuario_ad = data.get("data")
+        elif isinstance(data, dict) and isinstance(data.get("usuario"), dict):
+            usuario_ad = data.get("usuario")
+        elif isinstance(data, dict):
+            usuario_ad = data
+        else:
+            usuario_ad = {}
+
+        # Fallback mínimo para que el formulario de solicitud no quede vacío.
+        usuario_ad.setdefault("nomCuenta", usuario)
+        if "@" in usuario:
+            usuario_ad.setdefault("correo", usuario)
+
+        return usuario_ad, None
 
     except requests.exceptions.RequestException as e:
         status_code = getattr(getattr(e, "response", None), "status_code", None)
@@ -200,8 +222,8 @@ def autenticar_usuario(request):
             status=400,
         )
 
-    es_valido, detalle_ad = autenticar_ad(usuario, contrasena)
-    if not es_valido:
+    usuario_ad, detalle_ad = autenticar_ad(usuario, contrasena)
+    if not usuario_ad:
         status_code = 503 if detalle_ad and "Connection" in detalle_ad else 401
         return Response(
             {
@@ -266,7 +288,7 @@ def autenticar_usuario(request):
         {
             "ok": True,
             "message": mensaje,
-            "usuario": es_valido,
+            "usuario": usuario_ad,
             "token": access_token,   # 
             "requiere_cambio_pwd": requiere_cambio_pwd,
             "acceso_restringido_solicitud": acceso_restringido_solicitud,

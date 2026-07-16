@@ -35,12 +35,25 @@
       <div class="form-group">
         <label for="bd"><span class="icon">💾</span> Base de datos</label>
         <div class="bases-disponibles">
+          <button type="button" class="base-option-btn" [class.is-selected]="basesSeleccionadas.includes('DPTI_Meta_2026')" (click)="agregarBase('DPTI_Meta_2026')">DPTI_Meta_2026</button>
+          <button type="button" class="base-option-btn" [class.is-selected]="basesSeleccionadas.includes('DPTI_Redes_Rotas_Prod')" (click)="agregarBase('DPTI_Redes_Rotas_Prod')">DPTI_Redes_Rotas_Prod</button>
+          <button type="button" class="base-option-btn" [class.is-selected]="basesSeleccionadas.includes('REDES_ROTAS')" (click)="agregarBase('REDES_ROTAS')">REDES_ROTAS</button>
           <button type="button" class="base-option-btn" [class.is-selected]="basesSeleccionadas.includes('DB_PHEDS')" (click)="agregarBase('DB_PHEDS')">DB_PHEDS</button>
           <button type="button" class="base-option-btn" [class.is-selected]="basesSeleccionadas.includes('DB_MOCE')" (click)="agregarBase('DB_MOCE')">DB_MOCE</button>
+          <button type="button" class="base-option-btn" [class.is-selected]="basesSeleccionadas.includes('DB_Catalogos')" (click)="agregarBase('DB_Catalogos')">DB_Catalogos</button>
+          <button type="button" class="base-option-btn" [class.is-selected]="basesSeleccionadas.includes('DB_Personal')" (click)="agregarBase('DB_Personal')">DB_Personal</button>
+          <button type="button" class="base-option-btn" [class.is-selected]="basesSeleccionadas.includes('DPTI_REPORT_T')" (click)="agregarBase('DPTI_REPORT_T')">DPTI_REPORT_T</button>
           <button type="button" class="base-option-btn" [class.is-selected]="basesSeleccionadas.includes('DB_MedicinaFamiliar')" (click)="agregarBase('DB_MedicinaFamiliar')">DB_MedicinaFamiliar</button>
-          <button type="button" class="base-option-btn" [class.is-selected]="basesSeleccionadas.includes('DB_Laboratorios')" (click)="agregarBase('DB_Laboratorios')">DB_Laboratorios</button>
-          <button type="button" class="base-option-btn" [class.is-selected]="basesSeleccionadas.includes('DB_Indicadores')" (click)="agregarBase('DB_Indicadores')">DB_Indicadores</button>
-          <button type="button" class="base-option-btn" [class.is-selected]="basesSeleccionadas.includes('DB_PDA_MENSUAL')" (click)="agregarBase('DB_PDA_MENSUAL')">DB_PDA_MENSUAL</button>
+          <button type="button" class="base-option-btn" [class.is-selected]="basesSeleccionadas.includes('DB_AbastoTratamientos')" (click)="agregarBase('DB_AbastoTratamientos')">DB_AbastoTratamientos</button>
+          <button type="button" class="base-option-btn" [class.is-selected]="basesSeleccionadas.includes('DB_Incapacidades')" (click)="agregarBase('DB_Incapacidades')">DB_Incapacidades</button>
+          <button type="button" class="base-option-btn" [class.is-selected]="basesSeleccionadas.includes('PHEDS')" (click)="agregarBase('PHEDS')">PHEDS</button>
+          <button type="button" class="base-option-btn" [class.is-selected]="basesSeleccionadas.includes('MOCE')" (click)="agregarBase('MOCE')">MOCE</button>
+          <button type="button" class="base-option-btn" [class.is-selected]="basesSeleccionadas.includes('SIMOIQX')" (click)="agregarBase('SIMOIQX')">SIMOIQX</button>
+          <button type="button" class="base-option-btn" [class.is-selected]="basesSeleccionadas.includes('PHEDS Cirugias')" (click)="agregarBase('PHEDS Cirugias')">PHEDS Cirugias</button>
+          <button type="button" class="base-option-btn" [class.is-selected]="basesSeleccionadas.includes('Indicadores_V2')" (click)="agregarBase('Indicadores_V2')">Indicadores_V2</button>
+          <button type="button" class="base-option-btn" [class.is-selected]="basesSeleccionadas.includes('CVE_Conjuntos')" (click)="agregarBase('CVE_Conjuntos')">CVE_Conjuntos</button>
+          <button type="button" class="base-option-btn" [class.is-selected]="basesSeleccionadas.includes('DB_FichaEstatal')" (click)="agregarBase('DB_FichaEstatal')">DB_FichaEstatal</button>
+          <button type="button" class="base-option-btn" [class.is-selected]="basesSeleccionadas.includes('BD_Personal')" (click)="agregarBase('BD_Personal')">BD_Personal</button>
         </div>
         <small class="field-help">Haga clic en una o varias bases para agregarlas.</small>
 
