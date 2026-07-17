@@ -72,4 +72,20 @@ export const routes: Routes = [
         (m) => m.SolicitudesRealizadasComponent,
       ),
   },
+  {
+    path: 'solicitud-especial-bd',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./components/solicitud-especial-bd/solicitud-especial-bd').then(
+        (m) => m.SolicitudEspecialBdComponent,
+      ),
+  },
+  {
+    path: 'solicitudes-especiales-realizadas',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./components/solicitudes-especiales-realizadas/solicitudes-especiales-realizadas').then(
+        (m) => m.SolicitudesEspecialesRealizadasComponent,
+      ),
+  },
 ];

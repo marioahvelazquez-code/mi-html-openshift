@@ -29,6 +29,7 @@ urlpatterns = [
     path('getGeneraFicha/', views.getGeneraFicha),  
 
     path('solicitud-acceso-bd/', views.guardar_solicitud_acceso_bd),
+    path('solicitud-especial-bd/', views.guardar_solicitud_especial_bd),
     path('buscar-hospitales/', chatbot_views.buscar_hospitales),
     path('buscar-variables/', chatbot_views.buscar_variables),
     path('chatbot/', chatbot_views.chatbot),    

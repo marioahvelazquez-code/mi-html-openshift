@@ -16,6 +16,8 @@ export const VISTAS = {
   SOLICITUDACCESOBD: 'solicitud-acceso-bd',
   SOLICITUDESPENDIENTES: 'solicitudes-pendientes',
   SOLICITUDESREALIZADAS: 'solicitudes-realizadas',
+  SOLICITUDESPECIALBD: 'solicitud-especial-bd',
+  SOLICITUDESESPECIALESREALIZADAS: 'solicitudes-especiales-realizadas',
 } as const;
 
 export type VistaActiva = (typeof VISTAS)[keyof typeof VISTAS];
@@ -36,6 +38,8 @@ export class MenuLateralComponent implements OnChanges {
   accesoRestringidoSolicitud = false;
   esAdminSolicitudes = false;
   esChatbotUsuario = false;
+  submenuCambioBdAbierto = false;
+  submenuEspecialBdAbierto = false;
 
   constructor(
     private router: Router,
@@ -44,6 +48,14 @@ export class MenuLateralComponent implements OnChanges {
     this.accesoRestringidoSolicitud = this.authService.hasRestrictedSolicitudAccess();
     this.esAdminSolicitudes = this.authService.isAdminSolicitudes();
     this.esChatbotUsuario = this.authService.isChatbotUsuario();
+  }
+
+  toggleSubmenuCambioBd(): void {
+    this.submenuCambioBdAbierto = !this.submenuCambioBdAbierto;
+  }
+
+  toggleSubmenuEspecialBd(): void {
+    this.submenuEspecialBdAbierto = !this.submenuEspecialBdAbierto;
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -58,7 +70,9 @@ export class MenuLateralComponent implements OnChanges {
     if (
       this.accesoRestringidoSolicitud &&
       vista !== 'solicitud-acceso-bd' &&
-      vista !== 'solicitudes-realizadas'
+      vista !== 'solicitudes-realizadas' &&
+      vista !== 'solicitud-especial-bd' &&
+      vista !== 'solicitudes-especiales-realizadas'
     ) {
       this.router.navigate(['/solicitud-acceso-bd']);
       this.hide.emit();
@@ -93,6 +107,14 @@ export class MenuLateralComponent implements OnChanges {
     if (vista === 'solicitudes-realizadas') {
       this.router.navigate(['/solicitudes-realizadas']);
     }
+    if (vista === 'solicitud-especial-bd') {
+      this.router.navigate(['/solicitud-especial-bd']);
+    }
+    if (vista === 'solicitudes-especiales-realizadas') {
+      this.router.navigate(['/solicitudes-especiales-realizadas']);
+    }
+    this.submenuCambioBdAbierto = false;
+    this.submenuEspecialBdAbierto = false;
     this.hide.emit(); // cerrar menú
   }
   cerrarSesion() {

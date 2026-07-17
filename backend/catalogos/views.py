@@ -2,9 +2,13 @@ from django.http import HttpResponse, JsonResponse
 from django.db import connection
 from django.db import transaction
 from django.utils import timezone
+from django.conf import settings
 from xml.sax.saxutils import escape
 from pathlib import Path
 from zoneinfo import ZoneInfo
+import base64
+import binascii
+import re
 import subprocess
 import pandas as pd
 import requests
@@ -108,6 +112,39 @@ def _resolver_archivos_fichas_estatales():
 
     items.sort(key=lambda x: x['prefix'])
     return items
+
+
+# ---- Inicia Mario Solicitudes especiales----
+def _guardar_oficio_pdf(oficio_nombre_archivo: str, oficio_pdf_base64: str) -> str | None:
+    if not oficio_nombre_archivo or not oficio_pdf_base64:
+        return None
+
+    nombre_limpio = Path(oficio_nombre_archivo).name
+    if not nombre_limpio.lower().endswith('.pdf'):
+        raise ValueError('El oficio debe ser un archivo PDF.')
+
+    carpeta_montada = Path('/app/frontend-public/oficios')
+    raiz_repo = Path(__file__).resolve().parents[2]
+    carpeta_local = raiz_repo / 'frontend-angular' / 'app' / 'public' / 'oficios'
+    carpeta_oficios = carpeta_montada if carpeta_montada.exists() else carpeta_local
+    carpeta_oficios.mkdir(parents=True, exist_ok=True)
+
+    base_sin_ext = Path(nombre_limpio).stem
+    base_sin_ext = re.sub(r'[^A-Za-z0-9_-]+', '_', base_sin_ext).strip('_') or 'oficio'
+    marca_tiempo = timezone.now().strftime('%Y%m%d_%H%M%S_%f')
+    nombre_final = f"{base_sin_ext}_{marca_tiempo}.pdf"
+    destino = carpeta_oficios / nombre_final
+
+    try:
+        contenido = base64.b64decode(oficio_pdf_base64, validate=True)
+    except (binascii.Error, ValueError) as exc:
+        raise ValueError('El contenido del oficio no tiene un formato base64 valido.') from exc
+
+    if not contenido.startswith(b'%PDF'):
+        raise ValueError('El archivo adjunto no corresponde a un PDF valido.')
+
+    destino.write_bytes(contenido)
+    return f"/public/oficios/{nombre_final}"
 
 
 @api_view(["GET"])
@@ -1039,6 +1076,8 @@ def guardar_solicitud_acceso_bd(request):
     coordinacion = (data.get("coordinacion") or "").strip() or None
     matricula = (data.get("matricula") or "").strip() or None
     rol = (data.get("rol") or "").strip() or None
+    oficio_nombre_archivo = (data.get("oficio_nombre_archivo") or "").strip()
+    oficio_pdf_base64 = (data.get("oficio_pdf_base64") or "").strip()
     bases_datos_csv = (data.get("bases_datos_csv") or "").strip()
 
     if not nombre_completo or not correo or not bases_datos_csv:
@@ -1046,6 +1085,11 @@ def guardar_solicitud_acceso_bd(request):
             {"ok": False, "mensaje": "nombre_completo, correo y bases_datos_csv son obligatorios."},
             status=400,
         )
+
+    try:
+        ruta_oficio_guardado = _guardar_oficio_pdf(oficio_nombre_archivo, oficio_pdf_base64)
+    except ValueError as exc:
+        return JsonResponse({"ok": False, "mensaje": str(exc)}, status=400)
 
     try:
         with connection.cursor() as cursor:
@@ -1057,10 +1101,177 @@ def guardar_solicitud_acceso_bd(request):
                 """,
                 [nombre_completo, correo, coordinacion, matricula, rol, bases_datos_csv],
             )
-        return JsonResponse({"ok": True, "mensaje": "Solicitud registrada correctamente."})
+        respuesta = {"ok": True, "mensaje": "Solicitud registrada correctamente."}
+        if ruta_oficio_guardado:
+            respuesta["oficio_url"] = ruta_oficio_guardado
+        return JsonResponse(respuesta)
     except Exception as e:
         return JsonResponse({"ok": False, "mensaje": f"Error al guardar la solicitud: {str(e)}"}, status=500)
-    
+
+
+@api_view(["GET", "POST"])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def guardar_solicitud_especial_bd(request):
+    """Registra y consulta solicitudes especiales de base de datos con ticket autogenerado."""
+    if request.method == "GET":
+        estatus = (request.query_params.get("estatus") or "PENDIENTE").strip().upper()
+        detalle = (request.query_params.get("detalle") or "").strip().lower()
+        correo = (request.query_params.get("correo") or "").strip().lower()
+        nom_cuenta = (request.query_params.get("nom_cuenta") or "").strip().lower()
+
+        try:
+            with connection.cursor() as cursor:
+                if detalle == "mis-solicitudes":
+                    filtros = []
+                    params = []
+
+                    if correo:
+                        filtros.append("LOWER(LTRIM(RTRIM(correo))) = %s")
+                        params.append(correo)
+                    if nom_cuenta:
+                        filtros.append("LOWER(LTRIM(RTRIM(correo))) = %s")
+                        params.append(nom_cuenta)
+
+                    if not filtros:
+                        return JsonResponse(
+                            {"ok": False, "mensaje": "Debes enviar correo o nom_cuenta para consultar solicitudes."},
+                            status=400,
+                        )
+
+                    where_filtro = " OR ".join(filtros)
+                    cursor.execute(
+                        f"""
+                        SELECT *
+                        FROM dbo.sistema_solicitudes_expeciales_bd
+                        WHERE ({where_filtro})
+                        ORDER BY id_solicitud_especial DESC
+                        """,
+                        params,
+                    )
+                    columns = [col[0] for col in cursor.description] if cursor.description else []
+                    rows = cursor.fetchall()
+                    items = [dict(zip(columns, row)) for row in rows]
+                    return JsonResponse({"ok": True, "items": items, "total": len(items)})
+
+                if detalle == "tabla":
+                    cursor.execute(
+                        """
+                        SELECT *
+                        FROM dbo.sistema_solicitudes_expeciales_bd
+                        WHERE estatus = %s
+                        ORDER BY id_solicitud_especial DESC
+                        """,
+                        [estatus],
+                    )
+                    columns = [col[0] for col in cursor.description] if cursor.description else []
+                    rows = cursor.fetchall()
+                    items = [dict(zip(columns, row)) for row in rows]
+                    return JsonResponse({"ok": True, "estatus": estatus, "items": items, "total": len(items)})
+
+                cursor.execute(
+                    """
+                    SELECT COUNT(1)
+                    FROM dbo.sistema_solicitudes_expeciales_bd
+                    WHERE estatus = %s
+                    """,
+                    [estatus],
+                )
+                row = cursor.fetchone()
+
+            total = int(row[0] if row and row[0] is not None else 0)
+            return JsonResponse({"ok": True, "estatus": estatus, "total": total})
+        except Exception as e:
+            return JsonResponse(
+                {"ok": False, "mensaje": f"Error al consultar solicitudes especiales: {str(e)}"},
+                status=500,
+            )
+
+    data = request.data
+    nombre_completo = (data.get("nombre_completo") or "").strip()
+    correo = (data.get("correo") or "").strip()
+    coordinacion = (data.get("coordinacion") or "").strip() or None
+    rol = (data.get("rol") or "").strip() or None
+    tabla = (data.get("tabla") or "").strip() or None
+    cruce = (data.get("cruce") or "").strip().upper() or None
+    con_quien_se_cruza = (data.get("con_quien_se_cruza") or "").strip() or None
+    oficio_nombre_archivo = (data.get("oficio_nombre_archivo") or "").strip()
+    oficio_pdf_base64 = (data.get("oficio_pdf_base64") or "").strip()
+    bases_datos_csv = (data.get("bases_datos_csv") or "").strip()
+
+    if not nombre_completo or not correo or not bases_datos_csv:
+        return JsonResponse(
+            {"ok": False, "mensaje": "nombre_completo, correo y bases_datos_csv son obligatorios."},
+            status=400,
+        )
+
+    if cruce not in (None, "SI", "NO"):
+        return JsonResponse({"ok": False, "mensaje": "El campo cruce solo permite SI o NO."}, status=400)
+
+    if cruce == "SI" and not con_quien_se_cruza:
+        return JsonResponse(
+            {"ok": False, "mensaje": "Debes indicar con quien se cruza la informacion."},
+            status=400,
+        )
+
+    if cruce != "SI":
+        con_quien_se_cruza = None
+
+    try:
+        ruta_oficio_guardado = _guardar_oficio_pdf(oficio_nombre_archivo, oficio_pdf_base64)
+    except ValueError as exc:
+        return JsonResponse({"ok": False, "mensaje": str(exc)}, status=400)
+
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                INSERT INTO dbo.sistema_solicitudes_expeciales_bd
+                    (
+                        nombre_completo,
+                        correo,
+                        coordinacion,
+                        rol,
+                        bases_datos_csv,
+                        tabla,
+                        cruce,
+                        con_quien_se_cruza,
+                        oficio_nombre_archivo,
+                        oficio_url
+                    )
+                OUTPUT inserted.id_solicitud_especial, inserted.ticket
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                """,
+                [
+                    nombre_completo,
+                    correo,
+                    coordinacion,
+                    rol,
+                    bases_datos_csv,
+                    tabla,
+                    cruce,
+                    con_quien_se_cruza,
+                    oficio_nombre_archivo or None,
+                    ruta_oficio_guardado,
+                ],
+            )
+            row = cursor.fetchone()
+
+        respuesta = {"ok": True, "mensaje": "Solicitud especial registrada correctamente."}
+        if row:
+            respuesta["id_solicitud_especial"] = row[0]
+            respuesta["ticket"] = row[1]
+        if ruta_oficio_guardado:
+            respuesta["oficio_url"] = ruta_oficio_guardado
+        return JsonResponse(respuesta)
+    except Exception as e:
+        return JsonResponse(
+            {"ok": False, "mensaje": f"Error al guardar la solicitud especial: {str(e)}"},
+            status=500,
+        )
+
+
+# --- Termina Mario Solicitudes especiales----
 
 
 @api_view(["GET"])

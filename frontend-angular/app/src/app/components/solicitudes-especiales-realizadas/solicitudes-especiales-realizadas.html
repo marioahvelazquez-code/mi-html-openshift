@@ -1,0 +1,52 @@
+<section class="sp-page">
+  <div class="sp-card">
+    <p class="sp-badge">Nuevo modulo</p>
+    <h2 class="sp-title">Seguimiento de solicitud especial</h2>
+    <p class="sp-text">
+      Aqui veras el historial de solicitudes que has registrado.
+    </p>
+
+    <div class="sp-counter">
+      <span class="sp-counter-label">Solicitudes registradas</span>
+      <strong class="sp-counter-value">{{ cargando() ? '...' : totalSolicitudes() }}</strong>
+    </div>
+  </div>
+
+  <div class="sp-actions">
+    <button type="button" class="sp-btn-aprobar" (click)="verMisSolicitudes()">
+      {{ mostrarTabla() ? 'Ocultar' : 'Ver solicitudes' }}
+    </button>
+  </div>
+
+  <div class="sp-table-wrap" *ngIf="mostrarTabla()">
+    <div class="sp-table-loading" *ngIf="cargandoTabla()">Cargando solicitudes...</div>
+
+    <ng-container *ngIf="!cargandoTabla()">
+      <div class="sp-table-empty" *ngIf="filasTabla().length === 0">No tienes solicitudes registradas.</div>
+
+      <div class="sp-table-container" *ngIf="filasTabla().length > 0">
+        <table class="sp-table">
+          <thead>
+            <tr>
+              <th *ngFor="let col of columnasFijas">{{ col.etiqueta }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let fila of filasTabla()">
+              <td
+                *ngFor="let col of columnasFijas"
+                [class.sp-col-bases]="col.campo === 'bases_datos_csv'"
+                [class.sp-col-cred]="col.campo === 'usuario' || col.campo === 'contrasena'"
+              >
+                <span *ngIf="fila[col.campo] !== null && fila[col.campo] !== undefined && fila[col.campo] !== ''; else sinDato">
+                  {{ fila[col.campo] }}
+                </span>
+                <ng-template #sinDato><span class="sp-pendiente">Pendiente</span></ng-template>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </ng-container>
+  </div>
+</section>

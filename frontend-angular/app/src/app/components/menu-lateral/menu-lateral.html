@@ -58,14 +58,48 @@
         <span>Chatbot - Inventario Físico de Unidades (IFU)</span>
       </li>
 
-      <li class="menu-item" (click)="seleccionar(VISTAS.SOLICITUDACCESOBD)">
+      <li class="menu-item" (click)="toggleSubmenuCambioBd()">
         <lucide-icon name="database-search" [size]="18" class="menu-icon"></lucide-icon>
-        <span>Solicitud de Acceso a Base de Datos</span>
+        <span>Solicitud de acceso a base de datos</span>
+        <lucide-icon
+          name="chevron-down"
+          [size]="16"
+          class="ms-auto"
+          [style.transform]="submenuCambioBdAbierto ? 'rotate(180deg)' : 'rotate(0deg)'"
+          [style.transition]="'transform 0.2s ease'"
+        ></lucide-icon>
       </li>
 
-      <li class="menu-item" (click)="seleccionar(VISTAS.SOLICITUDESREALIZADAS)">
-        <lucide-icon name="panels-top-left" [size]="18" class="menu-icon"></lucide-icon>
-        <span>Solicitudes realizadas</span>
+      <li class="menu-item" *ngIf="submenuCambioBdAbierto" (click)="seleccionar(VISTAS.SOLICITUDACCESOBD)">
+        <lucide-icon name="file-text" [size]="16" class="menu-icon"></lucide-icon>
+        <span>Realizar solicitud</span>
+      </li>
+
+      <li class="menu-item" *ngIf="submenuCambioBdAbierto" (click)="seleccionar(VISTAS.SOLICITUDESREALIZADAS)">
+        <lucide-icon name="panels-top-left" [size]="16" class="menu-icon"></lucide-icon>
+        <span>Seguimiento de solicitud</span>
+      </li>
+
+      <li class="menu-item" (click)="toggleSubmenuEspecialBd()">
+        <lucide-icon name="database-search" [size]="18" class="menu-icon"></lucide-icon>
+        <span>Solicitud especial de base de datos</span>
+        <lucide-icon
+          name="chevron-down"
+          [size]="16"
+          class="ms-auto"
+          [style.transform]="submenuEspecialBdAbierto ? 'rotate(180deg)' : 'rotate(0deg)'"
+          [style.transition]="'transform 0.2s ease'"
+        ></lucide-icon>
+      </li>
+
+      <li class="menu-item" *ngIf="submenuEspecialBdAbierto" (click)="seleccionar(VISTAS.SOLICITUDESPECIALBD)">
+        <lucide-icon name="file-text" [size]="16" class="menu-icon"></lucide-icon>
+        <span>Realizar solicitud</span>
+      </li>
+
+      <li class="menu-item" *ngIf="submenuEspecialBdAbierto" (click)="seleccionar(VISTAS.SOLICITUDESESPECIALESREALIZADAS)">
+        <lucide-icon name="panels-top-left" [size]="16" class="menu-icon"></lucide-icon>
+        <span>Seguimiento de solicitud</span>
       </li>
 
       <li
