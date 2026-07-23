@@ -710,14 +710,14 @@ def subir_excel(request):
 
     if not archivo:
         
-        return Response({"error": "No se envi+� archivo"}, status=400)
+        return Response({"error": "No se envio el archivo"}, status=400)
 
     try:
         # print(" Nombre:", archivo.name, flush=True)
         
 
         # df = pd.read_excel(archivo, engine="openpyxl")
-        df = pd.read_excel(archivo, sheet_name=hoja, engine="openpyxl")
+        df = pd.read_excel(archivo, sheet_name=hoja, engine="openpyxl",dtype=str, keep_default_na=False)
  
         df.columns = df.columns.str.strip()
         with connection.cursor() as cursor:
@@ -758,7 +758,7 @@ def subir_excel(request):
         if faltantes_estructura  or extras:
             
             return Response({
-                "error": "Estructura de columnas inv+�lida",
+                "error": "Estructura de columnas invalida",
                 "faltantes": faltantes_estructura ,
                 "extras": extras,
                 "columnas_esperadas": columnas_esperadas
@@ -784,12 +784,12 @@ def subir_excel(request):
         filas_limpias = []
 
         for fila in filas:
-            # Detectar si TODA la fila est+� vac+�a
+            # Detectar si TODA la fila esta vacia
             if all(
                 (v is None) or (str(v).strip() == "") or (pd.isna(v))
                 for v in fila.values()
             ):
-                # print("Fila vac+�a detectada, se detiene la carga", flush=True)
+                # print("Fila vacia detectada, se detiene la carga", flush=True)
                 break
 
             filas_limpias.append(fila)
@@ -799,74 +799,125 @@ def subir_excel(request):
         errores = []
 
         for i, fila in enumerate(filas, start=1):
+
             for col_bd, value in fila.items():
-                if pd.isna(value):
 
-                    value = None
-                    fila[col_bd] = None
-
-                          
                 config = dic_tipos.get(col_bd)
 
                 if not config:
                     continue
 
-                #  obligatorio
-                if config["obligatorio"] and (value is None or str(value).strip() == ""):
+                # ---------------------------------------------------
+                # 1. Normalizar vacíos y espacios
+                # ---------------------------------------------------
+                if value is None or pd.isna(value):
+                    value = None
+
+                elif isinstance(value, str):
+                    value = value.strip()
+
+                    if value == "":
+                        value = None
+
+                fila[col_bd] = value
+
+                # ---------------------------------------------------
+                # 2. Campo obligatorio
+                # ---------------------------------------------------
+                if config["obligatorio"] and value is None:
                     errores.append({
                         "fila": i,
                         "columna": config["excel"],
-                        "error": "Campo obligatorio vac+�o"
+                        "error": "Campo obligatorio vacío"
                     })
                     continue
 
-                #  tipo entero
-                if config["tipo"] == "int":
-                    if value is not None:
-                        try:
-                            int(value)
-                        except:
-                            errores.append({
-                                "fila": i,
-                                "columna": config["excel"],
-                                "error": f"Valor inv+�lido: {value}"
-                            })
+                # Si es opcional y está vacío, no hay nada más que validar
+                if value is None:
+                    continue
 
-                #  tipo decimal
-                elif config["tipo"] == "decimal":
-                    if value is not None:
-                        try:
-                            float(value)
-                        except:
-                            errores.append({
-                                "fila": i,
-                                "columna": config["excel"],
-                                "error": f"Debe ser num+�rico: {value}"
-                            })
+                tipo = str(config["tipo"]).strip().lower()
 
-                #  tipo fecha
-                elif config["tipo"] == "date":
-                    if value is not None:
-                        try:
-                            # pd.to_datetime(value, format='%d/%m/%Y')
-                            fila[col_bd] = pd.to_datetime(value, format='%d/%m/%Y').date()                            
-                        except:
-                            errores.append({
-                                "fila": i,
-                                "columna": config["excel"],
-                                "error": f"Fecha inv+�lida: {value}"
-                            })      
-                if config.get("longitud") and len(str(value)) > config["longitud"]:
+                # ---------------------------------------------------
+                # 3. Tipo entero
+                # ---------------------------------------------------
+                if tipo == "int":
+                    try:
+                        numero = float(value)
+
+                        if not numero.is_integer():
+                            raise ValueError("Contiene decimales")
+
+                        fila[col_bd] = int(numero)
+
+                    except (ValueError, TypeError):
+                        errores.append({
+                            "fila": i,
+                            "columna": config["excel"],
+                            "error": f"Debe ser un número entero: {value}"
+                        })
+                        continue
+
+                # ---------------------------------------------------
+                # 4. Tipo decimal
+                # ---------------------------------------------------
+                elif tipo == "decimal":
+                    try:
+                        fila[col_bd] = float(value)
+
+                    except (ValueError, TypeError):
+                        errores.append({
+                            "fila": i,
+                            "columna": config["excel"],
+                            "error": f"Debe ser numérico: {value}"
+                        })
+                        continue
+
+                # ---------------------------------------------------
+                # 5. Tipo fecha
+                # ---------------------------------------------------
+                elif tipo in ("date", "datetime"):
+                    try:
+                        fecha = pd.to_datetime(
+                            value,
+                            dayfirst=True,
+                            errors="raise"
+                        )
+
+                        if tipo == "date":
+                            fila[col_bd] = fecha.date()
+                        else:
+                            fila[col_bd] = fecha.to_pydatetime()
+
+                    except (ValueError, TypeError):
+                        errores.append({
+                            "fila": i,
+                            "columna": config["excel"],
+                            "error": f"Fecha inválida: {value}"
+                        })
+                        continue
+
+                # ---------------------------------------------------
+                # 6. Validar longitud
+                # ---------------------------------------------------
+                if (
+                    config.get("longitud")
+                    and tipo not in ("int", "decimal", "date", "datetime")
+                    and len(str(fila[col_bd])) > config["longitud"]
+                ):
                     errores.append({
                         "fila": i,
                         "columna": config["excel"],
-                        "error": f"Excede longitud {config['longitud']}"
-                    })                          
+                        "error": (
+                            f"Excede longitud {config['longitud']}. "
+                            f"Valor recibido: {fila[col_bd]}"
+                        )
+                    })
         #
         if errores:
             # print(f"Errores encontrados: {errores[:20]}", flush=True)   
             return Response({
-                "error": "Errores de validaci+�n: " + str(errores[:5]),
+                "error": "Errores de validacion: " + str(errores[:5]),
                 "detalle": errores[:20],
                 "total_errores": len(errores)
             }, status=400)        
@@ -883,52 +934,137 @@ def subir_excel(request):
             # filas = df.to_dict(orient="records")
 
 
+        # Validar antes de abrir la transacción.
+        # Es importante hacerlo antes del DELETE en modo REPLACE.
+        if not filas:
+            return Response(
+                {"error": "El archivo no contiene registros"},
+                status=400
+            )
+
+        TAMANIO_LOTE = 1000
+        total_registros = len(filas)
+
+        # Conservamos el orden original de las columnas.
+        columnas_datos = list(filas[0].keys())
+        columnas_insert = columnas_datos + [
+            "fecha_captura",
+            "pk_idUsuario"
+        ]
+
+        cols = ", ".join(f"[{columna}]" for columna in columnas_insert)
+        vals_sql = ", ".join(["%s"] * len(columnas_insert))
+
+        sql_insert = f"""
+            INSERT INTO {tabla} ({cols})
+            VALUES ({vals_sql})
+        """
+
+        print(
+            f"[subir_excel] Iniciando carga de {total_registros} registros "
+            f"en lotes de {TAMANIO_LOTE}",
+            flush=True
+        )
+
         with transaction.atomic():
             with connection.cursor() as cursor:
-                
+
                 if modo_carga == "REPLACE":
+                    print(
+                        f"[subir_excel] Eliminando registros de {tabla}",
+                        flush=True
+                    )
                     cursor.execute(f"DELETE FROM {tabla}")
-                if not filas:
-                    return Response({"error": "El archivo no contiene registros"}, status=400)
-                
-                # Datos de carga gnericos
 
-                # Agregar columnas extra a cada fila
-                filas_con_auditoria = []
-                for f in filas:
-                    nueva = f.copy()
-                    nueva["fecha_captura"] = fecha_captura
-                    nueva["pk_idUsuario"] = usuario
-                    filas_con_auditoria.append(nueva)
+                # Activar fast_executemany cuando el driver lo permita.
+                raw_cursor = getattr(cursor, "cursor", None)
 
-                #Construcci+�n din+�mica
-                cols = ", ".join([f"[{c}]" for c in filas_con_auditoria[0].keys()])
-                vals = ", ".join(["%s"] * len(filas_con_auditoria[0]))
+                if raw_cursor is not None and hasattr(
+                    raw_cursor,
+                    "fast_executemany"
+                ):
+                    raw_cursor.fast_executemany = True
+                    print(
+                        "[subir_excel] fast_executemany activado",
+                        flush=True
+                    )
 
-                sql = f"INSERT INTO {tabla} ({cols}) VALUES ({vals})"
+                for inicio in range(0, total_registros, TAMANIO_LOTE):
+                    fin = min(inicio + TAMANIO_LOTE, total_registros)
+                    lote_filas = filas[inicio:fin]
 
-                data = [list(f.values()) for f in filas_con_auditoria]
+                    # Crear solamente los datos del lote actual.
+                    data_lote = [
+                        [
+                            fila.get(columna)
+                            for columna in columnas_datos
+                        ] + [
+                            fecha_captura,
+                            usuario
+                        ]
+                        for fila in lote_filas
+                    ]
 
-                cursor.executemany(sql, data)   
-        #
-                sql = """
-                INSERT INTO log_carga 
-                (id_area, id_tema, pk_idUsuario, nombre_archivo, fecha_carga, registros_total)
-                VALUES (%s, %s, %s, %s, %s, %s)
+                    try:
+                        cursor.executemany(sql_insert, data_lote)
+                    except Exception as error:
+                        print(
+                            f"[subir_excel] Error en lote "
+                            f"{inicio + 1}-{fin}: {error}",
+                            flush=True
+                        )
+                        raise
+
+                    print(
+                        f"[subir_excel] Insertados {fin}/"
+                        f"{total_registros}",
+                        flush=True
+                    )
+
+                sql_log = """
+                    INSERT INTO log_carga
+                    (
+                        id_area,
+                        id_tema,
+                        pk_idUsuario,
+                        nombre_archivo,
+                        fecha_carga,
+                        registros_total
+                    )
+                    VALUES (%s, %s, %s, %s, %s, %s)
                 """
-                vals = (id_area, id_tema, usuario, archivo.name, fecha_captura, len(df))
-                cursor.execute(sql, vals)
 
-            if sp_carga is not None and sp_carga.strip() != "":
+                valores_log = (
+                    id_area,
+                    id_tema,
+                    usuario,
+                    archivo.name,
+                    fecha_captura,
+                    total_registros
+                )
+
+                cursor.execute(sql_log, valores_log)
+
+            if sp_carga and sp_carga.strip():
+                print(
+                    f"[subir_excel] Ejecutando procedimiento {sp_carga}",
+                    flush=True
+                )
+
                 with connection.cursor() as cursor:
                     cursor.execute(f"EXEC {sp_carga}")
 
+        print(
+            f"[subir_excel] Carga terminada: "
+            f"{total_registros} registros",
+            flush=True
+        )
+
         return Response({
             "columnas": list(df.columns),
-            "filas": df.to_dict(orient="records")[:10],
-            "total_registros": len(df)
+            "filas": filas[:10],
+            "total_registros": total_registros
         })
-
     except Exception as e:
         import traceback
         print(str(e), flush=True)
@@ -943,7 +1079,7 @@ def obtener_hojas_excel(request):
     archivo = request.FILES.get("file")
 
     if not archivo:
-        return Response({"error": "No se envi+� archivo"}, status=400)
+        return Response({"error": "No se envio archivo"}, status=400)
 
     try:
         xls = pd.ExcelFile(archivo, engine="openpyxl")
@@ -954,6 +1090,7 @@ def obtener_hojas_excel(request):
         })
 
     except Exception as e:
+        print(str(e), flush=True)   
         return Response({"error": str(e)}, status=500)
 
 

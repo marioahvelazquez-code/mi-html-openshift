@@ -45,6 +45,11 @@ interface ContextoConversacion {
   variablesConfirmadas?: any[] | null;
   variables_confirmadas?: any[] | null;
   filtros?: any;
+  ultimaConsultaAnalitica?: any | null;
+  consultaAnaliticaPendiente?: any | null;
+  operacion?: string | null;
+  tipoUnidad?: string | null;
+  resultadoAnalitico?: any | null;
 }
 
 interface ConsultaEnEdicion {
@@ -87,6 +92,34 @@ interface RespuestaChatbot {
   variable: ResultadoBusqueda;
   datos?: any[];
   requiereConfirmacion?: boolean;
+  resetConversacion?: boolean;
+  tipoConsulta?: 'CONSULTA_IFU' | 'COUNT_UNIDADES' | 'EXTREMO_POR_UNIDAD' | string;
+  operacion?: string;
+  tipoUnidad?: string;
+  descripcionTipoUnidad?: string;
+  nivelesAtencion?: string[];
+  ambito?: any;
+  totalUnidades?: number;
+  variableAnalitica?: any;
+  valorExtremo?: number | null;
+  totalEmpates?: number;
+  resultadosAnaliticos?: any[];
+  resultadoAnalitico?: any;
+}
+
+interface ResumenConsulta {
+  tipoConsulta: string;
+  objetivo: string;
+  alcance: string;
+  resultadoPrincipal: string;
+  resultadoSecundario?: string;
+  interpretacion: {
+    operacion?: string;
+    tipoUnidad?: string;
+    variable?: string;
+    ambito?: string;
+    hospital?: string;
+  };
 }
 
 interface MensajeChat {
@@ -134,6 +167,7 @@ export class ChatComponent implements OnInit {
   };
   resultados: any[] = [];
   resultadoDeteccion: RespuestaChatbot | null = null;
+  resumenConsulta: ResumenConsulta | null = null;
   private textoPreguntaActual = '';
   private textoGeneradoPorSeleccion = false;
 
@@ -314,6 +348,18 @@ export class ChatComponent implements OnInit {
 
   // Crea los mensajes y tarjetas de la respuesta.
   procesarRespuestaBackend(res: RespuestaChatbot) {
+    if (res?.resetConversacion === true) {
+      this.historial.push({
+        emisor: 'bot',
+        texto:
+          res.mensaje ||
+          '¡Con gusto! He cerrado la conversación y limpiado el contexto. Puedes iniciar una nueva consulta cuando quieras.',
+      });
+      this.reiniciarConversacionDespuesDeDespedida();
+      this.scrollChatAlFinal();
+      return;
+    }
+
     if (!res?.ok) {
       this.historial.push({
         emisor: 'bot',
@@ -329,6 +375,7 @@ export class ChatComponent implements OnInit {
     this.resultadoDeteccion = res;
     this.resultados = res.datos || [];
     this.actualizarContextoDesdeRespuesta(res);
+    this.resumenConsulta = this.construirResumenConsulta(res);
 
     const hospitalesOptions = this.obtenerCandidatos(res.hospital);
     const variablesOptions = this.obtenerCandidatos(res.variable);
@@ -727,15 +774,196 @@ export class ChatComponent implements OnInit {
     return Number.isFinite(numero) ? numero : 0;
   }
 
+  construirResumenConsulta(res: RespuestaChatbot): ResumenConsulta | null {
+    if (!res?.ok || res.resetConversacion) return null;
+
+    const tipoConsulta = this.inferirTipoConsulta(res);
+    if (!tipoConsulta) return null;
+
+    const hospital = this.obtenerDescripcion(
+      res.hospital?.hospital || res.contexto?.hospital,
+      ['nombre_original', 'desc_original', 'descripcion'],
+    );
+    const ambitoObjeto = res.ambito || res.contexto?.ambito;
+    const ambito = this.descripcionAmbitoResumen(ambitoObjeto);
+    const variableObjeto =
+      res.variableAnalitica || res.variable?.variable || res.contexto?.variable;
+    const variable =
+      this.obtenerDescripcion(variableObjeto, ['descripcion', 'desc_original']) ||
+      this.obtenerDescripcion(res.datos?.[0], ['descripcion']);
+    const tipoUnidad = res.tipoUnidad || res.contexto?.tipoUnidad || '';
+
+    if (tipoConsulta === 'COUNT_UNIDADES') {
+      const esUmf = tipoUnidad === 'UMF';
+      const total = Number(res.totalUnidades ?? res.resultadoAnalitico?.total ?? 0);
+      const etiquetaResultado = esUmf ? 'UMF' : total === 1 ? 'hospital' : 'hospitales';
+      return {
+        tipoConsulta: 'Conteo de unidades',
+        objetivo: esUmf ? 'Unidades de Medicina Familiar' : 'Hospitales',
+        alcance: ambito || 'Ámbito seleccionado',
+        resultadoPrincipal: `${total.toLocaleString('es-MX')} ${etiquetaResultado}`,
+        interpretacion: {
+          operacion: 'Contar',
+          tipoUnidad: esUmf ? 'UMF' : 'Hospital',
+          ...(ambito ? { ambito } : {}),
+        },
+      };
+    }
+
+    if (tipoConsulta === 'EXTREMO_POR_UNIDAD') {
+      const esMaximo = res.operacion === 'MAX';
+      const resultados = res.resultadosAnaliticos || res.resultadoAnalitico?.resultados || [];
+      const primerResultado = resultados[0] || {};
+      const denominacion = this.obtenerDescripcion(primerResultado, [
+        'denominacionUnidad',
+        'denominacion_unidad',
+        'clavePresupuestal',
+        'clave_presupuestal',
+      ]);
+      const valor = res.valorExtremo ?? res.resultadoAnalitico?.valorExtremo;
+      const variableCorta = this.descripcionCortaVariable(variable);
+      const totalEmpates = Number(res.totalEmpates ?? resultados.length ?? 0);
+      return {
+        tipoConsulta: esMaximo ? 'Máximo por unidad' : 'Mínimo por unidad',
+        objetivo: `${tipoUnidad || 'Unidad'} con ${esMaximo ? 'más' : 'menos'} ${variableCorta.toLowerCase()}`,
+        alcance: ambito || 'Ámbito seleccionado',
+        resultadoPrincipal:
+          totalEmpates > 1 ? `${totalEmpates} unidades empatadas` : denominacion || 'Sin resultados',
+        ...(valor !== null && valor !== undefined
+          ? { resultadoSecundario: `${valor.toLocaleString('es-MX')} ${variableCorta.toLowerCase()}` }
+          : {}),
+        interpretacion: {
+          operacion: esMaximo ? 'Máximo' : 'Mínimo',
+          ...(tipoUnidad ? { tipoUnidad: tipoUnidad === 'HOSPITAL' ? 'Hospital' : tipoUnidad } : {}),
+          ...(variable ? { variable } : {}),
+          ...(ambito ? { ambito } : {}),
+        },
+      };
+    }
+
+    const fila = res.datos?.[0];
+    const valor = fila?.valor;
+    return {
+      tipoConsulta: 'Consulta IFU',
+      objetivo: variable || 'Variable IFU',
+      alcance: hospital || ambito || 'Ámbito seleccionado',
+      resultadoPrincipal:
+        valor === null || valor === undefined
+          ? 'Sin resultado'
+          : this.valorNumerico(valor).toLocaleString('es-MX'),
+      interpretacion: {
+        operacion: 'Consultar valor',
+        ...(hospital ? { hospital } : {}),
+        ...(variable ? { variable } : {}),
+        ...(!hospital && ambito ? { ambito } : {}),
+      },
+    };
+  }
+
+  private inferirTipoConsulta(res: RespuestaChatbot): string | null {
+    if (res.tipoConsulta) return res.tipoConsulta;
+    if ((res.datos || []).length > 0 || res.contexto?.variable) return 'CONSULTA_IFU';
+    return null;
+  }
+
+  private obtenerDescripcion(objeto: any, campos: string[]): string {
+    if (!objeto || typeof objeto !== 'object') return '';
+    for (const campo of campos) {
+      const valor = objeto[campo];
+      if (valor !== null && valor !== undefined && String(valor).trim()) {
+        return String(valor).trim();
+      }
+    }
+    return '';
+  }
+
+  private descripcionAmbitoResumen(ambito: any): string {
+    if (!ambito) return '';
+    if (String(ambito.tipo || '').toUpperCase() === 'NACIONAL') return 'Nacional';
+    return this.obtenerDescripcion(ambito, [
+      'descripcion',
+      'desc_original',
+      'nombre',
+      'nombre_original',
+      'texto_usado',
+    ]);
+  }
+
+  private descripcionCortaVariable(descripcion: string): string {
+    if (!descripcion) return 'la variable seleccionada';
+    return descripcion
+      .replace(/^total\s+de\s+/i, '')
+      .replace(/\s+de\s+la\s+unidad\.?$/i, '')
+      .replace(/\.$/, '')
+      .trim();
+  }
+
+  limpiarEstadoConversacional(): void {
+    this.contexto = {
+      hospital: null,
+      variable: null,
+      ambito: null,
+      hospitalConfirmadoPorUsuario: false,
+      variableConfirmadaPorUsuario: false,
+      ultimaConsultaAnalitica: null,
+      consultaAnaliticaPendiente: null,
+      operacion: null,
+      tipoUnidad: null,
+      resultadoAnalitico: null,
+    };
+    this.consultaEnEdicion = { hospital: null, variable: null };
+    this.resultados = [];
+    this.resultadoDeteccion = null;
+    this.resumenConsulta = null;
+    this.textoPreguntaActual = '';
+    this.textoGeneradoPorSeleccion = false;
+    this.chatControl.setValue('', { emitEvent: false });
+    this.historial.forEach((mensaje) => {
+      mensaje.isAmbiguous = false;
+      mensaje.hospitalesOptions = [];
+      mensaje.variablesOptions = [];
+      mensaje.hospitalSeleccionadoId = null;
+      mensaje.variableSeleccionadaId = null;
+    });
+  }
+
+  limpiarHistorialChat(): void {
+    this.historial = [
+      {
+        emisor: 'bot',
+        texto: 'Hola. ¿Cómo puedo ayudarte hoy con el Inventario Físico de Unidades (IFU)?',
+      },
+      {
+        emisor: 'bot',
+        texto:
+          'Tip: Conforme escribas, puedes seleccionar las opciones del menú desplegable para guiarte mejor.',
+      },
+    ];
+  }
+
+  limpiarConversacion(): void {
+    this.limpiarEstadoConversacional();
+    this.limpiarHistorialChat();
+    this.cdr.detectChanges();
+  }
+
+  private reiniciarConversacionDespuesDeDespedida(): void {
+    this.limpiarEstadoConversacional();
+  }
+
   scrollChatAlFinal() {
     setTimeout(() => {
       const contenedor = this.chatMessages?.nativeElement;
       if (!contenedor) return;
 
-      contenedor.scrollTo({
-        top: contenedor.scrollHeight,
-        behavior: 'smooth',
-      });
+      if (typeof contenedor.scrollTo === 'function') {
+        contenedor.scrollTo({
+          top: contenedor.scrollHeight,
+          behavior: 'smooth',
+        });
+      } else {
+        contenedor.scrollTop = contenedor.scrollHeight;
+      }
     });
   }
 

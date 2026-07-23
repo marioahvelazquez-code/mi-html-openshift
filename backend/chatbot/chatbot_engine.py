@@ -1,15 +1,41 @@
-
-
 from .consulta_ifu import ConsultaIFU
+from .consulta_analitica import ConsultaAnalitica
 from .buscador_hospital import BuscadorHospital
 from .buscador_variable import BuscadorVariable
 from .catalogos import catalogos
 from .constantes import VARIABLES_CANONICAS
+from .detector_operacion import DetectorOperacion
+from .detector_tipo_unidad import DetectorTipoUnidad
 from .normalizador import normalizar_texto_completo
 from .buscador_ambito import BuscadorAmbito
+from .planificador_consulta import PlanificadorConsulta
 
 
 class ChatbotEngine:
+    MAX_RESULTADOS_EN_MENSAJE = 10
+    MENSAJE_CONVERSACION_FINALIZADA = (
+        "¡Con gusto! He cerrado la conversación y limpiado el contexto. "
+        "Puedes iniciar una nueva consulta cuando quieras."
+    )
+    DESPEDIDAS_EXACTAS = {
+        "gracias",
+        "muchas gracias",
+        "gracias por la ayuda",
+        "muchas gracias por la ayuda",
+        "grax",
+        "eso es todo",
+        "es todo",
+        "seria todo",
+        "ya es todo",
+        "fin",
+        "terminar",
+        "terminamos",
+        "listo gracias",
+        "ok gracias",
+        "perfecto gracias",
+        "eso es todo gracias",
+    }
+
     CONECTORES_SIN_VARIABLE = {
         "y",
         "e",
@@ -94,7 +120,11 @@ class ChatbotEngine:
         self.buscador_ambito = BuscadorAmbito(catalogos)
         self.buscador_hospital = BuscadorHospital(catalogos)
         self.buscador_variable = BuscadorVariable(catalogos)
-        self.consulta_ifu = ConsultaIFU()        
+        self.consulta_ifu = ConsultaIFU()
+        self.detector_operacion = DetectorOperacion()
+        self.detector_tipo_unidad = DetectorTipoUnidad()
+        self.planificador_consulta = PlanificadorConsulta()
+        self.consulta_analitica = ConsultaAnalitica()
         self.tokens_catalogo_variables = self._crear_tokens_catalogo_variables()
         self.tokens_catalogo_hospitales = self._crear_tokens_catalogo_hospitales()
 
@@ -111,9 +141,52 @@ class ChatbotEngine:
         print("[chatbot] variable confirmada por usuario:", variable_confirmada, flush=True)
 
         pregunta_normalizada = normalizar_texto_completo(pregunta_usuario)
+        resultado_operacion = self.detector_operacion.detectar(pregunta_usuario)
+        resultado_tipo_unidad = self.detector_tipo_unidad.detectar(
+            pregunta_usuario
+        )
+        if (
+            self._es_despedida(pregunta_normalizada)
+            and not self._contiene_consulta_relevante(
+                pregunta_normalizada,
+                resultado_operacion,
+                resultado_tipo_unidad,
+            )
+        ):
+            print("[chatbot] conversacion_finalizada: True", flush=True)
+            print("[chatbot] se_consulta_sql:", False, flush=True)
+            return self._crear_respuesta_conversacion_finalizada(
+                pregunta_usuario
+            )
 
         # Detecta si la consulta usa un hospital o un ámbito general.
         ambito_detectado = self.buscador_ambito.buscar(pregunta_normalizada)
+        resultado_operacion, resultado_tipo_unidad = (
+            self._aplicar_contexto_analitico_pendiente(
+                contexto,
+                ambito_detectado,
+                resultado_operacion,
+                resultado_tipo_unidad,
+            )
+        )
+        resultado_operacion, resultado_tipo_unidad = (
+            self._aplicar_continuidad_ultima_consulta_analitica(
+                contexto,
+                ambito_detectado,
+                resultado_operacion,
+                resultado_tipo_unidad,
+            )
+        )
+        print(
+            "[chatbot][analitica] operacion:",
+            resultado_operacion,
+            flush=True,
+        )
+        print(
+            "[chatbot][analitica] tipo unidad:",
+            resultado_tipo_unidad,
+            flush=True,
+        )
         tiene_indicio_unidad_puntual = bool(
             set(pregunta_normalizada.split()) & self.INDICADORES_UNIDAD_PUNTUAL
         )
@@ -129,6 +202,18 @@ class ChatbotEngine:
             hospital_confirmado=hospital_confirmado,
             variable_confirmada=variable_confirmada,
         )
+        es_continuacion_count_valida = (
+            self._es_continuacion_count_valida(
+                contexto,
+                resultado_operacion,
+                resultado_tipo_unidad,
+            )
+        )
+        if not tiene_intencion and es_continuacion_count_valida:
+            tiene_intencion = True
+            razon_sin_intencion = (
+                "continuacion analitica COUNT_UNIDADES valida"
+            )
         if (
             not tiene_intencion
             and ambito_detectado.get("tipo") != "HOSPITAL"
@@ -265,6 +350,268 @@ class ChatbotEngine:
         else:
             resultado_variable = resultado_variable_texto
 
+        ambito_para_plan = self._preparar_ambito_para_planificador(
+            ambito_detectado
+        )
+        if not ambito_para_plan:
+            ambito_para_plan = self._preparar_ambito_para_planificador(
+                contexto.get("ambito")
+            )
+
+        variable_para_plan = None
+        if variable_confirmada and variable_contexto:
+            variable_para_plan = self._normalizar_variable_contexto(
+                variable_contexto
+            )
+        elif resultado_variable_texto.get("status") == "ganador_claro":
+            variable_para_plan = resultado_variable_texto.get("variable")
+        else:
+            pendiente = contexto.get("consultaAnaliticaPendiente")
+            if isinstance(pendiente, dict):
+                variable_para_plan = pendiente.get("variable")
+
+        hospital_para_plan = None
+        if hospital_confirmado and hospital_contexto:
+            hospital_para_plan = self._normalizar_hospital_contexto(
+                hospital_contexto
+            )
+        elif resultado_hospital_texto.get("status") == "ganador_claro":
+            hospital_para_plan = resultado_hospital_texto.get("hospital")
+
+        plan_consulta = self.planificador_consulta.construir(
+            resultado_operacion=resultado_operacion,
+            resultado_tipo_unidad=resultado_tipo_unidad,
+            ambito=ambito_para_plan,
+            variable=variable_para_plan,
+            hospital=hospital_para_plan,
+        )
+        print(
+            "[chatbot][analitica] plan:",
+            plan_consulta,
+            flush=True,
+        )
+        print(
+            "[chatbot][analitica] tipo_consulta/operacion:",
+            plan_consulta.get("tipo_consulta"),
+            plan_consulta.get("operacion"),
+            flush=True,
+        )
+
+        es_count_unidades = (
+            plan_consulta.get("status") == "plan_valido"
+            and plan_consulta.get("tipo_consulta") == "COUNT_UNIDADES"
+        )
+        if es_count_unidades:
+            resultado_analitico = self.consulta_analitica.ejecutar_plan(
+                plan_consulta
+            )
+            contexto_analitico = self._crear_contexto_analitico(
+                contexto,
+                plan_consulta,
+                completada=resultado_analitico.get("status") == "ok",
+            )
+            if resultado_analitico.get("status") == "ok":
+                return self._crear_respuesta_count_unidades(
+                    pregunta_usuario,
+                    contexto_analitico,
+                    resultado_analitico,
+                )
+
+            return self._crear_respuesta_analitica_base(
+                pregunta_usuario=pregunta_usuario,
+                contexto=contexto_analitico,
+                status="error_consulta",
+                mensaje=(
+                    "No fue posible realizar el conteo de unidades en este momento."
+                ),
+                ok=False,
+                tipo_consulta="COUNT_UNIDADES",
+                tipo_unidad=plan_consulta.get("tipo_unidad"),
+                ambito=plan_consulta.get("ambito"),
+            )
+
+        es_extremo_por_unidad = (
+            plan_consulta.get("status") == "plan_valido"
+            and plan_consulta.get("tipo_consulta")
+            == "EXTREMO_POR_UNIDAD"
+            and plan_consulta.get("operacion") in {"MAX", "MIN"}
+            and bool(plan_consulta.get("tipo_unidad"))
+            and bool(plan_consulta.get("niveles_atencion"))
+            and bool(plan_consulta.get("variable"))
+            and bool(plan_consulta.get("ambito"))
+        )
+        if es_extremo_por_unidad:
+            print(
+                "[chatbot][analitica] ejecutando extremo:",
+                {
+                    "tipo_unidad": plan_consulta.get("tipo_unidad"),
+                    "ambito": plan_consulta.get("ambito"),
+                    "variable_id": (
+                        plan_consulta.get("variable") or {}
+                    ).get("id"),
+                },
+                flush=True,
+            )
+            resultado_analitico = self.consulta_analitica.ejecutar_plan(
+                plan_consulta
+            )
+            print(
+                "[chatbot][analitica] resultado extremo:",
+                {
+                    "status": resultado_analitico.get("status"),
+                    "valor_extremo": resultado_analitico.get(
+                        "valor_extremo"
+                    ),
+                    "total_empates": resultado_analitico.get(
+                        "total_empates"
+                    ),
+                },
+                flush=True,
+            )
+            contexto_analitico = self._crear_contexto_analitico(
+                contexto,
+                plan_consulta,
+                completada=resultado_analitico.get("status")
+                in {"ok", "sin_resultados"},
+            )
+            if resultado_analitico.get("status") in {
+                "ok",
+                "sin_resultados",
+            }:
+                return self._crear_respuesta_extremo_por_unidad(
+                    pregunta_usuario,
+                    contexto_analitico,
+                    resultado_analitico,
+                )
+
+            return self._crear_respuesta_analitica_base(
+                pregunta_usuario=pregunta_usuario,
+                contexto=contexto_analitico,
+                status="error_consulta",
+                mensaje=(
+                    "No fue posible realizar la consulta de máximo o mínimo "
+                    "en este momento."
+                ),
+                ok=False,
+                tipo_consulta="EXTREMO_POR_UNIDAD",
+                tipo_unidad=plan_consulta.get("tipo_unidad"),
+                ambito=plan_consulta.get("ambito"),
+            )
+
+        if (
+            plan_consulta.get("tipo_consulta") == "EXTREMO_POR_UNIDAD"
+            and plan_consulta.get("status") == "plan_incompleto"
+        ):
+            razon_plan = plan_consulta.get("razon")
+            contexto_analitico = self._crear_contexto_analitico(
+                contexto,
+                plan_consulta,
+                pendiente=True,
+            )
+            variable_ambigua = (
+                razon_plan == "falta_variable"
+                and resultado_variable.get("status")
+                in {"empate_tecnico", "baja_confianza"}
+                and bool(resultado_variable.get("candidatos"))
+            )
+            if variable_ambigua:
+                contexto = contexto_analitico
+            elif razon_plan == "falta_variable":
+                return self._crear_respuesta_analitica_base(
+                    pregunta_usuario=pregunta_usuario,
+                    contexto=contexto_analitico,
+                    status="falta_variable",
+                    mensaje=self._crear_mensaje_falta_variable_extremo(
+                        plan_consulta
+                    ),
+                    tipo_consulta="EXTREMO_POR_UNIDAD",
+                    tipo_unidad=plan_consulta.get("tipo_unidad"),
+                    ambito=plan_consulta.get("ambito"),
+                )
+            elif razon_plan == "falta_ambito":
+                return self._crear_respuesta_analitica_base(
+                    pregunta_usuario=pregunta_usuario,
+                    contexto=contexto_analitico,
+                    status="falta_ambito",
+                    mensaje=self._crear_mensaje_falta_ambito_extremo(
+                        plan_consulta
+                    ),
+                    tipo_consulta="EXTREMO_POR_UNIDAD",
+                    tipo_unidad=plan_consulta.get("tipo_unidad"),
+                    ambito=None,
+                )
+
+        if (
+            plan_consulta.get("tipo_consulta") == "COUNT_UNIDADES"
+            and plan_consulta.get("status") == "plan_incompleto"
+            and plan_consulta.get("razon") == "falta_ambito"
+        ):
+            contexto_analitico = self._crear_contexto_analitico(
+                contexto,
+                plan_consulta,
+                pendiente=True,
+            )
+            return self._crear_respuesta_analitica_base(
+                pregunta_usuario=pregunta_usuario,
+                contexto=contexto_analitico,
+                status="falta_ambito",
+                mensaje=self._crear_mensaje_falta_ambito_count_unidades(
+                    plan_consulta.get("tipo_unidad")
+                ),
+                tipo_consulta="COUNT_UNIDADES",
+                tipo_unidad=plan_consulta.get("tipo_unidad"),
+                ambito=None,
+            )
+
+        if (
+            resultado_operacion.get("operacion") == "COUNT"
+            and plan_consulta.get("status") == "requiere_aclaracion"
+            and plan_consulta.get("razon") == "multiple_tipo_unidad"
+        ):
+            contexto_analitico = self._crear_contexto_analitico(
+                contexto,
+                plan_consulta,
+            )
+            return self._crear_respuesta_analitica_base(
+                pregunta_usuario=pregunta_usuario,
+                contexto=contexto_analitico,
+                status="requiere_aclaracion",
+                mensaje=(
+                    "Detecté dos tipos de unidad. ¿Deseas contar unidades de "
+                    "medicina familiar o hospitales?"
+                ),
+                tipo_consulta="COUNT_UNIDADES",
+                tipo_unidad=None,
+                ambito=plan_consulta.get("ambito"),
+            )
+
+        if (
+            resultado_operacion.get("operacion") in {"MAX", "MIN"}
+            and plan_consulta.get("status") == "requiere_aclaracion"
+            and plan_consulta.get("razon") == "multiple_tipo_unidad"
+        ):
+            plan_pendiente = {
+                **plan_consulta,
+                "tipo_consulta": "EXTREMO_POR_UNIDAD",
+            }
+            contexto_analitico = self._crear_contexto_analitico(
+                contexto,
+                plan_pendiente,
+                pendiente=True,
+            )
+            return self._crear_respuesta_analitica_base(
+                pregunta_usuario=pregunta_usuario,
+                contexto=contexto_analitico,
+                status="requiere_aclaracion",
+                mensaje=(
+                    "Detecté unidades de medicina familiar y hospitales. "
+                    "¿Qué tipo de unidad deseas comparar?"
+                ),
+                tipo_consulta="EXTREMO_POR_UNIDAD",
+                tipo_unidad=None,
+                ambito=plan_consulta.get("ambito"),
+            )
+
         variable_final_usada = (
             resultado_variable["variable"]["id"]
             if resultado_variable["status"] == "ganador_claro"
@@ -274,12 +621,19 @@ class ChatbotEngine:
         print("[chatbot] variable_final_usada:", variable_final_usada, flush=True)
 
         hospital_contexto_final = hospital_contexto
-        if (
-            not es_ambito_macro
-            and resultado_hospital["status"] == "ganador_claro"
+        ambito_contexto_final = (
+            ambito_detectado
+            if es_ambito_macro
+            else contexto.get("ambito")
+        )
+        if es_ambito_macro:
+            hospital_contexto_final = None
+        elif (
+            resultado_hospital["status"] == "ganador_claro"
             and resultado_hospital.get("hospital")
         ):
             hospital_contexto_final = resultado_hospital["hospital"]
+            ambito_contexto_final = None
 
         if resultado_variable["status"] == "ganador_claro":
             variable_contexto_final = resultado_variable["variable"]
@@ -291,7 +645,7 @@ class ChatbotEngine:
         contexto_final = {
             **contexto,
             "hospital": hospital_contexto_final,
-            "ambito": ambito_detectado if es_ambito_macro else contexto.get("ambito"),
+            "ambito": ambito_contexto_final,
             "variable": variable_contexto_final,
             "hospitalConfirmadoPorUsuario": False,
             "variableConfirmadaPorUsuario": False,
@@ -315,7 +669,8 @@ class ChatbotEngine:
 
         hay_candidatos_variable = bool(
             resultado_variable
-            and resultado_variable.get("status") == "empate_tecnico"
+            and resultado_variable.get("status")
+            in {"empate_tecnico", "baja_confianza"}
             and resultado_variable.get("candidatos")
         )
         hay_candidatos_hospital = bool(
@@ -398,6 +753,7 @@ class ChatbotEngine:
             resultado_variable["status"] == "ganador_claro"
             and variable_final
             and ambito_final
+            and not hospital_final
         )
         if (
             puede_consultar_hospital or puede_consultar_ambito
@@ -430,6 +786,603 @@ class ChatbotEngine:
             "datos": datos,
             "requiereConfirmacion": self._requiere_confirmacion(resultado_hospital, resultado_variable),
         }
+
+    def _preparar_ambito_para_planificador(self, resultado_ambito):
+        if not isinstance(resultado_ambito, dict):
+            return None
+
+        tipo = resultado_ambito.get("tipo") or resultado_ambito.get(
+            "tipo_ambito"
+        )
+        identificador = resultado_ambito.get("id")
+        if identificador is None:
+            identificador = resultado_ambito.get("filtro_id")
+
+        if not tipo or str(tipo).upper() == "HOSPITAL":
+            return None
+        if identificador is None:
+            return None
+
+        descripcion = (
+            resultado_ambito.get("descripcion")
+            or resultado_ambito.get("nombre")
+            or resultado_ambito.get("desc_original")
+            or resultado_ambito.get("desc_normalizada")
+            or resultado_ambito.get("texto_usado")
+        )
+        return {
+            "tipo": str(tipo).upper(),
+            "id": identificador,
+            "descripcion": descripcion,
+        }
+
+    def _aplicar_contexto_analitico_pendiente(
+        self,
+        contexto,
+        ambito_detectado,
+        resultado_operacion,
+        resultado_tipo_unidad,
+    ):
+        pendiente = contexto.get("consultaAnaliticaPendiente")
+        if (
+            not isinstance(pendiente, dict)
+            or pendiente.get("tipoConsulta")
+            not in {"COUNT_UNIDADES", "EXTREMO_POR_UNIDAD"}
+        ):
+            return resultado_operacion, resultado_tipo_unidad
+
+        if resultado_operacion.get("operacion") == "SIN_OPERACION_ANALITICA":
+            operacion_pendiente = pendiente.get("operacion")
+            if pendiente.get("tipoConsulta") == "COUNT_UNIDADES":
+                operacion_pendiente = "COUNT"
+            resultado_operacion = {
+                **resultado_operacion,
+                "operacion": operacion_pendiente,
+                "termino_detectado": None,
+                "confianza": 1.0,
+            }
+
+        if resultado_tipo_unidad.get("status") == "sin_tipo_unidad":
+            tipo_unidad = pendiente.get("tipoUnidad")
+            if tipo_unidad:
+                resultado_tipo_unidad = {
+                    **resultado_tipo_unidad,
+                    "status": "ganador_claro",
+                    "tipo_unidad": tipo_unidad,
+                    "descripcion": pendiente.get("descripcionTipoUnidad"),
+                    "niveles_atencion": list(
+                        pendiente.get("nivelesAtencion") or []
+                    ),
+                    "termino_detectado": None,
+                    "confianza": 1.0,
+                }
+
+        return resultado_operacion, resultado_tipo_unidad
+
+    def _aplicar_continuidad_ultima_consulta_analitica(
+        self,
+        contexto,
+        ambito_detectado,
+        resultado_operacion,
+        resultado_tipo_unidad,
+    ):
+        if isinstance(contexto.get("consultaAnaliticaPendiente"), dict):
+            return resultado_operacion, resultado_tipo_unidad
+
+        ultima_consulta = contexto.get("ultimaConsultaAnalitica")
+        if (
+            not isinstance(ultima_consulta, dict)
+            or ultima_consulta.get("tipoConsulta") != "COUNT_UNIDADES"
+        ):
+            return resultado_operacion, resultado_tipo_unidad
+
+        ambito_explicito = (
+            isinstance(ambito_detectado, dict)
+            and ambito_detectado.get("tipo") != "HOSPITAL"
+        )
+        tipo_unidad_explicito = (
+            resultado_tipo_unidad.get("status") == "ganador_claro"
+            and bool(resultado_tipo_unidad.get("tipo_unidad"))
+        )
+        if not ambito_explicito and not tipo_unidad_explicito:
+            return resultado_operacion, resultado_tipo_unidad
+
+        if (
+            resultado_operacion.get("operacion")
+            == "SIN_OPERACION_ANALITICA"
+        ):
+            resultado_operacion = {
+                **resultado_operacion,
+                "operacion": "COUNT",
+                "termino_detectado": None,
+                "confianza": 1.0,
+            }
+
+        if (
+            resultado_operacion.get("operacion") == "COUNT"
+            and resultado_tipo_unidad.get("status") == "sin_tipo_unidad"
+        ):
+            tipo_unidad = ultima_consulta.get("tipoUnidad")
+            if tipo_unidad:
+                resultado_tipo_unidad = {
+                    **resultado_tipo_unidad,
+                    "status": "ganador_claro",
+                    "tipo_unidad": tipo_unidad,
+                    "descripcion": (
+                        ultima_consulta.get("descripcionTipoUnidad")
+                        or tipo_unidad
+                    ),
+                    "niveles_atencion": list(
+                        ultima_consulta.get("nivelesAtencion") or []
+                    ),
+                    "termino_detectado": None,
+                    "confianza": 1.0,
+                }
+
+        return resultado_operacion, resultado_tipo_unidad
+
+    def _es_continuacion_count_valida(
+        self,
+        contexto,
+        resultado_operacion,
+        resultado_tipo_unidad,
+    ):
+        ultima_consulta = contexto.get("ultimaConsultaAnalitica")
+        return bool(
+            isinstance(ultima_consulta, dict)
+            and ultima_consulta.get("tipoConsulta") == "COUNT_UNIDADES"
+            and resultado_operacion.get("operacion") == "COUNT"
+            and resultado_tipo_unidad.get("status") == "ganador_claro"
+            and resultado_tipo_unidad.get("tipo_unidad")
+            and resultado_tipo_unidad.get("termino_detectado")
+        )
+
+    def _es_despedida(self, pregunta_normalizada):
+        texto = (pregunta_normalizada or "").strip()
+        if texto in self.DESPEDIDAS_EXACTAS:
+            return True
+
+        tokens = texto.split()
+        if not ({"gracias", "grax"} & set(tokens)):
+            return False
+
+        tokens_cortesia = {
+            "gracias",
+            "grax",
+            "muchas",
+            "por",
+            "la",
+            "ayuda",
+            "eso",
+            "es",
+            "todo",
+            "ya",
+            "seria",
+            "listo",
+            "ok",
+            "perfecto",
+        }
+        return not any(token not in tokens_cortesia for token in tokens)
+
+    def _contiene_consulta_relevante(
+        self,
+        pregunta_normalizada,
+        resultado_operacion,
+        resultado_tipo_unidad,
+    ):
+        tiene_intencion_textual, _ = self._tiene_intencion_consulta(
+            pregunta_normalizada
+        )
+        return bool(
+            tiene_intencion_textual
+            or resultado_operacion.get("operacion")
+            != "SIN_OPERACION_ANALITICA"
+            or resultado_tipo_unidad.get("status") == "ganador_claro"
+        )
+
+    def _crear_respuesta_conversacion_finalizada(self, pregunta_usuario):
+        contexto_limpio = {
+            "hospital": None,
+            "variable": None,
+            "ambito": None,
+            "hospitalConfirmadoPorUsuario": False,
+            "variableConfirmadaPorUsuario": False,
+            "ultimaConsultaAnalitica": None,
+            "consultaAnaliticaPendiente": None,
+            "operacion": None,
+            "tipoUnidad": None,
+            "resultadoAnalitico": None,
+            "candidatos": None,
+            "seleccionesPendientes": None,
+        }
+        return {
+            "ok": True,
+            "status": "conversacion_finalizada",
+            "mensaje": self.MENSAJE_CONVERSACION_FINALIZADA,
+            "pregunta_original": pregunta_usuario,
+            "resetConversacion": True,
+            "contexto": contexto_limpio,
+            "hospital": {
+                "status": "sin_texto",
+                "hospital": None,
+                "score": 0.0,
+                "texto_usado": "",
+            },
+            "variable": {
+                "status": "sin_texto",
+                "variable": None,
+                "score": 0.0,
+                "texto_usado": "",
+            },
+            "datos": [],
+            "requiereConfirmacion": False,
+        }
+
+    def _crear_contexto_analitico(
+        self,
+        contexto,
+        plan,
+        pendiente=False,
+        completada=False,
+    ):
+        contexto_analitico = {
+            **contexto,
+            "hospital": contexto.get("hospital"),
+            "variable": contexto.get("variable"),
+            "hospitalConfirmadoPorUsuario": False,
+            "variableConfirmadaPorUsuario": False,
+        }
+
+        es_count_unidades = plan.get("tipo_consulta") == "COUNT_UNIDADES"
+        if es_count_unidades:
+            contexto_analitico["hospital"] = None
+            contexto_analitico["variable"] = None
+
+        if plan.get("ambito"):
+            contexto_analitico["ambito"] = plan["ambito"]
+
+        if pendiente:
+            contexto_analitico["consultaAnaliticaPendiente"] = {
+                "tipoConsulta": plan.get("tipo_consulta"),
+                "operacion": plan.get("operacion"),
+                "tipoUnidad": plan.get("tipo_unidad"),
+                "descripcionTipoUnidad": plan.get(
+                    "descripcion_tipo_unidad"
+                ),
+                "nivelesAtencion": list(
+                    plan.get("niveles_atencion") or []
+                ),
+                "variable": plan.get("variable"),
+                "ambito": plan.get("ambito"),
+            }
+        else:
+            contexto_analitico.pop("consultaAnaliticaPendiente", None)
+
+        if completada:
+            contexto_analitico["ultimaConsultaAnalitica"] = {
+                "tipoConsulta": plan.get("tipo_consulta"),
+                "operacion": plan.get("operacion"),
+                "tipoUnidad": plan.get("tipo_unidad"),
+                "descripcionTipoUnidad": plan.get(
+                    "descripcion_tipo_unidad"
+                ),
+                "nivelesAtencion": list(
+                    plan.get("niveles_atencion") or []
+                ),
+                "ambito": plan.get("ambito"),
+                "variable": (
+                    None if es_count_unidades else plan.get("variable")
+                ),
+            }
+
+        return contexto_analitico
+
+    def _crear_respuesta_analitica_base(
+        self,
+        pregunta_usuario,
+        contexto,
+        status,
+        mensaje,
+        tipo_consulta,
+        tipo_unidad,
+        ambito,
+        ok=True,
+    ):
+        return {
+            "ok": ok,
+            "status": status,
+            "mensaje": mensaje,
+            "pregunta_original": pregunta_usuario,
+            "contexto": contexto,
+            "hospital": {
+                "status": "sin_texto",
+                "hospital": None,
+                "score": 0.0,
+                "texto_usado": "",
+            },
+            "variable": {
+                "status": "sin_texto",
+                "variable": None,
+                "score": 0.0,
+                "texto_usado": "",
+            },
+            "datos": [],
+            "requiereConfirmacion": False,
+            "tipoConsulta": tipo_consulta,
+            "tipoUnidad": tipo_unidad,
+            "ambito": ambito,
+        }
+
+    def _crear_respuesta_count_unidades(
+        self,
+        pregunta_usuario,
+        contexto,
+        resultado,
+    ):
+        respuesta = self._crear_respuesta_analitica_base(
+            pregunta_usuario=pregunta_usuario,
+            contexto=contexto,
+            status="ok",
+            mensaje=self._crear_mensaje_count_unidades(resultado),
+            tipo_consulta="COUNT_UNIDADES",
+            tipo_unidad=resultado.get("tipo_unidad"),
+            ambito=resultado.get("ambito"),
+        )
+        total = int(resultado.get("total_unidades") or 0)
+        respuesta.update(
+            {
+                "operacion": "COUNT",
+                "totalUnidades": total,
+                "descripcionTipoUnidad": resultado.get(
+                    "descripcion_tipo_unidad"
+                ),
+                "nivelesAtencion": list(
+                    resultado.get("niveles_atencion") or []
+                ),
+                "resultadoAnalitico": {
+                    "total": total,
+                    "unidad": resultado.get("tipo_unidad"),
+                },
+            }
+        )
+        return respuesta
+
+    def _crear_respuesta_extremo_por_unidad(
+        self,
+        pregunta_usuario,
+        contexto,
+        resultado,
+    ):
+        status = resultado.get("status")
+        resultados = [
+            {
+                "clavePresupuestal": fila.get("clave_presupuestal"),
+                "denominacionUnidad": fila.get("denominacion_unidad"),
+                "region": fila.get("region"),
+                "delegacion": fila.get("delegacion"),
+                "claveEntidad": fila.get("clave_entidad"),
+                "nivelAtencion": fila.get("nivel_atencion"),
+                "valor": fila.get("valor"),
+            }
+            for fila in resultado.get("resultados") or []
+        ]
+        respuesta = self._crear_respuesta_analitica_base(
+            pregunta_usuario=pregunta_usuario,
+            contexto=contexto,
+            status=status,
+            mensaje=self._crear_mensaje_extremo_por_unidad(resultado),
+            tipo_consulta="EXTREMO_POR_UNIDAD",
+            tipo_unidad=resultado.get("tipo_unidad"),
+            ambito=resultado.get("ambito"),
+        )
+        respuesta.update(
+            {
+                "operacion": resultado.get("operacion"),
+                "descripcionTipoUnidad": resultado.get(
+                    "descripcion_tipo_unidad"
+                ),
+                "nivelesAtencion": list(
+                    resultado.get("niveles_atencion") or []
+                ),
+                "variableAnalitica": resultado.get("variable"),
+                "valorExtremo": resultado.get("valor_extremo"),
+                "totalEmpates": int(resultado.get("total_empates") or 0),
+                "resultadosAnaliticos": resultados,
+                "resultadoAnalitico": {
+                    "valorExtremo": resultado.get("valor_extremo"),
+                    "totalEmpates": int(
+                        resultado.get("total_empates") or 0
+                    ),
+                    "resultados": resultados,
+                },
+            }
+        )
+        return respuesta
+
+    def _crear_mensaje_extremo_por_unidad(self, resultado):
+        tipo_unidad = resultado.get("tipo_unidad")
+        variable = resultado.get("variable") or {}
+        descripcion_variable = self._descripcion_variable_analitica(variable)
+        ubicacion = self._descripcion_ambito_analitico(
+            resultado.get("ambito")
+        )
+        resultados = list(resultado.get("resultados") or [])
+        total_empates = int(resultado.get("total_empates") or 0)
+
+        if resultado.get("status") == "sin_resultados" or not resultados:
+            etiqueta = self._etiqueta_tipo_unidad(tipo_unidad, cantidad=2)
+            return (
+                f"No encontré {etiqueta} con datos de "
+                f"“{descripcion_variable}” {ubicacion}."
+            )
+
+        operacion = resultado.get("operacion")
+        extremo = "máximo" if operacion == "MAX" else "mínimo"
+        valor = self._formatear_numero_analitico(
+            resultado.get("valor_extremo")
+        )
+
+        if total_empates <= 1:
+            etiqueta = self._etiqueta_tipo_unidad(tipo_unidad, cantidad=1)
+            articulo = "La" if tipo_unidad == "UMF" else "El"
+            nombre = (
+                resultados[0].get("denominacion_unidad")
+                or resultados[0].get("clave_presupuestal")
+                or "la unidad encontrada"
+            )
+            return (
+                f"{articulo} {etiqueta} con el valor {extremo} de "
+                f"“{descripcion_variable}” {ubicacion} es {nombre}, "
+                f"con {valor}."
+            )
+
+        etiqueta = self._etiqueta_tipo_unidad(
+            tipo_unidad,
+            cantidad=total_empates,
+        )
+        limite = self.MAX_RESULTADOS_EN_MENSAJE
+        mostrados = resultados[:limite]
+        pronombre = "Estas" if tipo_unidad == "UMF" else "Estos"
+        participio = "empatadas" if tipo_unidad == "UMF" else "empatados"
+        if total_empates > limite:
+            introduccion = (
+                f"Encontré {total_empates} {etiqueta} {participio} con el valor "
+                f"{extremo} de {valor} para “{descripcion_variable}” "
+                f"{ubicacion}. Te muestro las primeras {limite}:"
+            )
+        else:
+            introduccion = (
+                f"Encontré un empate. {pronombre} {total_empates} "
+                f"{etiqueta} tienen el valor {extremo} de {valor} para "
+                f"“{descripcion_variable}” {ubicacion}:"
+            )
+
+        nombres = [
+            (
+                fila.get("denominacion_unidad")
+                or fila.get("clave_presupuestal")
+                or "Unidad sin denominación"
+            )
+            for fila in mostrados
+        ]
+        listado = "\n".join(
+            f"{indice}. {nombre}"
+            for indice, nombre in enumerate(nombres, start=1)
+        )
+        return f"{introduccion}\n\n{listado}"
+
+    def _crear_mensaje_falta_variable_extremo(self, plan):
+        etiqueta = self._etiqueta_tipo_unidad(
+            plan.get("tipo_unidad"),
+            cantidad=2,
+        )
+        ubicacion = self._descripcion_ambito_analitico(plan.get("ambito"))
+        return f"¿Qué dato deseas comparar entre {etiqueta} {ubicacion}?"
+
+    def _crear_mensaje_falta_ambito_extremo(self, plan):
+        etiqueta = self._etiqueta_tipo_unidad(
+            plan.get("tipo_unidad"),
+            cantidad=1,
+        )
+        operacion = plan.get("operacion")
+        comparacion = "valor máximo" if operacion == "MAX" else "valor mínimo"
+        descripcion = self._descripcion_variable_analitica(
+            plan.get("variable") or {}
+        )
+        return (
+            "¿En qué entidad, delegación o región deseas buscar "
+            f"{etiqueta} con el {comparacion} de “{descripcion}”?"
+        )
+
+    @staticmethod
+    def _etiqueta_tipo_unidad(tipo_unidad, cantidad=1):
+        if tipo_unidad == "UMF":
+            return (
+                "unidad de medicina familiar"
+                if cantidad == 1
+                else "unidades de medicina familiar"
+            )
+        if tipo_unidad == "HOSPITAL":
+            return "hospital" if cantidad == 1 else "hospitales"
+        return "unidad" if cantidad == 1 else "unidades"
+
+    @staticmethod
+    def _descripcion_ambito_analitico(ambito):
+        ambito = ambito if isinstance(ambito, dict) else {}
+        tipo = str(ambito.get("tipo") or "").upper()
+        descripcion = ambito.get("descripcion") or ambito.get("id")
+        if tipo == "NACIONAL":
+            return "a nivel nacional"
+        if tipo == "DELEGACION" and descripcion:
+            return f"en la delegación {descripcion}"
+        if tipo == "REGION" and descripcion:
+            return f"en la región {descripcion}"
+        if tipo == "NIVEL_ATENCION" and descripcion:
+            return f"en {descripcion}"
+        if descripcion:
+            return f"en {descripcion}"
+        return "en el ámbito seleccionado"
+
+    @staticmethod
+    def _descripcion_variable_analitica(variable):
+        descripcion = (
+            variable.get("descripcion")
+            or variable.get("desc_original")
+            or variable.get("id")
+            or "la variable seleccionada"
+        )
+        return str(descripcion).strip().rstrip(".")
+
+    @staticmethod
+    def _formatear_numero_analitico(valor):
+        if isinstance(valor, int):
+            return f"{valor:,}"
+        if isinstance(valor, float):
+            return f"{valor:,}"
+        return str(valor)
+
+    def _crear_mensaje_count_unidades(self, resultado):
+        total = int(resultado.get("total_unidades") or 0)
+        tipo_unidad = resultado.get("tipo_unidad")
+        if total == 0:
+            etiqueta = (
+                "unidades de medicina familiar"
+                if tipo_unidad == "UMF"
+                else "hospitales"
+            )
+            return f"No encontré {etiqueta} en el ámbito seleccionado."
+
+        if tipo_unidad == "UMF":
+            etiqueta = (
+                "unidad de medicina familiar"
+                if total == 1
+                else "unidades de medicina familiar"
+            )
+        else:
+            etiqueta = "hospital" if total == 1 else "hospitales"
+
+        ambito = resultado.get("ambito") or {}
+        if str(ambito.get("tipo") or "").upper() == "NACIONAL":
+            ubicacion = "a nivel nacional"
+        else:
+            descripcion = ambito.get("descripcion")
+            ubicacion = (
+                f"en {descripcion}"
+                if descripcion
+                else "en el ámbito seleccionado"
+            )
+
+        return f"Encontré {total:,} {etiqueta} {ubicacion}."
+
+    def _crear_mensaje_falta_ambito_count_unidades(self, tipo_unidad):
+        if tipo_unidad == "UMF":
+            etiqueta = "las unidades de medicina familiar"
+        else:
+            etiqueta = "los hospitales"
+        return (
+            "¿En qué entidad, delegación o región deseas contar "
+            f"{etiqueta}?"
+        )
 
     def _descripcion_ambito(self, ambito):
         return (

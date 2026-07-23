@@ -73,11 +73,15 @@ PALABRAS_BASURA_VARIABLE = {
     "la", "raza", "mc", "gregor", "magdalena", "salinas", "monterrey", "guadalajara",
 
     # Conectores, preposiciones y artículos
-    "y", "e", "ahora","del", "de", "la", "el", "los", "las", "en", "por", "para",
+    "y", "e", "a", "ahora","del", "de", "la", "el", "los", "las", "en", "por", "para",
 
     # Verbos de petición y preguntas
     "cuanto", "cuantos", "cuanta", "cuantas", "tiene", "tienen", "hay", 
     "dame", "muestra", "numero", "cantidad",
+    "cual", "cuales", "que", "es", "son", "con",
+    "mas", "menos", "mayor", "mayores", "menor", "menores",
+    "maximo", "maxima", "maximos", "maximas",
+    "minimo", "minima", "minimos", "minimas",
 
     # Términos de ámbito territorial
     "delegacion", "delegaciones", "estado", "estados", "entidad", "entidades", 

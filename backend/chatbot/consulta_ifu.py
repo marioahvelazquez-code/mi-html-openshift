@@ -79,23 +79,48 @@ class ConsultaIFU:
             for fila in filas
         ]
     def obtener_valor(self, clave_unidad, variable_id):
+        # query = """
+        #     SELECT
+        #         ClavePresupuestal,
+        #         Region,
+        #         NombreDelegacionUMAE,
+        #         NivelAtencion,
+        #         DenominacionUnidad,
+        #         variable_nva,
+        #         descripcion,
+        #         valor
+        #     FROM [DB_Catalogos].[dbo].[Cat_IFU_Actual] a
+        #     JOIN [DB_Catalogos].[dbo].[CUMM_ACTUAL] b
+        #         ON a.CvePresupuestal = b.ClavePresupuestal
+        #         COLLATE Modern_Spanish_CI_AS
+        #     WHERE variable_nva = %s
+        #       AND ClavePresupuestal = %s
+        # """
         query = """
             SELECT
-                ClavePresupuestal,
-                Region,
-                NombreDelegacionUMAE,
-                NivelAtencion,
-                DenominacionUnidad,
-                variable_nva,
-                descripcion,
-                valor
-            FROM [DB_Catalogos].[dbo].[Cat_IFU_Actual] a
-            JOIN [DB_Catalogos].[dbo].[CUMM_ACTUAL] b
-                ON a.CvePresupuestal = b.ClavePresupuestal
-                COLLATE Modern_Spanish_CI_AS
-            WHERE variable_nva = %s
-              AND ClavePresupuestal = %s
-        """
+                a.ClavePresupuestal,
+                b.Region,
+                b.NombreDelegacionUMAE,
+                b.NivelAtencion,
+                b.DenominacionUnidad,
+                a.variable_nva,
+                a.descripcion,
+                a.valor
+            FROM
+            (
+                SELECT
+                    CvePresupuestal AS ClavePresupuestal,
+                    variable_nva,
+                    descripcion,
+                    valor
+                FROM [DB_Catalogos].[dbo].[Cat_IFU_Actual]
+                WHERE variable_nva =  %s
+                AND CvePresupuestal = %s
+            ) a
+            INNER JOIN [DB_Catalogos].[dbo].[CUMM_ACTUAL] b
+                ON a.ClavePresupuestal =
+                b.ClavePresupuestal COLLATE Modern_Spanish_CI_AS;
+       """
 
         with connection.cursor() as cursor:
             cursor.execute(query, [variable_id, clave_unidad])

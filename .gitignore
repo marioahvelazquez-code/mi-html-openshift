@@ -1,2 +1,30 @@
 
 frontend-angular/app/public/fichas/estatales.zip
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Entornos virtuales
+venv/
+.venv/
+
+# Logs
+*.log
+
+# Archivos de VS Code
+.vscode/
+
+# Archivos de JetBrains
+.idea/
+
+# Angular
+node_modules/
+dist/
+
+# Docker
+*.pid
+
+# Pruebas locales del chatbot
+backend/chatbot/tests/

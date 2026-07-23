@@ -43,4 +43,4 @@ RUN mkdir -p /app/staticfiles
 
 EXPOSE 8100
 
-CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8100", "--workers", "4", "--timeout", "600"]
+CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8100", "--workers", "2", "--timeout", "2400"]

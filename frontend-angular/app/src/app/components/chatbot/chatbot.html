@@ -113,99 +113,71 @@
     </div>
 
     <div class="lado-derecho">
-      <h3 class="chatbot-title">Consulta actual</h3>
+      <div class="summary-title-row">
+        <h3 class="chatbot-title">Resumen de consulta</h3>
+        <button mat-button type="button" class="clear-button" (click)="limpiarConversacion()">
+          <mat-icon>refresh</mat-icon>
+          Limpiar
+        </button>
+      </div>
       <div class="bloque-info results-panel">
-        <div class="results-empty" *ngIf="!resultadoDeteccion">
-          La unidad medica y la variable detectadas apareceran aqui.
+        <div class="results-empty summary-empty" *ngIf="!resumenConsulta">
+          <mat-icon aria-hidden="true">insights</mat-icon>
+          <strong>Resumen de consulta</strong>
+          <span>Aquí aparecerán los resultados de tu consulta.</span>
         </div>
 
-        <div class="results-list" *ngIf="resultadoDeteccion">
-          <div class="result-card">
-            <div class="card-header-result">
-              <span class="result-index">{{ panelAmbito.titulo }}</span>
-              <span class="result-value-badge">
-                {{ etiquetaStatus(resultadoDeteccion.hospital.status) }}
-              </span>
-            </div>
-            <div class="card-body-result">
-              <p><strong>Detectado:</strong> {{ panelAmbito.valor }}</p>
-            </div>
-          </div>
+        <div class="query-summary" *ngIf="resumenConsulta as resumen">
+          <section class="summary-cards" aria-label="Resumen de la consulta">
+            <article class="summary-card">
+              <span class="summary-card__label">Tipo de consulta</span>
+              <strong>{{ resumen.tipoConsulta }}</strong>
+            </article>
+            <article class="summary-card">
+              <span class="summary-card__label">¿Qué estoy buscando?</span>
+              <strong>{{ resumen.objetivo }}</strong>
+            </article>
+            <article class="summary-card">
+              <span class="summary-card__label">Alcance</span>
+              <strong>{{ resumen.alcance }}</strong>
+            </article>
+            <article class="summary-card summary-card--result">
+              <span class="summary-card__label">Resultado</span>
+              <strong>{{ resumen.resultadoPrincipal }}</strong>
+              <span *ngIf="resumen.resultadoSecundario">{{ resumen.resultadoSecundario }}</span>
+            </article>
+          </section>
 
-          <div class="result-card">
-            <div class="card-header-result">
-              <span class="result-index">Variable</span>
-              <span class="result-value-badge">
-                {{ etiquetaStatus(resultadoDeteccion.variable.status) }}
-              </span>
-            </div>
-            <div class="card-body-result">
-              <p>
-                <strong>Detectada:</strong> {{ descripcionVariable(resultadoDeteccion.variable) }}
-              </p>
-            </div>
-          </div>
-
-          <section class="result-card ifu-dashboard" *ngIf="resultados.length > 0">
-            <header class="ifu-dashboard__header">
-              <h4>Datos IFU</h4>
-              <span class="result-value-badge">{{ resultados.length }} registro(s)</span>
-            </header>
-
-            <div
-              class="ifu-record"
-              *ngFor="let fila of resultados; let i = index"
-              [class.ifu-record--multiple]="resultados.length > 1"
-            >
-              <div class="ifu-record__label" *ngIf="resultados.length > 1">
-                Registro {{ i + 1 }}
+          <section class="interpretation-card">
+            <h4>Resumen</h4>
+            <div class="interpretation-list">
+              <div *ngIf="resumen.interpretacion.operacion">
+                <span>Operación</span><strong>{{ resumen.interpretacion.operacion }}</strong>
               </div>
-
-              <div class="ifu-summary">
-                <div class="ifu-value-card">
-                  <div class="ifu-section-heading">
-                    <lucide-icon name="chart-column" aria-hidden="true"></lucide-icon>
-                    <span>Valor</span>
-                  </div>
-                  <div class="ifu-value">
-                    {{ valorNumerico(fila.valor) | number: '1.0-0' }}
-                  </div>
-                  <div class="ifu-value-description">{{ fila.descripcion }}</div>
-                </div>
-
-                <div class="ifu-variable-card">
-                  <div class="ifu-section-heading">
-                    <lucide-icon name="file-text" aria-hidden="true"></lucide-icon>
-                    <span>Variable</span>
-                  </div>
-                  <div class="ifu-variable-description">{{ fila.descripcion }}</div>
-                  <div class="ifu-variable-id">ID: {{ fila.variable_nva }}</div>
-                </div>
+              <div *ngIf="resumen.interpretacion.tipoUnidad">
+                <span>Tipo de unidad</span><strong>{{ resumen.interpretacion.tipoUnidad }}</strong>
+              </div>
+              <div *ngIf="resumen.interpretacion.variable">
+                <span>Variable</span><strong>{{ resumen.interpretacion.variable }}</strong>
+              </div>
+              <div *ngIf="resumen.interpretacion.ambito">
+                <span>Ámbito</span><strong>{{ resumen.interpretacion.ambito }}</strong>
+              </div>
+              <div *ngIf="resumen.interpretacion.hospital">
+                <span>Hospital</span><strong>{{ resumen.interpretacion.hospital }}</strong>
               </div>
             </div>
           </section>
 
-          <div
-            class="result-card"
-            *ngIf="
-              (resultadoDeteccion.hospital.candidatos?.length || 0) > 0 ||
-              (resultadoDeteccion.variable.candidatos?.length || 0) > 0
-            "
+          <section
+            class="analytic-results"
+            *ngIf="(resultadoDeteccion?.resultadosAnaliticos?.length || 0) > 1"
           >
-            <div class="card-header-result">
-              <span class="result-index">Candidatos</span>
+            <h4>Unidades encontradas</h4>
+            <div *ngFor="let fila of resultadoDeteccion?.resultadosAnaliticos">
+              {{ fila.denominacionUnidad || fila.denominacion_unidad || fila.clavePresupuestal }}
             </div>
-            <div class="card-body-result">
-              <p *ngFor="let hosp of resultadoDeteccion.hospital.candidatos || []">
-                <strong>Hospital:</strong> {{ hosp.descripcion }} ({{ formatearScore(hosp.score) }})
-              </p>
-              <p *ngFor="let varMed of resultadoDeteccion.variable.candidatos || []">
-                <strong>Variable:</strong> {{ varMed.descripcion }} ({{
-                  formatearScore(varMed.score)
-                }})
-              </p>
-            </div>
-          </div>
+          </section>
         </div>
       </div>
     </div>
