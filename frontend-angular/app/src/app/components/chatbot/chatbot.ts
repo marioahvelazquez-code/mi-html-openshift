@@ -28,8 +28,7 @@ interface VariableMedica {
 }
 
 type SugerenciaAutocomplete =
-  | (Hospital & { tipo: 'hospital' })
-  | (VariableMedica & { tipo: 'variable' });
+  (Hospital & { tipo: 'hospital' }) | (VariableMedica & { tipo: 'variable' });
 
 interface ContextoConversacion {
   hospital?: Hospital | null;
@@ -181,6 +180,11 @@ export class ChatComponent implements OnInit {
       texto:
         'Tip: Conforme escribas, puedes seleccionar las opciones del menú desplegable para guiarte mejor.',
     },
+    {
+      emisor: 'bot',
+      texto:
+        'Tip: Puedes preguntarme cosas como :\n- "¿Cuántas camas censables tiene el HGZ 1 Durango?"\n- "¿Cuántos hospitales hay en Sonora?"\n- "¿Cuántas UMFS hay en la región norte?"\n- "¿Cuál hospital tiene más tomógrafos en la región Occidente?"',
+    },
   ];
 
   private API_URL = '/api/catalogos';
@@ -207,9 +211,9 @@ export class ChatComponent implements OnInit {
           .pipe(catchError(() => of([])));
 
         const buscarVariables$ = this.http
-          .get<
-            VariableMedica[]
-          >(`${this.API_URL}/buscar-variables/?q=${encodeURIComponent(buscar)}`)
+          .get<VariableMedica[]>(
+            `${this.API_URL}/buscar-variables/?q=${encodeURIComponent(buscar)}`,
+          )
           .pipe(catchError(() => of([])));
 
         return forkJoin({
@@ -607,7 +611,9 @@ export class ChatComponent implements OnInit {
     const textoNormalizado = this.normalizarTextoComparacion(texto);
     const seleccionNormalizada = this.normalizarTextoComparacion(seleccion);
 
-    return Boolean(textoNormalizado && seleccionNormalizada && textoNormalizado.includes(seleccionNormalizada));
+    return Boolean(
+      textoNormalizado && seleccionNormalizada && textoNormalizado.includes(seleccionNormalizada),
+    );
   }
 
   normalizarTextoComparacion(texto: string): string {
@@ -769,7 +775,11 @@ export class ChatComponent implements OnInit {
     const numero =
       typeof valor === 'number'
         ? valor
-        : Number(String(valor ?? '').replace(/,/g, '').trim());
+        : Number(
+            String(valor ?? '')
+              .replace(/,/g, '')
+              .trim(),
+          );
 
     return Number.isFinite(numero) ? numero : 0;
   }
@@ -780,10 +790,11 @@ export class ChatComponent implements OnInit {
     const tipoConsulta = this.inferirTipoConsulta(res);
     if (!tipoConsulta) return null;
 
-    const hospital = this.obtenerDescripcion(
-      res.hospital?.hospital || res.contexto?.hospital,
-      ['nombre_original', 'desc_original', 'descripcion'],
-    );
+    const hospital = this.obtenerDescripcion(res.hospital?.hospital || res.contexto?.hospital, [
+      'nombre_original',
+      'desc_original',
+      'descripcion',
+    ]);
     const ambitoObjeto = res.ambito || res.contexto?.ambito;
     const ambito = this.descripcionAmbitoResumen(ambitoObjeto);
     const variableObjeto =
@@ -828,13 +839,19 @@ export class ChatComponent implements OnInit {
         objetivo: `${tipoUnidad || 'Unidad'} con ${esMaximo ? 'más' : 'menos'} ${variableCorta.toLowerCase()}`,
         alcance: ambito || 'Ámbito seleccionado',
         resultadoPrincipal:
-          totalEmpates > 1 ? `${totalEmpates} unidades empatadas` : denominacion || 'Sin resultados',
+          totalEmpates > 1
+            ? `${totalEmpates} unidades empatadas`
+            : denominacion || 'Sin resultados',
         ...(valor !== null && valor !== undefined
-          ? { resultadoSecundario: `${valor.toLocaleString('es-MX')} ${variableCorta.toLowerCase()}` }
+          ? {
+              resultadoSecundario: `${valor.toLocaleString('es-MX')} ${variableCorta.toLowerCase()}`,
+            }
           : {}),
         interpretacion: {
           operacion: esMaximo ? 'Máximo' : 'Mínimo',
-          ...(tipoUnidad ? { tipoUnidad: tipoUnidad === 'HOSPITAL' ? 'Hospital' : tipoUnidad } : {}),
+          ...(tipoUnidad
+            ? { tipoUnidad: tipoUnidad === 'HOSPITAL' ? 'Hospital' : tipoUnidad }
+            : {}),
           ...(variable ? { variable } : {}),
           ...(ambito ? { ambito } : {}),
         },
@@ -937,6 +954,11 @@ export class ChatComponent implements OnInit {
         emisor: 'bot',
         texto:
           'Tip: Conforme escribas, puedes seleccionar las opciones del menú desplegable para guiarte mejor.',
+      },
+      {
+        emisor: 'bot',
+        texto:
+          'Tip: Puedes preguntarme cosas como :\n- "¿Cuántas camas censables tiene el HGZ 1 Durango?"\n- "¿Cuántos hospitales hay en Sonora?"\n- "¿Cuántas UMFS hay en la región norte?"\n- "¿Cuál hospital tiene más tomógrafos en la región Occidente?"',
       },
     ];
   }
