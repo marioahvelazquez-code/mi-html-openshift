@@ -6,6 +6,7 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path("entidades/", views.entidades), # Mario: consulta de entidades.
+    path("bed-status/", views.bed_status),
     path("ficha-nacional/", views.ficha_nacional_archivos),
     path("ficha-estatales/", views.ficha_estatales_archivos),  # Mario: endpoint para resolver fichas estatales dinámicamente.
     #Mario: Inicio ruta bitacora.

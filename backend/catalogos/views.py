@@ -5,6 +5,8 @@ from django.utils import timezone
 from xml.sax.saxutils import escape
 from pathlib import Path
 from zoneinfo import ZoneInfo
+from threading import Lock
+import json
 import subprocess
 import pandas as pd
 import requests
@@ -17,6 +19,125 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.models import User
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
+
+
+BED_STATUS_TABLE = 'sistemas_arduino'
+BED_STATUS_DATE_INDEX = 'IX_sistemas_arduino_fecha_desc'
+_bed_status_schema_ready = False
+_bed_status_schema_lock = Lock()
+
+
+def _ensure_bed_status_table() -> None:
+    global _bed_status_schema_ready
+
+    if _bed_status_schema_ready:
+        return
+
+    with _bed_status_schema_lock:
+        if _bed_status_schema_ready:
+            return
+
+        with connection.cursor() as cursor:
+            cursor.execute(
+                f'''
+                IF OBJECT_ID('{BED_STATUS_TABLE}', 'U') IS NULL
+                BEGIN
+                    CREATE TABLE {BED_STATUS_TABLE} (
+                        fecha VARCHAR(100),
+                        estatus VARCHAR(10)
+                    )
+                END
+
+                IF NOT EXISTS (
+                    SELECT 1
+                    FROM sys.indexes
+                    WHERE name = '{BED_STATUS_DATE_INDEX}'
+                      AND object_id = OBJECT_ID('{BED_STATUS_TABLE}')
+                )
+                BEGIN
+                    CREATE INDEX {BED_STATUS_DATE_INDEX}
+                    ON {BED_STATUS_TABLE} (fecha DESC)
+                    INCLUDE (estatus)
+                END
+                '''
+            )
+
+        _bed_status_schema_ready = True
+
+
+def _read_bed_status() -> dict:
+    with connection.cursor() as cursor:
+        cursor.execute(
+            f'''
+            SELECT TOP 1 fecha, estatus
+            FROM {BED_STATUS_TABLE}
+            ORDER BY fecha DESC
+            '''
+        )
+        row = cursor.fetchone()
+
+    if row is None:
+        return {
+            'value': 0,
+            'source': 'database',
+            'updated_at': None,
+        }
+
+    return {
+        'value': 1 if str(row[1]).strip() == '1' else 0,
+        'source': 'database',
+        'updated_at': row[0],
+    }
+
+
+def _write_bed_status(value: int, source: str) -> dict:
+    normalized_value = '1' if value == 1 else '0'
+    timestamp = timezone.now().isoformat()
+
+    with connection.cursor() as cursor:
+        cursor.execute(
+            f'''
+            INSERT INTO {BED_STATUS_TABLE} (fecha, estatus)
+            VALUES (%s, %s)
+            ''',
+            (timestamp, normalized_value),
+        )
+
+    return {
+        'value': normalized_value,
+        'source': source,
+        'updated_at': timestamp,
+    }
+
+
+@api_view(["GET", "POST"])
+@authentication_classes([])
+@permission_classes([AllowAny])
+def bed_status(request):
+    _ensure_bed_status_table()
+
+    incoming_value = request.query_params.get('x')
+
+    if incoming_value is None and isinstance(request.data, dict):
+        incoming_value = request.data.get('x', request.data.get('value'))
+
+    if incoming_value is not None:
+        normalized = str(incoming_value).strip()
+        if normalized not in {'0', '1'}:
+            return Response(
+                {
+                    'ok': False,
+                    'message': 'El valor recibido debe ser 0 o 1.',
+                },
+                status=400,
+            )
+
+        source = str(request.query_params.get('source') or request.data.get('source') or 'external').strip()
+        status_payload = _write_bed_status(int(normalized), source)
+        return Response({'ok': True, **status_payload})
+
+    current_status = _read_bed_status()
+    return Response({'ok': True, **current_status})
 
 
 # Mario: Funci+�n para resolver archivos de ficha nacional din+�micamente por prefijo.
