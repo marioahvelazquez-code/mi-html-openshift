@@ -33,18 +33,26 @@ html, body {
 }
 
 .login-card {
-  width: min(370px, 100%);
+  width: min(960px, calc(100% - 32px));
   position: relative;
   z-index: 1;
   background: linear-gradient(180deg, rgba(6, 52, 60, 0.95), rgba(5, 28, 33, 0.95));
   border: 1px solid rgba(255, 255, 255, 0.16);
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.4);
   border-radius: 22px;
-  padding: 18px;
+  padding: 28px;
   color: #ffffff;
   display: flex;
   flex-direction: column;
   align-items: stretch;
+}
+
+.bed-card {
+  gap: 26px;
+}
+
+.bed-copy {
+  max-width: 520px;
 }
 
 .login-kicker {
@@ -57,79 +65,161 @@ html, body {
 }
 
 .login-title {
-  margin: 4px 0 6px;
-  font-size: 1.3rem;
+  margin: 4px 0 8px;
+  font-size: 2rem;
   font-weight: 800;
 }
 
 .login-subtitle {
-  margin: 0 0 18px;
+  margin: 0;
   color: rgba(255, 255, 255, 0.84);
-  font-size: 0.95rem;
+  font-size: 1rem;
 }
 
-.login-form {
+.bed-layout {
   display: grid;
+  grid-template-columns: minmax(320px, 1.2fr) minmax(240px, 0.8fr);
+  gap: 28px;
+  align-items: center;
+}
+
+.bed-illustration {
+  position: relative;
+  min-height: 280px;
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+}
+
+.bed-headboard {
+  position: absolute;
+  left: 70px;
+  top: 88px;
+  width: 44px;
+  height: 110px;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #d3a76e, #a77439);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14);
+}
+
+.bed-frame {
+  position: absolute;
+  left: 100px;
+  top: 100px;
+  width: 230px;
+  height: 88px;
+  border-radius: 20px;
+  background: linear-gradient(180deg, #d7dde4, #a2adbb);
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.22);
+}
+
+.bed-pillow {
+  position: absolute;
+  left: 124px;
+  top: 116px;
+  width: 52px;
+  height: 34px;
+  border-radius: 16px;
+  background: #fbfcfd;
+}
+
+.bed-mattress {
+  position: absolute;
+  left: 118px;
+  top: 112px;
+  width: 198px;
+  height: 64px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #fbfcfd, #dbe4ea);
+}
+
+.bed-blanket {
+  position: absolute;
+  left: 178px;
+  top: 112px;
+  width: 138px;
+  height: 64px;
+  border-radius: 14px 16px 16px 14px;
+  background: linear-gradient(135deg, #4ec3b3, #178a89);
+  transition: background 0.25s ease;
+}
+
+.bed-illustration.is-occupied .bed-blanket {
+  background: linear-gradient(135deg, #ff8d6b, #d84f4f);
+}
+
+.bed-leg {
+  position: absolute;
+  top: 184px;
+  width: 10px;
+  height: 44px;
+  border-radius: 8px;
+  background: #8f6333;
+}
+
+.bed-leg-left {
+  left: 122px;
+}
+
+.bed-leg-right {
+  left: 304px;
+}
+
+.signal-panel {
+  display: grid;
+  gap: 14px;
+  padding: 22px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.signal-badge {
+  display: inline-flex;
+  align-items: center;
   gap: 10px;
-}
-
-.login-label {
-  font-size: 0.87rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-}
-
-.login-input {
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-  color: #ffffff;
-  padding: 11px 13px;
-  outline: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.login-input::placeholder {
-  color: rgba(255, 255, 255, 0.7);
-}
-
-.login-input:focus {
-  border-color: #bc955c;
-  box-shadow: 0 0 0 3px rgba(188, 149, 92, 0.22);
-}
-
-.login-button {
-  margin-top: 18px;
-  justify-self: center;
-  width: auto;
-  border: none;
-  border-radius: 10px;
-  padding: 8px 18px;
-  background: linear-gradient(90deg, #0d6efd, #0b5ed7);
-  color: #fff;
-  font-size: 0.92rem;
+  width: fit-content;
+  padding: 10px 14px;
+  border-radius: 999px;
+  font-size: 0.95rem;
   font-weight: 700;
   letter-spacing: 0.02em;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  cursor: pointer;
 }
 
-.login-button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 12px 28px rgba(13, 110, 253, 0.35);
+.signal-badge.is-on {
+  background: rgba(92, 214, 154, 0.18);
+  color: #8df0be;
 }
 
-.login-button:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
+.signal-badge.is-off {
+  background: rgba(255, 255, 255, 0.08);
+  color: #d6e0ea;
 }
 
-.login-error {
-  margin: 2px 0 0;
-  color: #ffb4b4;
-  font-size: 0.88rem;
+.signal-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.08);
+}
+
+.signal-value {
+  font-size: 4.4rem;
+  line-height: 1;
+  font-weight: 900;
+}
+
+.signal-state {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.signal-note {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.93rem;
 }
 
 @media (max-width: 576px) {
@@ -139,6 +229,59 @@ html, body {
   }
 
   .login-title {
-    font-size: 1.2rem;
+    font-size: 1.45rem;
+  }
+
+  .bed-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .bed-illustration {
+    min-height: 220px;
+  }
+
+  .bed-headboard {
+    left: 36px;
+    top: 76px;
+    height: 92px;
+  }
+
+  .bed-frame {
+    left: 66px;
+    top: 86px;
+    width: 180px;
+    height: 72px;
+  }
+
+  .bed-pillow {
+    left: 84px;
+    top: 98px;
+  }
+
+  .bed-mattress {
+    left: 80px;
+    top: 96px;
+    width: 154px;
+    height: 52px;
+  }
+
+  .bed-blanket {
+    left: 126px;
+    top: 96px;
+    width: 108px;
+    height: 52px;
+  }
+
+  .bed-leg {
+    top: 154px;
+    height: 34px;
+  }
+
+  .bed-leg-left {
+    left: 90px;
+  }
+
+  .bed-leg-right {
+    left: 220px;
   }
 }

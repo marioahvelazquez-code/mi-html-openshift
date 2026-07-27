@@ -1,65 +1,60 @@
-import { Component, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClientModule } from '@angular/common/http';
-import { Router } from '@angular/router';
-import { AuthService } from '../../services/auth';
-import { ChangeDetectorRef } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   standalone: true,
   selector: 'app-login',
   templateUrl: './login.html',
   styleUrls: ['./login.css'],
-  imports: [FormsModule, CommonModule, HttpClientModule],
+  imports: [CommonModule],
 })
 export class LoginComponent {
-  username = '';
-  password = '';
-  error = '';
-  loading = false;
+  signalValue: 0 | 1 = 0;
+  lastReading = 'Esperando integracion con la fuente de datos';
+  private pollingId: ReturnType<typeof setInterval> | null = null;
 
-  private cdr = inject(ChangeDetectorRef);
-  constructor(
-    private router: Router,
-    private authService: AuthService,
-  ) {}
+  private readonly http = inject(HttpClient);
+  private readonly cdr = inject(ChangeDetectorRef);
 
-  // **************
-  login() {
-    this.error = '';
-    this.loading = true;
+  constructor() {
+    this.fetchBedStatus();
+    this.pollingId = setInterval(() => this.fetchBedStatus(), 1000);
+  }
 
-    this.authService.login(this.username, this.password).subscribe({
-      next: (res: any) => {
-        console.log('RESPUESTA LOGIN:', res);
+  ngOnDestroy(): void {
+    if (this.pollingId) {
+      clearInterval(this.pollingId);
+      this.pollingId = null;
+    }
+  }
 
-        if (res.ok) {
-          const accesoRestringido = !!res.acceso_restringido_solicitud;
-          const esAdmin = !!res.es_admin_solicitudes;
-          const esChatbot = !!res.es_chatbot_usuario;
-          this.authService.setSession(res.token, res.usuario, res, accesoRestringido, esAdmin, esChatbot);
+  private fetchBedStatus(): void {
+    this.http.get<any>('/api/catalogos/bed-status/').subscribe({
+      next: (response) => {
+        const rawValue = String(response?.value ?? '0').trim();
+        this.signalValue = rawValue === '1' ? 1 : 0;
 
-          if (accesoRestringido) {
-            this.router.navigate(['/solicitud-acceso-bd']);
-          } else {
-            this.router.navigate(['/home']);
-          }
+        if (response?.updated_at) {
+          this.lastReading = `Ultima lectura: ${rawValue} (${response.updated_at})`;
         } else {
-          this.error = res.message || 'Error en login';
+          this.lastReading = 'Esperando integracion con la fuente de datos';
         }
 
-        this.loading = false;
         this.cdr.detectChanges();
       },
-      error: (err) => {
-        console.error('ERROR LOGIN:', err);
-
-        this.error = err?.error?.message || 'Usuario o contraseña incorrectos';
-        this.loading = false;
+      error: () => {
+        this.lastReading = 'No se pudo consultar el estado actual';
         this.cdr.detectChanges();
       },
     });
   }
-  // *************
+
+  get signalLabel(): string {
+    return this.signalValue === 1 ? 'Recibiendo 1' : 'Recibiendo 0';
+  }
+
+  get occupancyLabel(): string {
+    return this.signalValue === 1 ? 'Cama ocupada' : 'Cama disponible';
+  }
 }
