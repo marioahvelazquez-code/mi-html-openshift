@@ -58,6 +58,11 @@
         <span>Chatbot - Inventario Físico de Unidades (IFU)</span>
       </li>
 
+      <li class="menu-item" *ngIf="!accesoRestringidoSolicitud && mostrarChatbotV2" (click)="seleccionar(VISTAS.CHATBOT_M)">
+        <lucide-icon name="MessageCircleMore" [size]="18" class="menu-icon"></lucide-icon>
+        <span>Chatbot V2</span>
+      </li>
+
       <li class="menu-item" (click)="toggleSubmenuCambioBd()">
         <lucide-icon name="database-search" [size]="18" class="menu-icon"></lucide-icon>
         <span>Solicitud de acceso a base de datos</span>

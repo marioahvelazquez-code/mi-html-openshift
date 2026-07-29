@@ -8,6 +8,7 @@ export const VISTAS = {
   MENU: 'menu',
   INICIO: 'inicio',
   CHAT: 'chat',
+  CHATBOT_M: 'chatbot_m',
   EXCEL: 'excel',
   FICHAHOSPITALARIA: 'FichaHospitalaria',
   CONSULTAS_SQL: 'consultassql',
@@ -38,6 +39,7 @@ export class MenuLateralComponent implements OnChanges {
   accesoRestringidoSolicitud = false;
   esAdminSolicitudes = false;
   esChatbotUsuario = false;
+  mostrarChatbotV2 = false;
   submenuCambioBdAbierto = false;
   submenuEspecialBdAbierto = false;
 
@@ -81,6 +83,9 @@ export class MenuLateralComponent implements OnChanges {
 
     if (vista === 'chat') {
       this.router.navigate(['/chatbot']);
+    }
+    if (vista === 'chatbot_m') {
+      this.router.navigate(['/chatbot_m']);
     }
     if (vista === 'excel') {
       this.router.navigate(['/excel']);

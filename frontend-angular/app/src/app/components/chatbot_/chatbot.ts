@@ -2,9 +2,9 @@ import { Component } from '@angular/core';
 import { ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 import { LucideAngularModule } from 'lucide-angular';
 import { firstValueFrom, timeout } from 'rxjs';
-import { ChatbotService } from '../../services/chatbot';
 
 @Component({
   standalone: true,
@@ -20,9 +20,35 @@ export class ChatbotComponent {
   error = '';
 
   constructor(
-    private chatbotService: ChatbotService,
+    private http: HttpClient,
     private cdr: ChangeDetectorRef,
   ) {}
+
+  private construirTextoRespuesta(resp: any): string {
+    const respuestaTexto = String(resp?.respuesta || resp?.mensaje || '').trim();
+    if (respuestaTexto) return respuestaTexto;
+
+    const datos = Array.isArray(resp?.datos) ? resp.datos : [];
+    if (datos.length > 0) {
+      return JSON.stringify(datos, null, 2);
+    }
+
+    const estadoHospital = String(resp?.hospital?.status || '').trim();
+    const estadoVariable = String(resp?.variable?.status || '').trim();
+    if (estadoHospital === 'ganador_claro' && estadoVariable !== 'ganador_claro') {
+      return 'Identifiqué la unidad, pero me falta la variable a consultar. Ejemplo: camas censables en HGZ 30.';
+    }
+    if (estadoVariable === 'ganador_claro' && estadoHospital !== 'ganador_claro') {
+      return 'Identifiqué la variable, pero me falta la unidad o ámbito. Ejemplo: camas censables en HGZ 30.';
+    }
+
+    const estado = String(resp?.status || '').trim();
+    if (estado) {
+      return `Estatus: ${estado}. No se encontraron datos para la consulta.`;
+    }
+
+    return 'No encontré una respuesta directa. Intenta con una consulta más específica, por ejemplo: camas censables en HGZ 30.';
+  }
 
   async enviarPregunta() {
     const preguntaLimpia = this.pregunta.trim();
@@ -45,16 +71,19 @@ export class ChatbotComponent {
         this.cdr.detectChanges();
         console.warn('[Chatbot] Safety timer liberó estado de carga');
       }
-    }, 25000);
+    }, 65000);
 
     try {
       const resp = await firstValueFrom(
-        this.chatbotService.preguntar(preguntaLimpia).pipe(timeout(20000)),
+        this.http
+          .post<any>('/api/catalogos/chatbot-query/', { pregunta: preguntaLimpia })
+          .pipe(timeout(60000)),
       );
 
       console.log('[Chatbot] Respuesta recibida:', resp);
 
-      this.respuesta = String(resp?.respuesta || '').trim();
+      const textoRespuesta = this.construirTextoRespuesta(resp);
+      this.respuesta = textoRespuesta;
       if (!this.respuesta) {
         this.error = String(resp?.error || 'No se recibió una respuesta del asistente.');
       }

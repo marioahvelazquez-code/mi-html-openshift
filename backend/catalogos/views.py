@@ -12,6 +12,13 @@ import re
 import subprocess
 import pandas as pd
 import requests
+from difflib import SequenceMatcher
+
+try:
+    from sentence_transformers import SentenceTransformer, util as st_util
+except Exception:
+    SentenceTransformer = None
+    st_util = None
 
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.permissions import AllowAny
@@ -21,6 +28,975 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.models import User
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
+
+from chatbot.chatbot_engine import engine as chatbot_detector_engine
+from chatbot.consulta_ifu import ConsultaIFU
+from chatbot.normalizador import normalizar_texto_completo
+
+
+chatbot_m_consulta_ifu = ConsultaIFU()
+
+SEMANTIC_MODEL_NAME = "paraphrase-multilingual-MiniLM-L12-v2"
+SEMANTIC_SCORE_MIN = 0.45
+_semantic_model = None
+_semantic_embeddings_cache = {"key": None, "embeddings": None}
+
+
+def _normalizar_chatbot_m(texto: str) -> str:
+    return normalizar_texto_completo(texto)
+
+
+def _es_consulta_de_estructura(texto_normalizado: str) -> bool:
+    palabras_clave = ("columna", "campos", "estructura", "schema", "esquema")
+    return any(palabra in texto_normalizado for palabra in palabras_clave)
+
+
+def _es_consulta_de_conteo(texto_normalizado: str) -> bool:
+    frases = (
+        "en total",
+        "total de registros",
+        "cuantos registros hay",
+        "cuantas filas hay",
+        "cuantos hay",
+        "cuantas hay",
+        "cantidad de registros",
+    )
+    if any(frase in texto_normalizado for frase in frases):
+        return True
+
+    patrones = (
+        r"\bcuant[oa]s?\s+(hospital(?:es)?|unidades?)\s+tienen\b",
+        r"\bcuant[oa]s?\s+claves?\s+presupuestales\s+tienen\b",
+        r"\bcuant[oa]s?\s+(hospital(?:es)?|unidades?)\s+hay\b",
+        r"\bcuant[oa]s?\b.*\bhay\b",
+        r"\bcuant[oa]s?\b.*\btienen\b",
+    )
+    return any(re.search(patron, texto_normalizado) for patron in patrones)
+
+
+def _es_consulta_comparativa(texto_normalizado: str) -> bool:
+    frases = (
+        "que hospital tiene mas",
+        "cual hospital tiene mas",
+        "que hospital tiene menos",
+        "cual hospital tiene menos",
+        "hospital con mas",
+        "hospital con menos",
+        "mayor",
+        "menor",
+        "maximo",
+        "minimo",
+        "top",
+        "lider",
+    )
+    return any(frase in texto_normalizado for frase in frases)
+
+
+def _es_conteo_hospitales_general(texto_normalizado: str) -> bool:
+    texto = (texto_normalizado or "").strip()
+    patrones = (
+        r"\bcuant[oa]s?\s+hospital(?:es)?\s+hay\b",
+        r"\bcuant[oa]s?\s+hospital(?:es)?\s+tienen\b",
+        r"\bcuant[oa]s?\s+unidades?\s+hay\b",
+        r"\bcuant[oa]s?\s+unidades?\s+tienen\b",
+    )
+    if not any(re.search(patron, texto) for patron in patrones):
+        return False
+
+    # Si menciona un concepto explícito, no es conteo general.
+    if re.search(r"\b(cama|camas|consultorio|consultorios|tomografia|tomografo|variable|descripcion)\b", texto):
+        return False
+    return True
+
+
+def _extraer_texto_ambito_desde_pregunta(texto_normalizado: str) -> str:
+    texto = str(texto_normalizado or "").strip()
+    if not texto:
+        return ""
+    m = re.search(r"\ben\s+(.+)$", texto)
+    if not m:
+        return ""
+    ambito = m.group(1).strip()
+    ambito = re.sub(r"\b(del|de la|de|la|el|los|las)\b", " ", ambito)
+    ambito = re.sub(r"\s+", " ", ambito).strip()
+    return ambito
+
+
+def _resolver_ambito_general_desde_cumm(texto_normalizado: str):
+    ambito_txt = _extraer_texto_ambito_desde_pregunta(texto_normalizado)
+    if not ambito_txt:
+        return None
+
+    like_val = f"%{ambito_txt}%"
+    with connection.cursor() as cursor:
+        # Entidad federativa
+        cursor.execute(
+            """
+            SELECT TOP 1 ClaveEntidadFederativa, EntidadFederativa
+            FROM [DB_Catalogos].[dbo].[CUMM_ACTUAL]
+            WHERE EntidadFederativa COLLATE Modern_Spanish_CI_AI LIKE %s
+            """,
+            [like_val],
+        )
+        row = cursor.fetchone()
+        if row:
+            return {
+                "tipo": "ENTIDAD",
+                "id": str(row[0]).strip() if row[0] is not None else "",
+                "desc_original": str(row[1]).strip(),
+            }
+
+        # Delegación / UMAE
+        cursor.execute(
+            """
+            SELECT TOP 1 Cve_Deleg_UMAE, NombreDelegacionUMAE
+            FROM [DB_Catalogos].[dbo].[CUMM_ACTUAL]
+            WHERE NombreDelegacionUMAE COLLATE Modern_Spanish_CI_AI LIKE %s
+            """,
+            [like_val],
+        )
+        row = cursor.fetchone()
+        if row:
+            return {
+                "tipo": "DELEGACION",
+                "id": str(row[0]).strip() if row[0] is not None else "",
+                "desc_original": str(row[1]).strip(),
+            }
+
+        # Región
+        cursor.execute(
+            """
+            SELECT TOP 1 Region
+            FROM [DB_Catalogos].[dbo].[CUMM_ACTUAL]
+            WHERE Region COLLATE Modern_Spanish_CI_AI LIKE %s
+            """,
+            [like_val],
+        )
+        row = cursor.fetchone()
+        if row:
+            region = str(row[0]).strip()
+            return {
+                "tipo": "REGION",
+                "id": region,
+                "desc_original": region,
+            }
+
+        # Nivel de atención
+        cursor.execute(
+            """
+            SELECT TOP 1 NivelAtencion
+            FROM [DB_Catalogos].[dbo].[CUMM_ACTUAL]
+            WHERE NivelAtencion COLLATE Modern_Spanish_CI_AI LIKE %s
+            """,
+            [like_val],
+        )
+        row = cursor.fetchone()
+        if row:
+            nivel = str(row[0]).strip()
+            return {
+                "tipo": "NIVEL_ATENCION",
+                "id": nivel,
+                "desc_original": nivel,
+            }
+
+        # Fallback fuzzy para errores ortograficos (ej. "aguscialientes").
+        ambito_norm = _normalizar_chatbot_m(ambito_txt)
+        mejor = None
+        mejor_score = 0.0
+
+        def evaluar(tipo: str, id_val, desc_val):
+            nonlocal mejor, mejor_score
+            if desc_val is None:
+                return
+            desc = str(desc_val).strip()
+            if not desc:
+                return
+            desc_norm = _normalizar_chatbot_m(desc)
+            score = SequenceMatcher(None, ambito_norm, desc_norm).ratio() * 100
+            if score > mejor_score:
+                mejor_score = score
+                mejor = {
+                    "tipo": tipo,
+                    "id": str(id_val).strip() if id_val is not None else desc,
+                    "desc_original": desc,
+                }
+
+        cursor.execute(
+            """
+            SELECT DISTINCT ClaveEntidadFederativa, EntidadFederativa
+            FROM [DB_Catalogos].[dbo].[CUMM_ACTUAL]
+            WHERE EntidadFederativa IS NOT NULL AND LTRIM(RTRIM(EntidadFederativa)) <> ''
+            """
+        )
+        for cve, desc in cursor.fetchall() or []:
+            evaluar("ENTIDAD", cve, desc)
+
+        cursor.execute(
+            """
+            SELECT DISTINCT Cve_Deleg_UMAE, NombreDelegacionUMAE
+            FROM [DB_Catalogos].[dbo].[CUMM_ACTUAL]
+            WHERE NombreDelegacionUMAE IS NOT NULL AND LTRIM(RTRIM(NombreDelegacionUMAE)) <> ''
+            """
+        )
+        for cve, desc in cursor.fetchall() or []:
+            evaluar("DELEGACION", cve, desc)
+
+        cursor.execute(
+            """
+            SELECT DISTINCT Region
+            FROM [DB_Catalogos].[dbo].[CUMM_ACTUAL]
+            WHERE Region IS NOT NULL AND LTRIM(RTRIM(Region)) <> ''
+            """
+        )
+        for (desc,) in cursor.fetchall() or []:
+            evaluar("REGION", desc, desc)
+
+        cursor.execute(
+            """
+            SELECT DISTINCT NivelAtencion
+            FROM [DB_Catalogos].[dbo].[CUMM_ACTUAL]
+            WHERE NivelAtencion IS NOT NULL AND LTRIM(RTRIM(NivelAtencion)) <> ''
+            """
+        )
+        for (desc,) in cursor.fetchall() or []:
+            evaluar("NIVEL_ATENCION", desc, desc)
+
+        if mejor and mejor_score >= 72:
+            return mejor
+
+    return None
+
+
+def _es_texto_no_consulta(texto_normalizado: str) -> bool:
+    texto = (texto_normalizado or "").strip()
+    if not texto:
+        return True
+
+    saludos = {
+        "hola",
+        "buen dia",
+        "buenos dias",
+        "buenas tardes",
+        "buenas noches",
+        "hey",
+        "que tal",
+        "ok",
+        "gracias",
+        "thanks",
+    }
+
+    if texto in saludos:
+        return True
+
+    tokens = texto.split()
+    if len(tokens) == 1 and tokens[0] in saludos:
+        return True
+
+    return False
+
+
+def _debe_intentar_semantica_concepto(texto_busqueda: str) -> bool:
+    texto = (texto_busqueda or "").strip()
+    if not texto:
+        return False
+    if _es_texto_no_consulta(texto):
+        return False
+
+    tokens = texto.split()
+    if len(tokens) < 2:
+        return False
+
+    return True
+
+
+def _detectar_tipo_recurso(texto_normalizado: str):
+    texto = (texto_normalizado or "").strip()
+    pide_cama = bool(re.search(r"\bcamas?\b", texto))
+    pide_consultorio = bool(re.search(r"\bconsultorios?\b", texto))
+
+    if pide_cama and not pide_consultorio:
+        return "cama"
+    if pide_consultorio and not pide_cama:
+        return "consultorio"
+    return None
+
+
+def _descripcion_cumple_tipo_recurso(descripcion_normalizada: str, tipo_recurso: str | None) -> bool:
+    if not tipo_recurso:
+        return True
+    desc = str(descripcion_normalizada or "")
+    if tipo_recurso == "cama":
+        return "cama" in desc
+    if tipo_recurso == "consultorio":
+        return "consultorio" in desc
+    return True
+
+
+def _obtener_catalogo_hospitales():
+    return chatbot_detector_engine.buscador_hospital.catalogos.catalogo_hospitales
+
+
+def _obtener_catalogo_variables():
+    return chatbot_detector_engine.buscador_variable.catalogos.catalogo_variables
+
+
+def _resolver_hospital_preciso(pregunta: str):
+    texto_hospital = chatbot_detector_engine.buscador_hospital._preparar_texto(pregunta)
+    resultado = chatbot_detector_engine.buscador_hospital.buscar(pregunta)
+
+    if resultado.get("status") == "ganador_claro" and resultado.get("hospital"):
+        return resultado["hospital"], resultado, texto_hospital
+
+    catalogo = _obtener_catalogo_hospitales()
+    texto_limpio = _normalizar_chatbot_m(texto_hospital)
+    exactos = []
+    for item in catalogo:
+        desc = _normalizar_chatbot_m(item.get("desc_normalizada") or item.get("desc_original") or "")
+        if not desc:
+            continue
+        if desc == texto_limpio or desc in texto_limpio or texto_limpio in desc:
+            exactos.append(item)
+
+    if len(exactos) == 1:
+        return exactos[0], resultado, texto_hospital
+
+    candidatos = resultado.get("candidatos") or []
+    if len(candidatos) == 1:
+        cand_id = str(candidatos[0].get("id", "")).strip()
+        for item in catalogo:
+            if str(item.get("id", "")).strip() == cand_id:
+                return item, resultado, texto_hospital
+
+    return None, resultado, texto_hospital
+
+
+def _resolver_variable_precisa(pregunta: str, hospital_detectado=None):
+    texto_variable = chatbot_detector_engine.buscador_variable._preparar_texto(
+        pregunta,
+        hospital_detectado,
+    )
+
+    variable_canonica = chatbot_detector_engine.buscador_variable.buscar_variable_canonica(texto_variable)
+    if variable_canonica:
+        return variable_canonica, {
+            "status": "ganador_claro",
+            "variable": variable_canonica,
+            "score": 1.0,
+            "texto_usado": texto_variable,
+            "regla_aplicada": "variable_canonica",
+        }, texto_variable
+
+    resultado = chatbot_detector_engine.buscador_variable.buscar(
+        pregunta,
+        hospital_detectado,
+        aplicar_canonica=False,
+    )
+
+    if resultado.get("status") == "ganador_claro" and resultado.get("variable"):
+        return resultado["variable"], resultado, texto_variable
+
+    catalogo = _obtener_catalogo_variables()
+    exactos = []
+    texto_limpio = _normalizar_chatbot_m(texto_variable)
+    for item in catalogo:
+        desc = _normalizar_chatbot_m(item.get("desc_normalizada") or item.get("desc_original") or "")
+        if not desc:
+            continue
+        if desc == texto_limpio or desc in texto_limpio or texto_limpio in desc:
+            exactos.append(item)
+
+    if len(exactos) == 1:
+        return exactos[0], resultado, texto_variable
+
+    candidatos = resultado.get("candidatos") or []
+    if len(candidatos) == 1:
+        cand_id = str(candidatos[0].get("id", "")).strip()
+        for item in catalogo:
+            if str(item.get("id", "")).strip() == cand_id:
+                return item, resultado, texto_variable
+
+    return None, resultado, texto_variable
+
+
+def _resolver_variable_camas_censables(texto_normalizado: str):
+    texto_normalizado = _normalizar_chatbot_m(texto_normalizado)
+    if not texto_normalizado:
+        return None
+
+    if "cama" not in texto_normalizado:
+        return None
+
+    if not any(
+        palabra in texto_normalizado
+        for palabra in ("censable", "censables", "sensable", "sensables")
+    ):
+        return None
+
+    for item in _obtener_catalogo_variables():
+        if str(item.get("id", "")).strip() == "50100":
+            return item
+        if _normalizar_chatbot_m(item.get("desc_normalizada") or item.get("desc_original") or "") == "total de camas censables de la unidad":
+            return item
+
+    return None
+
+
+def _extraer_cve_presupuestal(texto: str):
+    texto = str(texto or "")
+    coincidencia = re.search(r"\b\d{10,15}\b", texto)
+    if not coincidencia:
+        return None
+    return coincidencia.group(0)
+
+
+def _limpiar_texto_concepto_ifu(texto: str) -> str:
+    texto = _normalizar_chatbot_m(texto)
+    texto = re.sub(r"\b\d{10,15}\b", " ", texto)
+    palabras_ignorar = {
+        "que",
+        "cual",
+        "cuales",
+        "cuanto",
+        "cuantos",
+        "cuanta",
+        "cuantas",
+        "valor",
+        "valores",
+        "dato",
+        "datos",
+        "concepto",
+        "conceptos",
+        "descripcion",
+        "descripciones",
+        "unidad",
+        "unidades",
+        "cvepresupuestal",
+        "cve",
+        "presupuestal",
+        "de",
+        "del",
+        "la",
+        "el",
+        "los",
+        "las",
+        "en",
+        "para",
+        "por",
+        "hay",
+        "tiene",
+        "tienen",
+        "dame",
+        "mostrar",
+        "muestrame",
+        "consulta",
+    }
+    tokens = [token for token in texto.split() if token not in palabras_ignorar]
+    return " ".join(tokens).strip()
+
+
+def _obtener_conceptos_ifu():
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """
+            SELECT DISTINCT variable_nva, descripcion
+            FROM [DB_Catalogos].[dbo].[Cat_IFU_Actual]
+            WHERE descripcion IS NOT NULL
+              AND LTRIM(RTRIM(descripcion)) <> ''
+            """
+        )
+        filas = cursor.fetchall()
+
+    conceptos = []
+    for variable_nva, descripcion in filas:
+        descripcion_texto = str(descripcion or "").strip()
+        if not descripcion_texto:
+            continue
+        conceptos.append({
+            "id": variable_nva,
+            "descripcion": descripcion_texto,
+            "desc_original": descripcion_texto,
+            "desc_normalizada": _normalizar_chatbot_m(descripcion_texto),
+        })
+    return conceptos
+
+
+def _obtener_modelo_semantico():
+    global _semantic_model
+
+    if SentenceTransformer is None:
+        return None
+
+    if _semantic_model is None:
+        _semantic_model = SentenceTransformer(SEMANTIC_MODEL_NAME)
+
+    return _semantic_model
+
+
+def _crear_llave_conceptos(conceptos: list[dict]) -> int:
+    firma = "||".join(
+        f"{c.get('id')}::{c.get('desc_normalizada') or c.get('descripcion') or ''}"
+        for c in conceptos
+    )
+    return hash(firma)
+
+
+def _resolver_concepto_descripcion_ifu_semantico(
+    texto_busqueda: str,
+    conceptos: list[dict],
+    tipo_recurso: str | None = None,
+):
+    if not texto_busqueda or not conceptos:
+        return None
+
+    conceptos_filtrados = [
+        c for c in conceptos
+        if _descripcion_cumple_tipo_recurso(c.get("desc_normalizada"), tipo_recurso)
+    ]
+    if not conceptos_filtrados:
+        return None
+
+    modelo = _obtener_modelo_semantico()
+    if modelo is None or st_util is None:
+        return None
+
+    llave = _crear_llave_conceptos(conceptos_filtrados)
+    global _semantic_embeddings_cache
+
+    if _semantic_embeddings_cache.get("key") != llave:
+        descripciones = [c["desc_normalizada"] for c in conceptos_filtrados]
+        embeddings = modelo.encode(
+            descripciones,
+            convert_to_tensor=True,
+            normalize_embeddings=True,
+        )
+        _semantic_embeddings_cache = {
+            "key": llave,
+            "embeddings": embeddings,
+        }
+
+    embeddings = _semantic_embeddings_cache.get("embeddings")
+    if embeddings is None:
+        return None
+
+    consulta_embedding = modelo.encode(
+        [texto_busqueda],
+        convert_to_tensor=True,
+        normalize_embeddings=True,
+    )
+    scores = st_util.cos_sim(consulta_embedding, embeddings)[0]
+
+    if scores is None or len(scores) == 0:
+        return None
+
+    mejor_indice = int(scores.argmax().item())
+    mejor_score = float(scores[mejor_indice].item())
+
+    if mejor_score < SEMANTIC_SCORE_MIN:
+        return None
+
+    return conceptos_filtrados[mejor_indice]
+
+
+def _resolver_concepto_descripcion_ifu(pregunta: str):
+    texto_busqueda = _limpiar_texto_concepto_ifu(pregunta)
+    if not texto_busqueda:
+        return None
+
+    if not _debe_intentar_semantica_concepto(texto_busqueda):
+        return None
+
+    conceptos = _obtener_conceptos_ifu()
+    tipo_recurso = _detectar_tipo_recurso(_normalizar_chatbot_m(pregunta))
+    concepto_semantico = _resolver_concepto_descripcion_ifu_semantico(
+        texto_busqueda,
+        conceptos,
+        tipo_recurso=tipo_recurso,
+    )
+    if concepto_semantico:
+        return concepto_semantico
+
+    tokens_busqueda = set(texto_busqueda.split())
+    if not tokens_busqueda:
+        return None
+
+    mejor_concepto = None
+    mejor_score = 0.0
+
+    for concepto in conceptos:
+        descripcion_normalizada = concepto["desc_normalizada"]
+        if not _descripcion_cumple_tipo_recurso(descripcion_normalizada, tipo_recurso):
+            continue
+        tokens_descripcion = set(descripcion_normalizada.split())
+        if not tokens_descripcion:
+            continue
+
+        if texto_busqueda in descripcion_normalizada:
+            score = 1.0
+        else:
+            interseccion = len(tokens_busqueda & tokens_descripcion)
+            if interseccion == 0:
+                continue
+            score = interseccion / max(len(tokens_busqueda), 1)
+            if tokens_busqueda.issubset(tokens_descripcion):
+                score += 0.25
+
+        if score > mejor_score:
+            mejor_score = score
+            mejor_concepto = concepto
+
+    if mejor_concepto and mejor_score >= 0.6:
+        return mejor_concepto
+
+    return None
+
+
+def _consultar_valor_ifu_por_cve(cve_presupuestal: str, variable_id):
+    with connection.cursor() as cursor:
+        cursor.execute(
+            """
+            SELECT TOP 1
+                CvePresupuestal,
+                variable_nva,
+                descripcion,
+                valor
+            FROM [DB_Catalogos].[dbo].[Cat_IFU_Actual]
+            WHERE CvePresupuestal = %s
+              AND variable_nva = %s
+            """,
+            [cve_presupuestal, variable_id],
+        )
+        columnas = [col[0] for col in cursor.description] if cursor.description else []
+        fila = cursor.fetchone()
+
+    if not fila or not columnas:
+        return []
+
+    return [dict(zip(columnas, fila))]
+
+
+def _consultar_valor_concepto_por_unidad(cve_presupuestal: str, variable_detectada: dict):
+    descripcion_concepto = str(
+        variable_detectada.get("descripcion")
+        or variable_detectada.get("desc_original")
+        or ""
+    ).strip()
+
+    with connection.cursor() as cursor:
+        if descripcion_concepto:
+            cursor.execute(
+                """
+                SELECT
+                    a.CvePresupuestal,
+                    MAX(b.DenominacionUnidad) AS DenominacionUnidad,
+                    MAX(a.descripcion) AS descripcion,
+                    SUM(TRY_CONVERT(decimal(18, 4), REPLACE(a.valor, ',', ''))) AS valor
+                FROM [DB_Catalogos].[dbo].[Cat_IFU_Actual] a
+                LEFT JOIN [DB_Catalogos].[dbo].[CUMM_ACTUAL] b
+                    ON a.CvePresupuestal = b.ClavePresupuestal
+                    COLLATE Modern_Spanish_CI_AS
+                WHERE a.CvePresupuestal = %s
+                  AND (
+                        a.variable_nva = %s
+                        OR LTRIM(RTRIM(a.descripcion)) COLLATE Modern_Spanish_CI_AI =
+                           LTRIM(RTRIM(%s)) COLLATE Modern_Spanish_CI_AI
+                  )
+                GROUP BY a.CvePresupuestal
+                """,
+                [cve_presupuestal, variable_detectada.get("id"), descripcion_concepto],
+            )
+        else:
+            cursor.execute(
+                """
+                SELECT
+                    a.CvePresupuestal,
+                    MAX(b.DenominacionUnidad) AS DenominacionUnidad,
+                    MAX(a.descripcion) AS descripcion,
+                    SUM(TRY_CONVERT(decimal(18, 4), REPLACE(a.valor, ',', ''))) AS valor
+                FROM [DB_Catalogos].[dbo].[Cat_IFU_Actual] a
+                LEFT JOIN [DB_Catalogos].[dbo].[CUMM_ACTUAL] b
+                    ON a.CvePresupuestal = b.ClavePresupuestal
+                    COLLATE Modern_Spanish_CI_AS
+                WHERE a.CvePresupuestal = %s
+                  AND a.variable_nva = %s
+                GROUP BY a.CvePresupuestal
+                """,
+                [cve_presupuestal, variable_detectada.get("id")],
+            )
+
+        columnas = [col[0] for col in cursor.description] if cursor.description else []
+        fila = cursor.fetchone()
+
+    if not fila or not columnas:
+        return []
+
+    return [dict(zip(columnas, fila))]
+
+
+def _formatear_resultado_ifu(datos: list[dict]) -> str:
+    if not datos:
+        return "No encontré datos para esa consulta."
+
+    if len(datos) == 1:
+        fila = datos[0]
+        valor = fila.get("valor")
+        if valor is not None:
+            if fila.get("CvePresupuestal") and fila.get("descripcion"):
+                return f"La CvePresupuestal {fila['CvePresupuestal']} tiene {valor} en {fila.get('descripcion', 'el concepto solicitado')}"
+            if fila.get("DenominacionUnidad"):
+                return f"{fila['DenominacionUnidad']}: {fila.get('descripcion', 'resultado')} = {valor}"
+            if fila.get("ambito"):
+                return f"{fila['ambito']}: {fila.get('descripcion', 'resultado')} = {valor}"
+            return f"Resultado: {valor}"
+
+    lineas = []
+    for fila in datos[:10]:
+        partes = []
+        for campo in (
+            "DenominacionUnidad",
+            "NombreDelegacionUMAE",
+            "Region",
+            "NivelAtencion",
+            "ambito",
+            "descripcion",
+            "variable_nva",
+            "valor",
+            "total_unidades",
+        ):
+            valor = fila.get(campo)
+            if valor is None:
+                continue
+            texto_valor = str(valor).strip()
+            if texto_valor:
+                partes.append(f"{campo}: {texto_valor}")
+        if partes:
+            lineas.append("- " + "; ".join(partes))
+
+    return "\n".join(lineas) if lineas else f"Encontré {len(datos)} registros."
+
+
+def _normalizar_numero_decimal(valor):
+    if valor is None:
+        return None
+    try:
+        texto = str(valor).strip().replace(",", "")
+        if texto == "":
+            return None
+        return float(texto)
+    except (TypeError, ValueError):
+        return None
+
+
+def _consultar_ranking_hospitales(variable_id: str, top_n: int = 10, ascendente: bool = False):
+    orden = "ASC" if ascendente else "DESC"
+    query = f"""
+        SELECT TOP ({top_n})
+            b.ClavePresupuestal,
+            b.DenominacionUnidad,
+            b.NivelAtencion,
+            b.Region,
+            b.NombreDelegacionUMAE,
+            a.variable_nva,
+            a.descripcion,
+            SUM(TRY_CONVERT(decimal(18, 2), REPLACE(a.valor, ',', ''))) AS valor,
+            COUNT(*) AS registros
+        FROM [DB_Catalogos].[dbo].[Cat_IFU_Actual] a
+        JOIN [DB_Catalogos].[dbo].[CUMM_ACTUAL] b
+            ON a.CvePresupuestal = b.ClavePresupuestal
+            COLLATE Modern_Spanish_CI_AS
+        WHERE a.variable_nva = %s
+        GROUP BY
+            b.ClavePresupuestal,
+            b.DenominacionUnidad,
+            b.NivelAtencion,
+            b.Region,
+            b.NombreDelegacionUMAE,
+            a.variable_nva,
+            a.descripcion
+        ORDER BY valor {orden}, b.DenominacionUnidad ASC
+    """
+
+    with connection.cursor() as cursor:
+        cursor.execute(query, [variable_id])
+        columnas = [col[0] for col in cursor.description]
+        filas = cursor.fetchall()
+
+    return [dict(zip(columnas, fila)) for fila in filas]
+
+
+def _construir_filtro_cumm_por_ambito(ambito: dict):
+    tipo = str((ambito or {}).get("tipo") or "").upper()
+    ambito_id = str((ambito or {}).get("id") or "").strip()
+    ambito_desc = str(
+        (ambito or {}).get("desc_original")
+        or (ambito or {}).get("descripcion")
+        or (ambito or {}).get("texto_usado")
+        or ""
+    ).strip()
+    like_desc = f"%{ambito_desc}%" if ambito_desc else None
+
+    if tipo == "NACIONAL":
+        return "1=1", []
+
+    if tipo == "ENTIDAD":
+        filtros = []
+        params = []
+        if like_desc:
+            filtros.append("c.[RelacionDelegacion-UMAE] COLLATE Modern_Spanish_CI_AI LIKE %s")
+            params.append(like_desc)
+            filtros.append("c.EntidadFederativa COLLATE Modern_Spanish_CI_AI LIKE %s")
+            params.append(like_desc)
+        if ambito_id:
+            filtros.append("c.ClaveEntidadFederativa = %s")
+            params.append(ambito_id)
+        if not filtros:
+            return "1=0", []
+        return "(" + " OR ".join(filtros) + ")", params
+
+    if tipo == "DELEGACION":
+        filtros = []
+        params = []
+        if like_desc:
+            filtros.append("c.NombreDelegacionUMAE COLLATE Modern_Spanish_CI_AI LIKE %s")
+            params.append(like_desc)
+            filtros.append("c.[RelacionDelegacion-UMAE] COLLATE Modern_Spanish_CI_AI LIKE %s")
+            params.append(like_desc)
+        if ambito_id:
+            filtros.append("c.Cve_Deleg_UMAE = %s")
+            params.append(ambito_id)
+        if not filtros:
+            return "1=0", []
+        return "(" + " OR ".join(filtros) + ")", params
+
+    if tipo == "REGION":
+        filtros = []
+        params = []
+        if like_desc:
+            filtros.append("c.Region COLLATE Modern_Spanish_CI_AI LIKE %s")
+            params.append(like_desc)
+        if ambito_id:
+            filtros.append("c.Region = %s")
+            params.append(ambito_id)
+        if not filtros:
+            return "1=0", []
+        return "(" + " OR ".join(filtros) + ")", params
+
+    if tipo == "NIVEL_ATENCION":
+        filtros = []
+        params = []
+        if like_desc:
+            filtros.append("c.NivelAtencion COLLATE Modern_Spanish_CI_AI LIKE %s")
+            params.append(like_desc)
+        if ambito_id:
+            filtros.append("c.NivelAtencion = %s")
+            params.append(ambito_id)
+        if not filtros:
+            return "1=0", []
+        return "(" + " OR ".join(filtros) + ")", params
+
+    return "1=0", []
+
+
+def _contar_hospitales_por_ambito_y_concepto(ambito: dict, variable_detectada: dict, top_n: int = 5):
+    where_ambito, params_ambito = _construir_filtro_cumm_por_ambito(ambito)
+    variable_id = variable_detectada.get("id")
+    descripcion = str(
+        variable_detectada.get("descripcion")
+        or variable_detectada.get("desc_original")
+        or ""
+    ).strip()
+    descripcion_like = f"%{descripcion.replace('.', '')}%" if descripcion else None
+
+    filtros_concepto = ["a.variable_nva = %s"]
+    params_concepto = [variable_id]
+    if descripcion_like:
+        filtros_concepto.append("a.descripcion COLLATE Modern_Spanish_CI_AI LIKE %s")
+        params_concepto.append(descripcion_like)
+    where_concepto = "(" + " OR ".join(filtros_concepto) + ")"
+
+    with connection.cursor() as cursor:
+        cursor.execute(
+            f"""
+            SELECT COUNT(DISTINCT c.ClavePresupuestal)
+            FROM [DB_Catalogos].[dbo].[CUMM_ACTUAL] c
+            JOIN [DB_Catalogos].[dbo].[Cat_IFU_Actual] a
+                ON a.CvePresupuestal = c.ClavePresupuestal
+                COLLATE Modern_Spanish_CI_AS
+            WHERE {where_ambito}
+              AND {where_concepto}
+              AND TRY_CONVERT(decimal(18, 4), REPLACE(a.valor, ',', '')) > 0
+            """,
+            [*params_ambito, *params_concepto],
+        )
+        total = cursor.fetchone()[0] or 0
+
+        cursor.execute(
+            f"""
+            SELECT TOP ({top_n})
+                c.ClavePresupuestal AS CvePresupuestal,
+                MAX(c.DenominacionUnidad) AS DenominacionUnidad,
+                SUM(TRY_CONVERT(decimal(18, 4), REPLACE(a.valor, ',', ''))) AS valor_total
+            FROM [DB_Catalogos].[dbo].[CUMM_ACTUAL] c
+            JOIN [DB_Catalogos].[dbo].[Cat_IFU_Actual] a
+                ON a.CvePresupuestal = c.ClavePresupuestal
+                COLLATE Modern_Spanish_CI_AS
+            WHERE {where_ambito}
+              AND {where_concepto}
+              AND TRY_CONVERT(decimal(18, 4), REPLACE(a.valor, ',', '')) > 0
+            GROUP BY c.ClavePresupuestal
+            ORDER BY valor_total DESC, c.ClavePresupuestal ASC
+            """,
+            [*params_ambito, *params_concepto],
+        )
+        columnas = [col[0] for col in cursor.description] if cursor.description else []
+        filas = cursor.fetchall()
+
+    top = [dict(zip(columnas, fila)) for fila in filas] if columnas else []
+    return total, top
+
+
+def _contar_hospitales_por_ambito_general(ambito: dict, top_n: int = 5):
+    where_ambito, params_ambito = _construir_filtro_cumm_por_ambito(ambito)
+
+    with connection.cursor() as cursor:
+        cursor.execute(
+            f"""
+            SELECT COUNT(DISTINCT c.ClavePresupuestal)
+            FROM [DB_Catalogos].[dbo].[CUMM_ACTUAL] c
+            WHERE {where_ambito}
+              AND EXISTS (
+                    SELECT 1
+                    FROM [DB_Catalogos].[dbo].[Cat_IFU_Actual] a
+                    WHERE a.CvePresupuestal = c.ClavePresupuestal
+                        COLLATE Modern_Spanish_CI_AS
+              )
+            """,
+            params_ambito,
+        )
+        total = cursor.fetchone()[0] or 0
+
+        cursor.execute(
+            f"""
+            SELECT TOP ({top_n})
+                c.ClavePresupuestal AS CvePresupuestal,
+                MAX(c.DenominacionUnidad) AS DenominacionUnidad
+            FROM [DB_Catalogos].[dbo].[CUMM_ACTUAL] c
+            WHERE {where_ambito}
+              AND EXISTS (
+                    SELECT 1
+                    FROM [DB_Catalogos].[dbo].[Cat_IFU_Actual] a
+                    WHERE a.CvePresupuestal = c.ClavePresupuestal
+                        COLLATE Modern_Spanish_CI_AS
+              )
+            GROUP BY c.ClavePresupuestal
+            ORDER BY DenominacionUnidad ASC, c.ClavePresupuestal ASC
+            """,
+            params_ambito,
+        )
+        columnas = [col[0] for col in cursor.description] if cursor.description else []
+        filas = cursor.fetchall()
+
+    top = [dict(zip(columnas, fila)) for fila in filas] if columnas else []
+    return total, top
 
 
 # Mario: Funci+�n para resolver archivos de ficha nacional din+�micamente por prefijo.
@@ -1643,19 +2619,11 @@ def getGeneraFicha(request):
 def chatbot_query(request):
     """
     Chatbot local sin IA externa.
-    Interpreta preguntas comunes y ejecuta consultas seguras sobre
+    Primero intenta resolver consultas IFU con hospital/variable/ámbito.
+    Si no aplica, interpreta preguntas de estructura o estadística sobre
     [DB_Catalogos].[dbo].[Cat_IFU_Actual].
     """
     import re
-    import unicodedata
-
-    def normalizar(texto: str) -> str:
-        t = (texto or '').lower().strip()
-        t = ''.join(
-            c for c in unicodedata.normalize('NFD', t)
-            if unicodedata.category(c) != 'Mn'
-        )
-        return t
 
     def obtener_numero(texto: str, default: int = 10, minimo: int = 1, maximo: int = 100) -> int:
         m = re.search(r'\b(\d{1,3})\b', texto)
@@ -1664,34 +2632,491 @@ def chatbot_query(request):
         n = int(m.group(1))
         return max(min(n, maximo), minimo)
 
-    pregunta = request.data.get("pregunta", "").strip()
+    pregunta = str(request.data.get("pregunta", "")).strip()
     if not pregunta:
         return Response({"error": "La pregunta no puede estar vacía."}, status=400)
 
-    pnorm = normalizar(pregunta)
+    pnorm = _normalizar_chatbot_m(pregunta)
+    cve_presupuestal = _extraer_cve_presupuestal(pregunta)
 
     try:
+        if _es_texto_no_consulta(pnorm):
+            return Response({
+                "ok": True,
+                "status": "ayuda",
+                "respuesta": (
+                    "Puedo responder consultas sobre Cat_IFU_Actual usando descripcion, valor y CvePresupuestal. "
+                    "Ejemplos: 'camas censables en la cvepresupuestal 010101012151' o 'top 5 camas censables'."
+                ),
+                "datos": [],
+            })
+
+        if _es_consulta_de_conteo(pnorm) and _es_conteo_hospitales_general(pnorm):
+            ambito_detectado_general = chatbot_detector_engine.buscador_ambito.buscar(pnorm)
+            ambito_general = (
+                ambito_detectado_general
+                if ambito_detectado_general and ambito_detectado_general.get("tipo") != "HOSPITAL"
+                else None
+            )
+            if not ambito_general:
+                ambito_general = _resolver_ambito_general_desde_cumm(pnorm)
+
+            if not ambito_general:
+                return Response({
+                    "ok": True,
+                    "status": "falta_ambito",
+                    "respuesta": (
+                        "Para contar hospitales primero necesito identificar el ámbito en CUMM "
+                        "(entidad, delegación, región o nivel)."
+                    ),
+                    "datos": [],
+                })
+
+            total, top = _contar_hospitales_por_ambito_general(
+                ambito=ambito_general,
+                top_n=5,
+            )
+            ambito_texto = (
+                ambito_general.get("desc_original")
+                or ambito_general.get("descripcion")
+                or ambito_general.get("id")
+                or "el ámbito solicitado"
+            )
+
+            lineas_top = []
+            for fila in top:
+                nombre = fila.get("DenominacionUnidad") or fila.get("CvePresupuestal")
+                lineas_top.append(
+                    f"- {nombre} (CvePresupuestal {fila.get('CvePresupuestal')})"
+                )
+
+            return Response({
+                "ok": True,
+                "status": "ok",
+                "respuesta": (
+                    f"Hay {total} hospitales en {ambito_texto}."
+                    + ("\nTop 5 de hospitales:\n" + "\n".join(lineas_top) if lineas_top else "")
+                ),
+                "pregunta_original": pregunta,
+                "datos": [{
+                    "total_hospitales": total,
+                    "ambito": ambito_general,
+                    "top_5": top,
+                }],
+            })
+
+        if _es_consulta_de_estructura(pnorm):
+            with connection.cursor() as cursor:
+                cursor.execute("SET LOCK_TIMEOUT 5000")
+                cursor.execute("SELECT TOP 1 * FROM [DB_Catalogos].[dbo].[Cat_IFU_Actual]")
+                columnas = [col[0] for col in cursor.description]
+
+            if not columnas:
+                return Response({"respuesta": "No encontré columnas en la tabla Cat_IFU_Actual."}, status=200)
+
+            if 'columna' in pnorm or 'campos' in pnorm or 'estructura' in pnorm or 'schema' in pnorm or 'esquema' in pnorm:
+                return Response({
+                    "ok": True,
+                    "respuesta": (
+                        f"La tabla Cat_IFU_Actual tiene {len(columnas)} columnas: "
+                        + ', '.join(columnas)
+                    ),
+                    "datos": [],
+                })
+
+        hospital_detectado, resultado_hospital, texto_hospital = _resolver_hospital_preciso(pregunta)
+        variable_detectada, resultado_variable, texto_variable = _resolver_variable_precisa(
+            pregunta,
+            hospital_detectado,
+        )
+        tipo_recurso_pregunta = _detectar_tipo_recurso(pnorm)
+        if variable_detectada and tipo_recurso_pregunta:
+            desc_var = _normalizar_chatbot_m(
+                variable_detectada.get("descripcion")
+                or variable_detectada.get("desc_original")
+                or ""
+            )
+            if not _descripcion_cumple_tipo_recurso(desc_var, tipo_recurso_pregunta):
+                variable_detectada = None
+
+        if not variable_detectada:
+            variable_detectada = _resolver_concepto_descripcion_ifu(pregunta)
+            if variable_detectada:
+                resultado_variable = {
+                    "status": "ganador_claro",
+                    "variable": variable_detectada,
+                    "score": 1.0,
+                    "texto_usado": pnorm,
+                    "regla_aplicada": "resolver_concepto_descripcion_ifu",
+                }
+
+        if not variable_detectada:
+            variable_detectada = _resolver_variable_camas_censables(pnorm)
+            if variable_detectada:
+                resultado_variable = {
+                    "status": "ganador_claro",
+                    "variable": variable_detectada,
+                    "score": 1.0,
+                    "texto_usado": pnorm,
+                    "regla_aplicada": "resolver_variable_camas_censables",
+                }
+        ambito_detectado = chatbot_detector_engine.buscador_ambito.buscar(pnorm)
+
+        hospital_ambito = ambito_detectado if ambito_detectado and ambito_detectado.get("tipo") != "HOSPITAL" else None
+        # Si ya detectamos una unidad hospitalaria concreta, no debemos desviar
+        # la consulta a un ámbito macro como REGION/ENTIDAD.
+        if hospital_detectado:
+            hospital_ambito = None
+
+        if _es_consulta_de_conteo(pnorm) and hospital_ambito and _es_conteo_hospitales_general(pnorm):
+            total, top = _contar_hospitales_por_ambito_general(
+                ambito=hospital_ambito,
+                top_n=5,
+            )
+            ambito_texto = (
+                hospital_ambito.get("desc_original")
+                or hospital_ambito.get("descripcion")
+                or hospital_ambito.get("id")
+                or "el ámbito solicitado"
+            )
+
+            lineas_top = []
+            for fila in top:
+                nombre = fila.get("DenominacionUnidad") or fila.get("CvePresupuestal")
+                lineas_top.append(
+                    f"- {nombre} (CvePresupuestal {fila.get('CvePresupuestal')})"
+                )
+
+            return Response({
+                "ok": True,
+                "status": "ok",
+                "respuesta": (
+                    f"Hay {total} hospitales en {ambito_texto}."
+                    + ("\nTop 5 de hospitales:\n" + "\n".join(lineas_top) if lineas_top else "")
+                ),
+                "pregunta_original": pregunta,
+                "datos": [{
+                    "total_hospitales": total,
+                    "ambito": hospital_ambito,
+                    "top_5": top,
+                }],
+            })
+
+        if _es_consulta_de_conteo(pnorm) and variable_detectada and hospital_ambito:
+            total, top = _contar_hospitales_por_ambito_y_concepto(
+                ambito=hospital_ambito,
+                variable_detectada=variable_detectada,
+                top_n=5,
+            )
+            ambito_texto = (
+                hospital_ambito.get("desc_original")
+                or hospital_ambito.get("descripcion")
+                or hospital_ambito.get("id")
+                or "el ámbito solicitado"
+            )
+
+            lineas_top = []
+            for fila in top:
+                nombre = fila.get("DenominacionUnidad") or fila.get("CvePresupuestal")
+                valor_total = fila.get("valor_total")
+                valor_txt = f"{valor_total:.2f}" if isinstance(valor_total, (int, float)) else str(valor_total)
+                lineas_top.append(
+                    f"- {nombre} (CvePresupuestal {fila.get('CvePresupuestal')}): {valor_txt}"
+                )
+
+            return Response({
+                "ok": True,
+                "status": "ok",
+                "respuesta": (
+                    f"{total} hospitales tienen el concepto {variable_detectada.get('descripcion') or variable_detectada.get('desc_original')} en {ambito_texto}."
+                    + ("\nTop 5 de hospitales:\n" + "\n".join(lineas_top) if lineas_top else "")
+                ),
+                "pregunta_original": pregunta,
+                "datos": [{
+                    "total_hospitales": total,
+                    "ambito": hospital_ambito,
+                    "top_5": top,
+                }],
+            })
+
+        if variable_detectada and _es_consulta_comparativa(pnorm):
+            ascendente = any(
+                palabra in pnorm
+                for palabra in ("menos", "menor", "minimo", "mínimo")
+            )
+            top_n = obtener_numero(pnorm, default=10, minimo=1, maximo=50)
+            datos = _consultar_ranking_hospitales(
+                variable_id=variable_detectada["id"],
+                top_n=top_n,
+                ascendente=ascendente,
+            )
+
+            if not datos:
+                return Response({
+                    "ok": True,
+                    "status": "sin_datos",
+                    "respuesta": "No encontré datos para comparar ese concepto entre unidades.",
+                    "datos": [],
+                })
+
+            ganador = datos[0]
+            valor_ganador = ganador.get("valor")
+            if valor_ganador is None:
+                return Response({
+                    "ok": True,
+                    "status": "sin_datos",
+                    "respuesta": "Encontré el concepto, pero no pude calcular su valor para compararlo.",
+                    "datos": datos,
+                })
+
+            valor_texto = f"{valor_ganador:.2f}" if isinstance(valor_ganador, (int, float)) else str(valor_ganador)
+            sentido = "menor" if ascendente else "mayor"
+            encabezado = (
+                f"La unidad con {sentido} valor en {ganador.get('descripcion') or variable_detectada.get('descripcion') or 'el concepto solicitado'} es "
+                f"{ganador.get('DenominacionUnidad') or ganador.get('ClavePresupuestal')} "
+                f"(CvePresupuestal {ganador.get('ClavePresupuestal')}) con {valor_texto}."
+            )
+
+            lineas = []
+            for fila in datos:
+                valor = fila.get("valor")
+                valor_fila = f"{valor:.2f}" if isinstance(valor, (int, float)) else str(valor)
+                nombre_unidad = fila.get("DenominacionUnidad") or fila.get("ClavePresupuestal")
+                lineas.append(
+                    f"- {nombre_unidad} (CvePresupuestal {fila.get('ClavePresupuestal')}): {valor_fila}"
+                )
+
+            return Response({
+                "ok": True,
+                "status": "ok",
+                "respuesta": encabezado + "\n" + "\n".join(lineas),
+                "pregunta_original": pregunta,
+                "datos": datos,
+            })
+
+        if cve_presupuestal and variable_detectada:
+            datos = _consultar_valor_ifu_por_cve(
+                cve_presupuestal=cve_presupuestal,
+                variable_id=variable_detectada["id"],
+            )
+            if not datos:
+                return Response({
+                    "ok": True,
+                    "status": "sin_datos",
+                    "respuesta": f"No encontré datos para la CvePresupuestal {cve_presupuestal} y el concepto {variable_detectada.get('descripcion') or variable_detectada.get('desc_original')}.",
+                    "datos": [],
+                })
+
+            return Response({
+                "ok": True,
+                "status": "ok",
+                "respuesta": _formatear_resultado_ifu(datos),
+                "pregunta_original": pregunta,
+                "datos": datos,
+            })
+
+        if cve_presupuestal and not variable_detectada:
+            return Response({
+                "ok": True,
+                "status": "falta_variable",
+                "respuesta": (
+                    f"Identifiqué la CvePresupuestal {cve_presupuestal}, pero me falta el concepto a consultar en la columna descripcion."
+                ),
+                "datos": [],
+            })
+
+        if variable_detectada and (hospital_detectado or hospital_ambito):
+            if hospital_ambito:
+                datos = chatbot_m_consulta_ifu.obtener_valor_dinamico(
+                    tipo_ambito=hospital_ambito["tipo"],
+                    filtro_id=hospital_ambito["id"],
+                    variable_id=variable_detectada["id"],
+                )
+                if not datos:
+                    return Response({
+                        "ok": True,
+                        "status": "sin_datos",
+                        "respuesta": "No encontré datos para esa combinación de ámbito y variable.",
+                        "datos": [],
+                    })
+                return Response({
+                    "ok": True,
+                    "status": "ok",
+                    "respuesta": _formatear_resultado_ifu(datos),
+                    "pregunta_original": pregunta,
+                    "datos": datos,
+                })
+
+            datos = _consultar_valor_concepto_por_unidad(
+                cve_presupuestal=hospital_detectado["id"],
+                variable_detectada=variable_detectada,
+            )
+            if not datos:
+                return Response({
+                    "ok": True,
+                    "status": "sin_datos",
+                    "respuesta": "No encontré datos para esa unidad y variable.",
+                    "datos": [],
+                })
+
+            return Response({
+                "ok": True,
+                "status": "ok",
+                "respuesta": _formatear_resultado_ifu(datos),
+                "pregunta_original": pregunta,
+                "datos": datos,
+            })
+
+        if _es_consulta_de_conteo(pnorm) and hospital_detectado and not variable_detectada:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    """
+                    SELECT COUNT(*)
+                    FROM [DB_Catalogos].[dbo].[Cat_IFU_Actual] a
+                    JOIN [DB_Catalogos].[dbo].[CUMM_ACTUAL] b
+                        ON a.CvePresupuestal = b.ClavePresupuestal
+                        COLLATE Modern_Spanish_CI_AS
+                    WHERE b.ClavePresupuestal = %s
+                    """,
+                    [hospital_detectado["id"]],
+                )
+                total = cursor.fetchone()[0]
+
+            return Response({
+                "ok": True,
+                "status": "ok",
+                "respuesta": f"La unidad {hospital_detectado.get('desc_original') or hospital_detectado.get('nombre_original')} tiene {total} registros en Cat_IFU_Actual.",
+                "datos": [{"total": total}],
+            })
+
+        if _es_consulta_de_conteo(pnorm) and variable_detectada and not hospital_detectado and not hospital_ambito:
+            descripcion_concepto = (
+                str(variable_detectada.get("descripcion") or variable_detectada.get("desc_original") or "")
+                .strip()
+                .replace(".", "")
+            )
+            patron_concepto = f"%{descripcion_concepto}%" if descripcion_concepto else None
+
+            with connection.cursor() as cursor:
+                if patron_concepto:
+                    cursor.execute(
+                        """
+                        SELECT COUNT(DISTINCT CvePresupuestal)
+                        FROM [DB_Catalogos].[dbo].[Cat_IFU_Actual]
+                        WHERE (variable_nva = %s
+                               OR descripcion COLLATE Modern_Spanish_CI_AI LIKE %s)
+                          AND TRY_CONVERT(decimal(18, 4), REPLACE(valor, ',', '')) > 0
+                        """,
+                        [variable_detectada["id"], patron_concepto],
+                    )
+                else:
+                    cursor.execute(
+                        """
+                        SELECT COUNT(DISTINCT CvePresupuestal)
+                        FROM [DB_Catalogos].[dbo].[Cat_IFU_Actual]
+                        WHERE variable_nva = %s
+                          AND TRY_CONVERT(decimal(18, 4), REPLACE(valor, ',', '')) > 0
+                        """,
+                        [variable_detectada["id"]],
+                    )
+                total = cursor.fetchone()[0]
+
+                if patron_concepto:
+                    cursor.execute(
+                        """
+                        SELECT TOP 5
+                            a.CvePresupuestal,
+                            MAX(b.DenominacionUnidad) AS DenominacionUnidad,
+                            MAX(a.descripcion) AS descripcion,
+                            SUM(TRY_CONVERT(decimal(18, 4), REPLACE(a.valor, ',', ''))) AS valor_total
+                        FROM [DB_Catalogos].[dbo].[Cat_IFU_Actual] a
+                        LEFT JOIN [DB_Catalogos].[dbo].[CUMM_ACTUAL] b
+                            ON a.CvePresupuestal = b.ClavePresupuestal
+                            COLLATE Modern_Spanish_CI_AS
+                        WHERE (a.variable_nva = %s
+                               OR a.descripcion COLLATE Modern_Spanish_CI_AI LIKE %s)
+                          AND TRY_CONVERT(decimal(18, 4), REPLACE(a.valor, ',', '')) > 0
+                        GROUP BY a.CvePresupuestal
+                        ORDER BY valor_total DESC, a.CvePresupuestal ASC
+                        """,
+                        [variable_detectada["id"], patron_concepto],
+                    )
+                else:
+                    cursor.execute(
+                        """
+                        SELECT TOP 5
+                            a.CvePresupuestal,
+                            MAX(b.DenominacionUnidad) AS DenominacionUnidad,
+                            MAX(a.descripcion) AS descripcion,
+                            SUM(TRY_CONVERT(decimal(18, 4), REPLACE(a.valor, ',', ''))) AS valor_total
+                        FROM [DB_Catalogos].[dbo].[Cat_IFU_Actual] a
+                        LEFT JOIN [DB_Catalogos].[dbo].[CUMM_ACTUAL] b
+                            ON a.CvePresupuestal = b.ClavePresupuestal
+                            COLLATE Modern_Spanish_CI_AS
+                        WHERE a.variable_nva = %s
+                          AND TRY_CONVERT(decimal(18, 4), REPLACE(a.valor, ',', '')) > 0
+                        GROUP BY a.CvePresupuestal
+                        ORDER BY valor_total DESC, a.CvePresupuestal ASC
+                        """,
+                        [variable_detectada["id"]],
+                    )
+
+                columnas_top = [col[0] for col in cursor.description] if cursor.description else []
+                filas_top = cursor.fetchall()
+
+            top_5 = [dict(zip(columnas_top, fila)) for fila in filas_top] if columnas_top else []
+
+            lineas_top = []
+            for fila in top_5:
+                nombre = fila.get("DenominacionUnidad") or fila.get("CvePresupuestal")
+                valor_total = fila.get("valor_total")
+                valor_texto = f"{valor_total:.2f}" if isinstance(valor_total, (int, float)) else str(valor_total)
+                lineas_top.append(
+                    f"- {nombre} (CvePresupuestal {fila.get('CvePresupuestal')}): {valor_texto}"
+                )
+
+            return Response({
+                "ok": True,
+                "status": "ok",
+                "respuesta": (
+                    f"{total} hospitales tienen el concepto "
+                    f"{variable_detectada.get('descripcion') or variable_detectada.get('desc_original')}."
+                    + ("\nTop 5 de hospitales:\n" + "\n".join(lineas_top) if lineas_top else "")
+                ),
+                "datos": [{"total_hospitales": total, "top_5": top_5}],
+            })
+
+        if hospital_detectado and not variable_detectada and not hospital_ambito:
+            return Response({
+                "ok": True,
+                "status": "falta_variable",
+                "respuesta": (
+                    f"Identifiqué la unidad {hospital_detectado.get('desc_original') or hospital_detectado.get('nombre_original')}, "
+                    "pero me falta la variable a consultar."
+                ),
+                "datos": [],
+            })
+
+        if variable_detectada and not hospital_detectado and not hospital_ambito:
+            return Response({
+                "ok": True,
+                "status": "falta_ambito",
+                "respuesta": (
+                    f"Identifiqué la variable {variable_detectada.get('descripcion') or variable_detectada.get('desc_original')}, "
+                    "pero me falta la unidad o el ámbito a consultar."
+                ),
+                "datos": [],
+            })
+
         with connection.cursor() as cursor:
-            # Evita que una espera por bloqueo deje la petición colgada.
             cursor.execute("SET LOCK_TIMEOUT 5000")
             cursor.execute("SELECT TOP 1 * FROM [DB_Catalogos].[dbo].[Cat_IFU_Actual]")
             columnas = [col[0] for col in cursor.description]
 
             if not columnas:
-                return Response(
-                    {"respuesta": "No encontré columnas en la tabla Cat_IFU_Actual."},
-                    status=200,
-                )
+                return Response({"respuesta": "No encontré columnas en la tabla Cat_IFU_Actual."}, status=200)
 
-            col_norm = {normalizar(col): col for col in columnas}
-
-            if 'columna' in pnorm or 'campos' in pnorm or 'estructura' in pnorm:
-                return Response({
-                    "respuesta": (
-                        f"La tabla Cat_IFU_Actual tiene {len(columnas)} columnas: "
-                        + ', '.join(columnas)
-                    )
-                })
+            col_norm = {_normalizar_chatbot_m(col): col for col in columnas}
 
             columna_objetivo = None
             for cnorm, coriginal in col_norm.items():
@@ -1699,17 +3124,16 @@ def chatbot_query(request):
                     columna_objetivo = coriginal
                     break
 
-            if columna_objetivo and (
-                'distintos' in pnorm or 'diferentes' in pnorm or 'unicos' in pnorm
-            ):
+            if columna_objetivo and ('distintos' in pnorm or 'diferentes' in pnorm or 'unicos' in pnorm or 'unicos' in pnorm):
                 cursor.execute(
                     f"SELECT COUNT(DISTINCT [{columna_objetivo}]) FROM [DB_Catalogos].[dbo].[Cat_IFU_Actual]"
                 )
                 total_distintos = cursor.fetchone()[0]
                 return Response({
-                    "respuesta": (
-                        f"La columna {columna_objetivo} tiene {total_distintos} valores distintos."
-                    )
+                    "ok": True,
+                    "status": "ok",
+                    "respuesta": f"La columna {columna_objetivo} tiene {total_distintos} valores distintos.",
+                    "datos": [{"columna": columna_objetivo, "distintos": total_distintos}],
                 })
 
             if columna_objetivo and ('por ' in pnorm or 'agrupa' in pnorm or 'group by' in pnorm):
@@ -1723,13 +3147,14 @@ def chatbot_query(request):
                 if not rows:
                     return Response({"respuesta": "No encontré datos para agrupar con ese criterio."})
 
-                lineas = []
-                for valor, total in rows:
-                    lineas.append(f"- {valor}: {total}")
+                lineas = [f"- {valor}: {total}" for valor, total in rows]
                 return Response({
+                    "ok": True,
+                    "status": "ok",
                     "respuesta": (
                         f"Top {len(rows)} valores de {columna_objetivo} por cantidad:\n" + '\n'.join(lineas)
-                    )
+                    ),
+                    "datos": [{"valor": valor, "total": total} for valor, total in rows],
                 })
 
             pregunta_total = (
@@ -1743,16 +3168,21 @@ def chatbot_query(request):
                 cursor.execute("SELECT COUNT(*) FROM [DB_Catalogos].[dbo].[Cat_IFU_Actual]")
                 total = cursor.fetchone()[0]
                 return Response({
-                    "respuesta": f"La tabla Cat_IFU_Actual tiene {total} registros en total."
+                    "ok": True,
+                    "status": "ok",
+                    "respuesta": f"La tabla Cat_IFU_Actual tiene {total} registros en total.",
+                    "datos": [{"total": total}],
                 })
 
             if ('cuantos' in pnorm or 'cuantas' in pnorm) and not columna_objetivo:
                 return Response({
+                    "ok": True,
+                    "status": "ayuda",
                     "respuesta": (
-                        "Puedo ayudarte con el total general o con una columna específica. "
-                        "Ejemplos: 'cuantos registros hay en total' o "
-                        "'top 10 por EntidadFederativa'."
-                    )
+                        "Puedo ayudarte con el total general, una columna específica o una consulta por unidad y variable. "
+                        "Ejemplos: 'cuantos registros hay en total', 'top 10 por EntidadFederativa' o 'camas censables en HGZ 30'."
+                    ),
+                    "datos": [],
                 })
 
             top_n = obtener_numero(pnorm, default=10, minimo=1, maximo=50)
@@ -1773,10 +3203,13 @@ def chatbot_query(request):
                 resumen.append(f"{i}. " + '; '.join(pares[:6]))
 
             return Response({
+                "ok": True,
+                "status": "ok",
                 "respuesta": (
                     f"Te comparto una muestra de {len(rows)} registros de Cat_IFU_Actual:\n"
                     + '\n'.join(resumen)
-                )
+                ),
+                "datos": [dict(zip(columnas, row)) for row in rows],
             })
 
     except Exception as e:

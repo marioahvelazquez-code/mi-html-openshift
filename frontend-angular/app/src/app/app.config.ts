@@ -29,6 +29,7 @@ import {
   Hash,
   MessageSquare,
   Send,
+  ChevronDown,
 } from 'lucide-angular';
 
 export const appConfig: ApplicationConfig = {
@@ -58,6 +59,7 @@ export const appConfig: ApplicationConfig = {
         Hash,
         MessageSquare,
         Send,
+        ChevronDown,
       }),
     ),
   ],
