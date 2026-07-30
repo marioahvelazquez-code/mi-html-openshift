@@ -4,6 +4,7 @@ import re
 
 import numpy as np
 from rapidfuzz import fuzz
+from rank_bm25 import BM25Okapi
 
 from .constantes import (
     DELTA_EMPATE,
@@ -14,9 +15,42 @@ from .constantes import (
 from .normalizador import normalizar_texto_completo, quitar_palabras_basura
 
 
+EQUIVALENCIAS_SINGULAR_PLURAL = {
+    "urgencias": "urgencia",
+    "camas": "cama",
+    "hospitales": "hospital",
+    "consultorios": "consultorio",
+    "quirofanos": "quirofano",
+    "unidades": "unidad",
+}
+
+TOKENS_BASE_URGENCIA = {
+    "cama",
+    "urgencia",
+    "unidad",
+}
+
+TOKENS_NEUTROS_DESCRIPCION = {
+    "de",
+    "del",
+    "el",
+    "en",
+    "la",
+    "total",
+}
+
+
 class BuscadorVariable:
     def __init__(self, catalogos):
         self.catalogos = catalogos
+        self.nombres_variables_normalizados = [
+            self._normalizar_para_similitud(nombre)
+            for nombre in self.catalogos.nombres_variables_lista
+        ]
+        self.bm25_variables_normalizado = BM25Okapi([
+            nombre.split()
+            for nombre in self.nombres_variables_normalizados
+        ])
 
     def buscar(self, pregunta_usuario, hospital_detectado=None, aplicar_canonica=True):
         texto_variable = self._preparar_texto(pregunta_usuario, hospital_detectado)
@@ -29,8 +63,12 @@ class BuscadorVariable:
                 "texto_usado": texto_variable,
             }
 
+        texto_variable_similitud = self._normalizar_para_similitud(texto_variable)
+
         if aplicar_canonica:
-            variable_canonica = self.buscar_variable_canonica(texto_variable)
+            variable_canonica = self.buscar_variable_canonica(
+                texto_variable_similitud
+            )
             if variable_canonica:
                 return {
                     "status": "ganador_claro",
@@ -40,37 +78,37 @@ class BuscadorVariable:
                     "regla_aplicada": "variable_canonica",
                 }
 
-        tokens_pregunta = texto_variable.split()
-        scores_bm25 = self.catalogos.bm25_variables.get_scores(tokens_pregunta)
+        tokens_pregunta = texto_variable_similitud.split()
+        scores_bm25 = self.bm25_variables_normalizado.get_scores(tokens_pregunta)
         max_bm25 = np.max(scores_bm25) if np.max(scores_bm25) > 0 else 1
         scores_bm25_norm = scores_bm25 / max_bm25
 
         scores_fuzz = np.array([
-            fuzz.WRatio(texto_variable, nombre) / 100.0
-            for nombre in self.catalogos.nombres_variables_lista
+            fuzz.WRatio(texto_variable_similitud, nombre) / 100.0
+            for nombre in self.nombres_variables_normalizados
         ])
 
         scores_finales = (scores_bm25_norm * 0.60) + (scores_fuzz * 0.40)
 
         # Distingue camas censables de camas no censables.
-        pide_censables = "censables" in texto_variable
-        pide_no_censables = "no censables" in texto_variable
+        pide_censables = "censables" in texto_variable_similitud
+        pide_no_censables = "no censables" in texto_variable_similitud
         especialidades = {
             "medicina",
             "cirugia",
-            "urgencias",
+            "urgencia",
             "pediatria",
             "ginecologia",
             "obstetricia",
             "terapia",
             "intensiva",
         }
-        tokens_variable = set(texto_variable.split())
+        tokens_variable = set(texto_variable_similitud.split())
         menciona_especialidad = bool(tokens_variable & especialidades)
 
         if pide_censables:
             for idx, variable in enumerate(self.catalogos.catalogo_variables):
-                desc = variable["desc_normalizada"]
+                desc = self.nombres_variables_normalizados[idx]
                 desc_tiene_no_censables = "no censables" in desc
                 desc_tiene_censables = "censables" in desc
                 desc_tiene_especialidad = any(
@@ -93,6 +131,11 @@ class BuscadorVariable:
                             scores_finales[idx] += 0.15
                         if desc_tiene_especialidad:
                             scores_finales[idx] -= 0.12
+
+        scores_finales = self._aplicar_prioridad_urgencia(
+            scores_finales,
+            tokens_variable,
+        )
 
         scores_finales = np.clip(scores_finales, 0, None)
         indices_ordenados = np.argsort(scores_finales)[::-1]
@@ -154,6 +197,45 @@ class BuscadorVariable:
 
         texto = quitar_palabras_basura(texto, PALABRAS_BASURA_VARIABLE)
         return re.sub(r"\s+", " ", texto).strip()
+
+    @staticmethod
+    def _normalizar_para_similitud(texto):
+        texto_normalizado = normalizar_texto_completo(texto)
+        return " ".join(
+            EQUIVALENCIAS_SINGULAR_PLURAL.get(token, token)
+            for token in texto_normalizado.split()
+        )
+
+    def _aplicar_prioridad_urgencia(self, scores, tokens_consulta):
+        if "urgencia" not in tokens_consulta:
+            return scores
+
+        tokens_especificos_consulta = (
+            tokens_consulta
+            - TOKENS_BASE_URGENCIA
+            - TOKENS_NEUTROS_DESCRIPCION
+        )
+
+        for idx, descripcion in enumerate(self.nombres_variables_normalizados):
+            tokens_candidato = set(descripcion.split())
+            if "urgencia" not in tokens_candidato:
+                scores[idx] -= 0.20
+                continue
+
+            scores[idx] += 0.08
+
+            if not tokens_especificos_consulta:
+                tokens_especificos_candidato = (
+                    tokens_candidato
+                    - TOKENS_BASE_URGENCIA
+                    - TOKENS_NEUTROS_DESCRIPCION
+                )
+                if tokens_especificos_candidato:
+                    scores[idx] -= 0.05
+                else:
+                    scores[idx] += 0.12
+
+        return scores
 
     def buscar_variable_canonica(self, texto_variable):
         tokens_consulta = set((texto_variable or "").split())
