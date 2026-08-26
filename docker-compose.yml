@@ -7,11 +7,15 @@ services:
       - ./frontend-angular/app/public/fichas:/app/frontend-public/fichas:ro
       - ./frontend-angular/app/public/oficios:/app/frontend-public/oficios
       - type: bind
-        source: C:/Users/david.baltazar/OneDrive - imssmx/Archivos de Rohan Myron Oprisko - Fotos de Unidades Médicas  (File responses)
+        source: C:/Users/hp/OneDrive - imssmx/Archivos de Edgar Rosales Ortega - COORD_Datos
+        target: /root/Library/CloudStorage/OneDrive-imssmx/Archivos de Edgar Rosales Ortega - COORD_Datos
+        read_only: true
+      - type: bind
+        source: C:/Users/hp/OneDrive - imssmx/Archivos de Rohan Myron Oprisko - Fotos de Unidades Médicas  (File responses)
         target: /app/ficha/assets/fotos_origen
         read_only: true
       - type: bind
-        source: C:/Users/david.baltazar/OneDrive - imssmx/Archivos de Rohan Myron Oprisko - Fotos de FACHADASUnidades Médicas  (File responses)
+        source: C:/Users/hp/OneDrive - imssmx/Archivos de Rohan Myron Oprisko - Fotos de FACHADASUnidades Médicas  (File responses)
         target: /app/ficha/assets/fotos_fachada
         read_only: true
     expose:

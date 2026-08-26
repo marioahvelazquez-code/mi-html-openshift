@@ -29,6 +29,14 @@ export const routes: Routes = [
     loadComponent: () => import('./components/chatbot_/chatbot').then((m) => m.ChatbotComponent),
   },
   {
+    path: 'ficha-presidencial',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./components/ficha-presidencial/ficha-presidencial').then(
+        (m) => m.FichaPresidencialComponent,
+      ),
+  },
+  {
     path: '',
     redirectTo: 'login',
     pathMatch: 'full',

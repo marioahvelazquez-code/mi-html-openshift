@@ -9,6 +9,7 @@ export const VISTAS = {
   INICIO: 'inicio',
   CHAT: 'chat',
   CHATBOT_M: 'chatbot_m',
+  FICHA_PRESIDENCIAL: 'ficha-presidencial',
   EXCEL: 'excel',
   FICHAHOSPITALARIA: 'FichaHospitalaria',
   CONSULTAS_SQL: 'consultassql',
@@ -86,6 +87,9 @@ export class MenuLateralComponent implements OnChanges {
     }
     if (vista === 'chatbot_m') {
       this.router.navigate(['/chatbot_m']);
+    }
+    if (vista === 'ficha-presidencial') {
+      this.router.navigate(['/ficha-presidencial']);
     }
     if (vista === 'excel') {
       this.router.navigate(['/excel']);

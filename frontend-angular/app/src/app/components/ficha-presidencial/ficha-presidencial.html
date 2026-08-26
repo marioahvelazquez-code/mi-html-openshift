@@ -1,0 +1,36 @@
+<section class="ficha-presidencial-page container py-4">
+  <header class="mb-4">
+    <h1 class="title mb-2">Ficha Presidencial</h1>
+  </header>
+
+  <div class="ficha-shell">
+    <div class="ficha-card">
+      <label class="field-label" for="claveEntidad">Entidad</label>
+      <select id="claveEntidad" class="ficha-select" [(ngModel)]="claveEntidad">
+        @for (entidad of entidades; track entidad.clave) {
+          <option [value]="entidad.clave">{{ entidad.clave }} - {{ entidad.nombre }}</option>
+        }
+      </select>
+
+      <p class="selected-code" *ngIf="entidadSeleccionada">
+        Clave seleccionada: <strong>{{ entidadSeleccionada.clave }}</strong>
+      </p>
+
+      <div class="button-row">
+        <button type="button" class="btn-custom" [disabled]="cargando" (click)="generarLote()">
+          Generar 32 fichas
+        </button>
+
+        <button type="button" class="btn-custom" [disabled]="cargando" (click)="generarUna()">
+          Generar una ficha
+        </button>
+      </div>
+
+      <p class="status-text" *ngIf="mensaje">{{ mensaje }}</p>
+
+      <a class="download-link" *ngIf="archivoDescarga" [href]="archivoDescarga" target="_blank" rel="noopener">
+        Abrir / descargar ficha generada
+      </a>
+    </div>
+  </div>
+</section>

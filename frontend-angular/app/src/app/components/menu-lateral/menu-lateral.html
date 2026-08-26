@@ -53,6 +53,15 @@
         <span>Genera Ficha Hospitalaria</span>
       </li>
 
+      <li
+        class="menu-item"
+        *ngIf="!accesoRestringidoSolicitud"
+        (click)="seleccionar(VISTAS.FICHA_PRESIDENCIAL)"
+      >
+        <lucide-icon name="file-text" [size]="18" class="menu-icon"></lucide-icon>
+        <span>Ficha Presidencial</span>
+      </li>
+
       <li class="menu-item" *ngIf="!accesoRestringidoSolicitud" (click)="seleccionar(VISTAS.CHAT)">
         <lucide-icon name="MessageCircleMore" [size]="18" class="menu-icon"></lucide-icon>
         <span>Chatbot - Inventario Físico de Unidades (IFU)</span>

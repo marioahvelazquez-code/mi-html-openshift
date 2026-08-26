@@ -1,4 +1,4 @@
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, FileResponse
 from django.db import connection
 from django.db import transaction
 from django.utils import timezone
@@ -2611,6 +2611,218 @@ def getGeneraFicha(request):
         "url": f"/media/{nombre_pdf}",
         "pptx_url": f"/media/{nombre_archivo}"
     })
+
+
+@api_view(["GET"])
+@authentication_classes([JWTAuthentication])
+@permission_classes([AllowAny])
+def getGeneraFichaPresidencial(request):
+    cve_ent = (
+        request.GET.get("cveEntidad")
+        or request.GET.get("idEntidad")
+        or request.GET.get("claveEntidad")
+    )
+
+    if not cve_ent:
+        return JsonResponse({
+            "ok": False,
+            "mensaje": "cveEntidad requerido"
+        }, status=400)
+
+    cve_ent = str(cve_ent).zfill(2)
+
+    import os
+    import shutil
+    import sys
+    import tempfile
+    import textwrap
+
+    temp_dir = tempfile.mkdtemp(prefix="ficha_presidencial_")
+    script_dir = Path(__file__).resolve().parents[1] / "ficha_presidencial" / "script"
+
+    try:
+        script = textwrap.dedent(
+            f"""
+            import importlib.util
+            import sys
+            from pathlib import Path
+
+            script_dir = Path({str(script_dir)!r})
+            config_path = script_dir / 'config.py'
+            engine_path = script_dir / 'engine.py'
+
+            spec_config = importlib.util.spec_from_file_location('ficha_presidencial_config', config_path)
+            config_module = importlib.util.module_from_spec(spec_config)
+            sys.modules['ficha_presidencial_config'] = config_module
+            spec_config.loader.exec_module(config_module)
+
+            sys.modules['config'] = config_module
+
+            spec_engine = importlib.util.spec_from_file_location('ficha_presidencial_engine', engine_path)
+            engine_module = importlib.util.module_from_spec(spec_engine)
+            sys.modules['ficha_presidencial_engine'] = engine_module
+            spec_engine.loader.exec_module(engine_module)
+
+            generador = engine_module.GeneradorFichas()
+            ruta = generador.generar({cve_ent!r}, output_dir={temp_dir!r})
+            print(ruta)
+            """
+        )
+
+        resultado = subprocess.run(
+            [sys.executable, "-c", script],
+            cwd=str(script_dir),
+            env={**os.environ},
+            capture_output=True,
+            text=True,
+        )
+
+        if resultado.returncode != 0:
+            shutil.rmtree(temp_dir, ignore_errors=True)
+            return JsonResponse({
+                "ok": False,
+                "mensaje": "No se pudo generar la ficha presidencial en formato PPTX",
+                "detalle": resultado.stderr.strip() or resultado.stdout.strip(),
+            }, status=500)
+
+        ruta = resultado.stdout.strip().splitlines()[-1] if resultado.stdout.strip() else ""
+
+        if not ruta:
+            shutil.rmtree(temp_dir, ignore_errors=True)
+            return JsonResponse({
+                "ok": False,
+                "mensaje": "No se pudo generar la ficha presidencial en formato PPTX"
+            }, status=500)
+
+        pptx_path = Path(ruta)
+        if not pptx_path.exists():
+            shutil.rmtree(temp_dir, ignore_errors=True)
+            return JsonResponse({
+                "ok": False,
+                "mensaje": "La ficha presidencial no se genero en la ruta esperada"
+            }, status=500)
+
+        response = FileResponse(
+            open(pptx_path, "rb"),
+            as_attachment=True,
+            filename=pptx_path.name,
+        )
+        response["X-Generated-Entity"] = cve_ent
+
+        def _cleanup_temp_file():
+            try:
+                if hasattr(response, "file_to_stream") and response.file_to_stream:
+                    response.file_to_stream.close()
+            finally:
+                shutil.rmtree(temp_dir, ignore_errors=True)
+
+        response._resource_closers.append(_cleanup_temp_file)
+        return response
+    except Exception:
+        shutil.rmtree(temp_dir, ignore_errors=True)
+        raise
+
+
+@api_view(["GET"])
+@authentication_classes([JWTAuthentication])
+@permission_classes([AllowAny])
+def getGeneraFichaPresidencialLote(request):
+    import os
+    import shutil
+    import sys
+    import tempfile
+    import textwrap
+    import zipfile
+
+    temp_dir = tempfile.mkdtemp(prefix="ficha_presidencial_lote_")
+    script_dir = Path(__file__).resolve().parents[1] / "ficha_presidencial" / "script"
+
+    try:
+        script = "\n".join([
+            "import importlib.util",
+            "import sys",
+            "from pathlib import Path",
+            "",
+            f"script_dir = Path({str(script_dir)!r})",
+            "config_path = script_dir / 'config.py'",
+            "engine_path = script_dir / 'engine.py'",
+            "",
+            "spec_config = importlib.util.spec_from_file_location('ficha_presidencial_config', config_path)",
+            "config_module = importlib.util.module_from_spec(spec_config)",
+            "sys.modules['ficha_presidencial_config'] = config_module",
+            "spec_config.loader.exec_module(config_module)",
+            "",
+            "sys.modules['config'] = config_module",
+            "",
+            "spec_engine = importlib.util.spec_from_file_location('ficha_presidencial_engine', engine_path)",
+            "engine_module = importlib.util.module_from_spec(spec_engine)",
+            "sys.modules['ficha_presidencial_engine'] = engine_module",
+            "spec_engine.loader.exec_module(engine_module)",
+            "",
+            "generador = engine_module.GeneradorFichas()",
+            f"rutas = generador.generar_lote(output_dir={temp_dir!r})",
+            "print('\\n'.join(rutas))",
+        ])
+
+        resultado = subprocess.run(
+            [sys.executable, "-c", script],
+            cwd=str(script_dir),
+            env={**os.environ},
+            capture_output=True,
+            text=True,
+        )
+
+        if resultado.returncode != 0:
+            shutil.rmtree(temp_dir, ignore_errors=True)
+            return JsonResponse({
+                "ok": False,
+                "mensaje": "No se pudo generar el lote de fichas presidenciales",
+                "detalle": resultado.stderr.strip() or resultado.stdout.strip(),
+            }, status=500)
+
+        rutas = [linea.strip() for linea in resultado.stdout.splitlines() if linea.strip()]
+        rutas = [ruta for ruta in rutas if ruta.lower().endswith(".pptx")]
+
+        if not rutas:
+            shutil.rmtree(temp_dir, ignore_errors=True)
+            return JsonResponse({
+                "ok": False,
+                "mensaje": "No se generaron archivos PPTX para el lote"
+            }, status=500)
+
+        zip_path = Path(temp_dir) / "fichas_presidenciales.zip"
+        with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as zip_file:
+            for ruta in rutas:
+                ruta_path = Path(ruta)
+                if ruta_path.exists():
+                    zip_file.write(ruta_path, arcname=ruta_path.name)
+
+        if not zip_path.exists():
+            shutil.rmtree(temp_dir, ignore_errors=True)
+            return JsonResponse({
+                "ok": False,
+                "mensaje": "No se pudo crear el ZIP del lote de fichas presidenciales"
+            }, status=500)
+
+        response = FileResponse(
+            open(zip_path, "rb"),
+            as_attachment=True,
+            filename=zip_path.name,
+        )
+        response["X-Generated-Count"] = str(len(rutas))
+
+        def _cleanup_temp_file():
+            try:
+                if hasattr(response, "file_to_stream") and response.file_to_stream:
+                    response.file_to_stream.close()
+            finally:
+                shutil.rmtree(temp_dir, ignore_errors=True)
+
+        response._resource_closers.append(_cleanup_temp_file)
+        return response
+    except Exception:
+        shutil.rmtree(temp_dir, ignore_errors=True)
+        raise
 
 
 @api_view(["POST"])

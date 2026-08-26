@@ -27,6 +27,8 @@ urlpatterns = [
     path('getNivelAtencion/', views.getNivelAtencion),
     path('getUnidad/', views.getUnidad),  
     path('getGeneraFicha/', views.getGeneraFicha),  
+    path('getGeneraFichaPresidencial/', views.getGeneraFichaPresidencial),  
+    path('getGeneraFichaPresidencialLote/', views.getGeneraFichaPresidencialLote),  
 
     path('solicitud-acceso-bd/', views.guardar_solicitud_acceso_bd),
     path('solicitud-especial-bd/', views.guardar_solicitud_especial_bd),
