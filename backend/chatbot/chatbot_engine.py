@@ -1,4 +1,4 @@
-from .consulta_ifu import ConsultaIFU
+from .consulta_ifu import ConsultaIFU 
 from .consulta_analitica import ConsultaAnalitica
 from .buscador_hospital import BuscadorHospital
 from .buscador_variable import BuscadorVariable
@@ -20,6 +20,7 @@ class ChatbotEngine:
     DESPEDIDAS_EXACTAS = {
         "gracias",
         "muchas gracias",
+        "adios",
         "gracias por la ayuda",
         "muchas gracias por la ayuda",
         "grax",
