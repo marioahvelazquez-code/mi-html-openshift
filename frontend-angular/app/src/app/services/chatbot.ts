@@ -11,6 +11,13 @@ export interface ChatbotResponse {
   error?: string;
 }
 
+export interface FechaCorteIfuResponse {
+  anio: number | null;
+  mes: number | null;
+  mes_nombre: string | null;
+  fecha_corte: string | null;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ChatbotService {
   private apiUrl = '/api/catalogos';
@@ -20,5 +27,11 @@ export class ChatbotService {
   preguntar(pregunta: string): Observable<ChatbotResponse> {
     const payload: ChatbotRequest = { pregunta };
     return this.http.post<ChatbotResponse>(`${this.apiUrl}/chatbot/`, payload);
+  }
+
+  obtenerFechaCorteIfu(): Observable<FechaCorteIfuResponse> {
+    return this.http.get<FechaCorteIfuResponse>(
+      `${this.apiUrl}/fecha-corte-ifu/`,
+    );
   }
 }

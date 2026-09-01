@@ -35,5 +35,6 @@ urlpatterns = [
     path('chatbot-query/', views.chatbot_query),
     path('buscar-hospitales/', chatbot_views.buscar_hospitales),
     path('buscar-variables/', chatbot_views.buscar_variables),
+    path('fecha-corte-ifu/', chatbot_views.fecha_corte_ifu),
     path('chatbot/', chatbot_views.chatbot),    
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

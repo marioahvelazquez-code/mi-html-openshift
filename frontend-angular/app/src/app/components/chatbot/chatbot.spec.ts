@@ -25,12 +25,76 @@ describe('ChatComponent', () => {
     component = fixture.componentInstance;
     httpTesting = TestBed.inject(HttpTestingController);
     fixture.detectChanges();
+
+    const fechaRequest = httpTesting.expectOne(
+      '/api/catalogos/fecha-corte-ifu/',
+    );
+    fechaRequest.flush({
+      anio: 2026,
+      mes: 6,
+      mes_nombre: 'Junio',
+      fecha_corte: 'Fecha de corte del IFU, Junio de 2026',
+    });
+    await fixture.whenStable();
+    fixture.changeDetectorRef.detectChanges();
   });
 
   afterEach(() => httpTesting.verify());
 
   it('crea el componente', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('carga y muestra la fecha de corte del IFU al iniciar', () => {
+    expect(component.fechaCorteIfu()).toBe(
+      'Fecha de corte del IFU, Junio de 2026',
+    );
+
+    const leyenda = fixture.nativeElement.querySelector('.fecha-corte-ifu');
+    expect(leyenda?.textContent.trim()).toBe(
+      'Fecha de corte del IFU, Junio de 2026',
+    );
+  });
+
+  it('oculta discretamente la fecha si el endpoint falla', () => {
+    (component as any).cargarFechaCorteIfu();
+
+    const request = httpTesting.expectOne(
+      '/api/catalogos/fecha-corte-ifu/',
+    );
+    request.flush(
+      { error: 'No disponible' },
+      { status: 503, statusText: 'Service Unavailable' },
+    );
+    fixture.changeDetectorRef.detectChanges();
+
+    expect(component.fechaCorteIfu()).toBeNull();
+    expect(
+      fixture.nativeElement.querySelector('.fecha-corte-ifu'),
+    ).toBeNull();
+  });
+
+  it('muestra y oculta los alcances del chatbot', () => {
+    const boton = fixture.nativeElement.querySelector('.alcances-toggle') as HTMLButtonElement;
+
+    expect(component.mostrarAlcances()).toBe(false);
+    expect(boton.getAttribute('aria-expanded')).toBe('false');
+    expect(fixture.nativeElement.querySelector('.alcances-chatbot')).toBeNull();
+
+    boton.click();
+    fixture.changeDetectorRef.detectChanges();
+
+    expect(component.mostrarAlcances()).toBe(true);
+    expect(boton.getAttribute('aria-expanded')).toBe('true');
+    expect(
+      fixture.nativeElement.querySelector('.alcances-chatbot')?.textContent,
+    ).toContain('El asistente consulta información del IFU vigente.');
+
+    boton.click();
+    fixture.changeDetectorRef.detectChanges();
+
+    expect(component.mostrarAlcances()).toBe(false);
+    expect(fixture.nativeElement.querySelector('.alcances-chatbot')).toBeNull();
   });
 
   it('construye el resumen de una consulta IFU', () => {

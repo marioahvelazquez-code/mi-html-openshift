@@ -1,4 +1,11 @@
-import { ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  OnInit,
+  signal,
+  ViewChild,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -14,6 +21,7 @@ import { LucideAngularModule } from 'lucide-angular';
 
 import { forkJoin, Observable, of } from 'rxjs';
 import { catchError, debounceTime, map, switchMap } from 'rxjs/operators';
+import { ChatbotService } from '../../services/chatbot';
 
 interface Hospital {
   id: string;
@@ -167,6 +175,8 @@ export class ChatComponent implements OnInit {
   resultados: any[] = [];
   resultadoDeteccion: RespuestaChatbot | null = null;
   resumenConsulta: ResumenConsulta | null = null;
+  fechaCorteIfu = signal<string | null>(null);
+  mostrarAlcances = signal(false);
   private textoPreguntaActual = '';
   private textoGeneradoPorSeleccion = false;
 
@@ -192,9 +202,13 @@ export class ChatComponent implements OnInit {
   constructor(
     private http: HttpClient,
     private cdr: ChangeDetectorRef,
+    private chatbotService: ChatbotService,
   ) {}
 
   ngOnInit() {
+    console.log('[IFU] ngOnInit chatbot');
+    this.cargarFechaCorteIfu();
+
     this.sugerenciasFiltradas = this.chatControl.valueChanges.pipe(
       debounceTime(300),
       switchMap((value) => {
@@ -233,6 +247,34 @@ export class ChatComponent implements OnInit {
         );
       }),
     );
+  }
+
+  private cargarFechaCorteIfu(): void {
+    console.log('[IFU] Iniciando carga de fecha de corte');
+
+    this.chatbotService
+      .obtenerFechaCorteIfu()
+      .pipe(
+        catchError((error) => {
+          console.error('[IFU] Error obteniendo fecha de corte:', error);
+          return of(null);
+        }),
+      )
+      .subscribe((respuesta) => {
+        console.log('[IFU] Respuesta recibida:', respuesta);
+
+        this.fechaCorteIfu.set(respuesta?.fecha_corte ?? null);
+
+        console.log('[IFU] Signal después del set:', this.fechaCorteIfu());
+
+        setTimeout(() => {
+          console.log('[IFU] Signal 500 ms después:', this.fechaCorteIfu());
+        }, 500);
+      });
+  }
+
+  toggleAlcances(): void {
+    this.mostrarAlcances.update((valor) => !valor);
   }
 
   mostrarSugerencia(opcion: SugerenciaAutocomplete | string): string {

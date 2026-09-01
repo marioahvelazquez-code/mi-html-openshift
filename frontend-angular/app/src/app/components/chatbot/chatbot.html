@@ -1,7 +1,9 @@
 <div class="container chatbot-page">
   <div class="contenedor-formulario chatbot-layout">
     <div class="lado-izquierdo">
-      <h3 class="chatbot-title">Chatbot IFU</h3>
+      <div class="chat-column-header">
+        <h3 class="chatbot-title">Chatbot IFU</h3>
+      </div>
       <div class="bloque-info chat-panel">
         <div class="chat-messages" #chatMessages>
           <div
@@ -113,7 +115,7 @@
     </div>
 
     <div class="lado-derecho">
-      <div class="summary-title-row">
+      <div class="summary-title-row chat-column-header">
         <h3 class="chatbot-title">Resumen de consulta</h3>
         <button mat-button type="button" class="clear-button" (click)="limpiarConversacion()">
           <mat-icon>refresh</mat-icon>
@@ -180,6 +182,31 @@
           </section>
         </div>
       </div>
+    </div>
+  </div>
+
+  <div class="chat-info-footer">
+    <div class="chat-info-footer-left">
+      <button
+        type="button"
+        class="alcances-toggle"
+        (click)="toggleAlcances()"
+        [attr.aria-expanded]="mostrarAlcances()"
+        aria-controls="alcances-chatbot-detalle"
+      >
+        ⓘ Alcances del chatbot
+      </button>
+      <div *ngIf="mostrarAlcances()" id="alcances-chatbot-detalle" class="alcances-chatbot">
+        <p>
+          El asistente consulta información del IFU vigente. Cada pregunta puede incluir una
+          variable del IFU y un ámbito de cobertura (unidad médica, entidad, delegación, región o
+          nivel de atención). No realiza consultas históricas ni consultas complejas que combinen
+          múltiples variables o ámbitos.
+        </p>
+      </div>
+    </div>
+    <div class="chat-info-footer-right" *ngIf="fechaCorteIfu()">
+      {{ fechaCorteIfu() }}
     </div>
   </div>
 </div>

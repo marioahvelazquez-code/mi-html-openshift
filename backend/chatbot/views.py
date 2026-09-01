@@ -1,8 +1,77 @@
+import logging
+
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from .chatbot import engine
+
+
+logger = logging.getLogger(__name__)
+
+MESES_ES = {
+    1: "Enero",
+    2: "Febrero",
+    3: "Marzo",
+    4: "Abril",
+    5: "Mayo",
+    6: "Junio",
+    7: "Julio",
+    8: "Agosto",
+    9: "Septiembre",
+    10: "Octubre",
+    11: "Noviembre",
+    12: "Diciembre",
+}
+
+
+@api_view(["GET"])
+@authentication_classes([])
+@permission_classes([AllowAny])
+def fecha_corte_ifu(request):
+    try:
+        periodo = engine.consulta_ifu.obtener_fecha_corte()
+    except Exception as error:
+        logger.error(
+            "No fue posible obtener la fecha de corte del IFU: %s",
+            type(error).__name__,
+        )
+        return Response(
+            {
+                "error": (
+                    "No fue posible obtener la fecha de corte del IFU."
+                ),
+            },
+            status=503,
+        )
+
+    if not periodo:
+        return Response(
+            {
+                "anio": None,
+                "mes": None,
+                "mes_nombre": None,
+                "fecha_corte": None,
+            }
+        )
+
+    anio = periodo["anio"]
+    mes = periodo["mes"]
+    mes_nombre = MESES_ES.get(mes)
+    fecha_corte = (
+        f"Fecha de corte del IFU, {mes_nombre} de {anio}"
+        if mes_nombre
+        else None
+    )
+
+    return Response(
+        {
+            "anio": anio,
+            "mes": mes,
+            "mes_nombre": mes_nombre,
+            "fecha_corte": fecha_corte,
+        }
+    )
 
 
 @api_view(["POST"])

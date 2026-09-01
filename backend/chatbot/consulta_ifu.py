@@ -2,6 +2,29 @@ from django.db import connection
 
 
 class ConsultaIFU:
+    def obtener_fecha_corte(self):
+        query = """
+            SELECT TOP 1
+                [Año] AS anio,
+                [Mes] AS mes
+            FROM [DB_Catalogos].[dbo].[Cat_IFU_Actual]
+            WHERE [Año] IS NOT NULL
+              AND [Mes] IS NOT NULL
+            ORDER BY [Año] DESC, [Mes] DESC
+        """
+
+        with connection.cursor() as cursor:
+            cursor.execute(query)
+            fila = cursor.fetchone()
+
+        if not fila:
+            return None
+
+        return {
+            "anio": int(fila[0]),
+            "mes": int(fila[1]),
+        }
+
     def obtener_valor_dinamico(self, tipo_ambito, filtro_id, variable_id):
         tipo_ambito = (tipo_ambito or "").upper()
         parametros = [variable_id]
