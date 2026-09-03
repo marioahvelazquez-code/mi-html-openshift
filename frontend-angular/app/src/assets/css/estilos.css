@@ -22,7 +22,20 @@
   background-position: center;
   background-repeat: no-repeat;
   line-height: 135%;
-  min-height: 60px;
+  min-height: 80px;
+}
+
+.header-logos {
+  min-height: 48px;
+}
+
+.header-logo {
+  max-height: 56px;
+  width: auto;
+}
+
+.header-logo--secondary {
+  max-height: 48px;
 }
 
 .logo-chico {
@@ -47,8 +60,20 @@
   background-position: center;
   background-repeat: no-repeat;
   line-height: 135%;
-  min-height: 60px;
-  border-bottom: 10px solid #006455;
+  min-height: 92px;
+  border-bottom: 12px solid #006455;
+  position: relative;
+}
+
+.footer-banner-copy {
+  display: inline-flex;
+  align-items: center;
+  height: 100%;
+  color: #ffffff;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
 }
 .card-seccion {
   border-radius: 1rem;

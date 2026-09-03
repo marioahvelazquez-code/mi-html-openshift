@@ -1,41 +1,95 @@
 <div class="login-screen">
   <div class="login-overlay"></div>
 
-  <section class="login-card" aria-label="Autenticacion de acceso">
-    <p class="login-kicker">ACCESO AL SISTEMA</p>
-    <h1 class="login-title">Autenticación</h1>
-    <p class="login-subtitle">Inicia sesión para acceder a Revisar Fichas</p>
-
-    <form (ngSubmit)="login()" class="login-form">
-      <label for="username" class="login-label">Usuario</label>
-      <input
-        id="username"
-        type="text"
-        [(ngModel)]="username"
-        name="username"
-        placeholder="Usuario"
-        class="login-input"
-        required
-      />
-
-      <label for="password" class="login-label">Contraseña</label>
-      <input
-        id="password"
-        type="password"
-        [(ngModel)]="password"
-        name="password"
-        placeholder="Contraseña"
-        class="login-input"
-        required
-      />
-
-      <div class="login-error" *ngIf="error">
-        {{ error }}
+  <div class="login-page-shell">
+    <section class="registration-section" aria-label="Registro de datos">
+      <div class="services-header registration-header">
+        <h1 class="services-title registration-title">Registro de datos</h1>
+        <span class="services-rule" aria-hidden="true"></span>
       </div>
 
-      <button type="submit" class="login-button" [disabled]="loading">
-        {{ loading ? 'Entrando...' : 'Entrar' }}
-      </button>
-    </form>
-  </section>
+      <form (ngSubmit)="login()" class="registration-form">
+        <div class="registration-grid">
+          <div class="login-block login-block--secondary login-block--compact">
+            <p class="login-subtitle login-subtitle--left">{{ registrationPrompt }}</p>
+            <input
+              id="username"
+              type="text"
+              [(ngModel)]="username"
+              name="username"
+              placeholder=""
+              class="login-input"
+              required
+            />
+          </div>
+        </div>
+
+        <button type="button" class="registration-button" (click)="showCurpPrompt()">
+          No soy usuario del IMSS
+        </button>
+
+        <div class="login-error" *ngIf="error">
+          {{ error }}
+        </div>
+      </form>
+    </section>
+
+    <section class="services-section" aria-label="Servicios disponibles">
+      <div class="services-header">
+        <h2 class="services-title">Servicios y trámites</h2>
+        <p class="services-subtitle">Elige una opción para continuar</p>
+        <span class="services-rule" aria-hidden="true"></span>
+      </div>
+
+      <div class="services-grid">
+        <button type="button" class="service-card">
+          <span class="service-icon service-icon--atencion" aria-hidden="true"></span>
+          <span class="service-text">Visita a paciente</span>
+          <span class="service-arrow">→</span>
+        </button>
+
+        <button type="button" class="service-card">
+          <span class="service-icon service-icon--consulta" aria-hidden="true"></span>
+          <span class="service-text">Consulta médica</span>
+          <span class="service-arrow">→</span>
+        </button>
+
+        <button type="button" class="service-card">
+          <span class="service-icon service-icon--citas" aria-hidden="true"></span>
+          <span class="service-text">Trámite para agendar cita</span>
+          <span class="service-arrow">→</span>
+        </button>
+
+        <button type="button" class="service-card">
+          <span class="service-icon service-icon--farmacia" aria-hidden="true"></span>
+          <span class="service-text">Acudir a farmacia</span>
+          <span class="service-arrow">→</span>
+        </button>
+
+        <button type="button" class="service-card">
+          <span class="service-icon service-icon--diagnostico" aria-hidden="true"></span>
+          <span class="service-text">Estudios diagnóstico</span>
+          <span class="service-arrow">→</span>
+        </button>
+
+        <button type="button" class="service-card">
+          <span class="service-icon service-icon--incapacidades" aria-hidden="true"></span>
+          <span class="service-text">Trámite de incapacidades</span>
+          <span class="service-arrow">→</span>
+        </button>
+
+        <button type="button" class="service-card">
+          <span class="service-icon service-icon--proveedores" aria-hidden="true"></span>
+          <span class="service-text">Ingreso de proveedores</span>
+          <span class="service-arrow">→</span>
+        </button>
+
+        <button type="button" class="service-card">
+          <span class="service-icon service-icon--supervision" aria-hidden="true"></span>
+          <span class="service-text">Actividades de supervisión</span>
+          <span class="service-arrow">→</span>
+        </button>
+      </div>
+    </section>
+  </div>
 </div>

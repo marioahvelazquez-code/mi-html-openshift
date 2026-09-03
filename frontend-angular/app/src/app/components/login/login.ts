@@ -18,6 +18,7 @@ export class LoginComponent {
   password = '';
   error = '';
   loading = false;
+  registrationPrompt = 'Registra tu número de seguridad social';
 
   private cdr = inject(ChangeDetectorRef);
   constructor(
@@ -52,6 +53,10 @@ export class LoginComponent {
         this.cdr.detectChanges();
       },
     });
+  }
+
+  showCurpPrompt() {
+    this.registrationPrompt = 'Registra tu CURP';
   }
   // *************
 }
