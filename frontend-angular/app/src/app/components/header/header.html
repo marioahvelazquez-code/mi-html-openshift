@@ -1,0 +1,23 @@
+<div id="menu_principal" class="fixed-top bg-verdeIMSS py-2">
+  <div class="container d-flex align-items-center justify-content-between">
+    <!-- LOGOS -->
+    <div class="d-flex align-items-center gap-3">
+      <img src="assets/img/logo-gob-mx.png" class="img-fluid" style="max-height: 50px" alt="IMSS" />
+
+      <div style="width: 1px; height: 35px; background: white"></div>
+
+      <img src="assets/img/dpti.png" class="img-fluid" style="max-height: 45px" alt="DPTI" />
+    </div>
+
+    <!-- ICONO MENÚ -->
+    @if (showHamburger) {
+      <div class="ms-auto text-white cursor-pointer menu-icon" (click)="onOpenMenu()">
+        @if (menuOpen) {
+          <lucide-icon name="x" [size]="32" color="white"></lucide-icon>
+        } @else {
+          <lucide-icon name="menu" [size]="32" color="white"></lucide-icon>
+        }
+      </div>
+    }
+  </div>
+</div>
