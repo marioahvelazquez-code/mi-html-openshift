@@ -304,7 +304,12 @@ html, body {
 
 @media (max-width: 576px) {
   .login-screen {
+    position: relative;
+    min-height: auto;
+    height: auto;
+    overflow-y: visible;
     padding: 110px 12px 32px;
+    -webkit-overflow-scrolling: touch;
   }
 
   .login-card {
