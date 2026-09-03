@@ -6,19 +6,17 @@ html, body {
 }
 
 .login-screen {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  min-height: 100vh;
+  position: relative;
+  width: 100%;
+  min-height: calc(100vh - 120px);
   height: auto;
-  min-width: 100vw;
+  min-width: 0;
   display: flex;
   align-items: flex-start;
   justify-content: center;
   padding: 146px 24px 72px;
   background: #ffffff;
-  overflow-y: auto;
+  overflow: visible;
   z-index: 1000;
 }
 
@@ -304,12 +302,7 @@ html, body {
 
 @media (max-width: 576px) {
   .login-screen {
-    position: relative;
-    min-height: auto;
-    height: auto;
-    overflow-y: visible;
     padding: 110px 12px 32px;
-    -webkit-overflow-scrolling: touch;
   }
 
   .login-card {
