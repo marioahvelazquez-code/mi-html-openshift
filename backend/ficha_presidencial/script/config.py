@@ -6,7 +6,7 @@
 import os
 
 if os.name == "nt":
-    BASE_COORD = r"C:\Users\hp\OneDrive - imssmx\Archivos de Edgar Rosales Ortega - COORD_Datos"
+    BASE_COORD = r"C:\Users\Administrador\OneDrive - imssmx\Archivos de Edgar Rosales Ortega - COORD_Datos"
 else:
     BASE_COORD = "/root/Library/CloudStorage/OneDrive-imssmx/Archivos de Edgar Rosales Ortega - COORD_Datos"
 

@@ -38,9 +38,24 @@
                 [class.sp-col-bases]="col.campo === 'bases_datos_csv'"
                 [class.sp-col-cred]="col.campo === 'usuario' || col.campo === 'contrasena'"
               >
-                <span *ngIf="fila[col.campo] !== null && fila[col.campo] !== undefined && fila[col.campo] !== ''; else sinDato">
-                  {{ fila[col.campo] }}
-                </span>
+                <ng-container *ngIf="col.campo === 'oficio_url'; else contenidoNormal">
+                  <button
+                    type="button"
+                    class="sp-download-btn"
+                    *ngIf="fila[col.campo] !== null && fila[col.campo] !== undefined && fila[col.campo] !== ''; else sinOficio"
+                    (click)="descargarOficioPdf(fila[col.campo])"
+                  >
+                    Descargar PDF
+                  </button>
+                </ng-container>
+
+                <ng-template #contenidoNormal>
+                  <span *ngIf="fila[col.campo] !== null && fila[col.campo] !== undefined && fila[col.campo] !== ''; else sinDato">
+                    {{ fila[col.campo] }}
+                  </span>
+                </ng-template>
+
+                <ng-template #sinOficio><span class="sp-pendiente">Pendiente</span></ng-template>
                 <ng-template #sinDato><span class="sp-pendiente">Pendiente</span></ng-template>
               </td>
             </tr>

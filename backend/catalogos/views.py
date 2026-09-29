@@ -2384,6 +2384,37 @@ def guardar_solicitud_especial_bd(request):
         )
 
 
+@api_view(["GET"])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def descargar_oficio_solicitud_especial_bd(request):
+    ruta = (request.query_params.get("ruta") or request.query_params.get("oficio_url") or "").strip()
+    if not ruta:
+        return JsonResponse({"ok": False, "mensaje": "Debes enviar la ruta del oficio."}, status=400)
+
+    nombre_archivo = Path(ruta).name
+    if not nombre_archivo.lower().endswith(".pdf"):
+        return JsonResponse({"ok": False, "mensaje": "El oficio solicitado no es un PDF valido."}, status=400)
+
+    candidatos = []
+    if ruta.startswith("http://") or ruta.startswith("https://"):
+        candidatos.append(Path(ruta.replace("file://", "")))
+
+    candidatos.extend([
+        Path(ruta.lstrip("/")),
+        Path("/app/frontend-public/oficios") / nombre_archivo,
+        Path(__file__).resolve().parents[2] / "frontend-angular" / "app" / "public" / "oficios" / nombre_archivo,
+        Path(__file__).resolve().parents[1] / "frontend-public" / "oficios" / nombre_archivo,
+    ])
+
+    archivo_path = next((candidato for candidato in candidatos if candidato.exists()), None)
+    if archivo_path is None:
+        return JsonResponse({"ok": False, "mensaje": "No se encontro el PDF del oficio."}, status=404)
+
+    response = FileResponse(open(archivo_path, "rb"), as_attachment=True, filename=archivo_path.name)
+    return response
+
+
 # --- Termina Mario Solicitudes especiales----
 
 

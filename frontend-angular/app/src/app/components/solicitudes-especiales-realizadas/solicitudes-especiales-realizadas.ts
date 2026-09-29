@@ -120,4 +120,46 @@ export class SolicitudesEspecialesRealizadasComponent implements OnInit {
         },
       });
   }
+
+  descargarOficioPdf(valor: unknown): void {
+    const ruta = typeof valor === 'string' ? valor.trim() : '';
+    if (!ruta) {
+      return;
+    }
+
+    const nombreArchivo = this.obtenerNombreArchivo(ruta) || 'oficio.pdf';
+    const url = `/api/catalogos/solicitud-especial-bd/oficio/?ruta=${encodeURIComponent(ruta)}`;
+
+    this.http
+      .get(url, { responseType: 'blob' })
+      .pipe(
+        timeout(15000),
+        catchError(() => of(null)),
+      )
+      .subscribe((archivo) => {
+        if (!archivo) {
+          window.alert('No se pudo descargar el PDF del oficio. Verifica que el archivo exista.');
+          return;
+        }
+
+        const blobUrl = URL.createObjectURL(archivo);
+        const enlace = document.createElement('a');
+        enlace.href = blobUrl;
+        enlace.download = nombreArchivo;
+        enlace.rel = 'noopener';
+        document.body.appendChild(enlace);
+        enlace.click();
+        enlace.remove();
+        URL.revokeObjectURL(blobUrl);
+      });
+  }
+
+  private obtenerNombreArchivo(ruta: string): string {
+    try {
+      const nombre = ruta.split('/').filter(Boolean).pop() ?? '';
+      return decodeURIComponent(nombre);
+    } catch {
+      return ruta.split('/').filter(Boolean).pop() ?? '';
+    }
+  }
 }
