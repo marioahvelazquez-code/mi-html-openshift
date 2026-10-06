@@ -1,0 +1,46 @@
+<section class="sp-page cortes-page">
+  <div class="sp-card cortes-card">
+    <h2 class="sp-title">Corte de información</h2>
+
+    <div class="sp-counter">
+      <span class="sp-counter-label">Registros actuales</span>
+      <strong class="sp-counter-value">{{ cargando() ? '...' : totalRegistros() }}</strong>
+    </div>
+  </div>
+
+  <div class="sp-table-wrap cortes-table-wrap">
+    @if (cargando()) {
+      <div class="sp-table-loading">
+        <lucide-icon name="loader-circle" [size]="18" class="spinner-icon"></lucide-icon>
+        Cargando información...
+      </div>
+    } @else {
+      @if (filasTabla().length === 0) {
+        <div class="sp-table-empty">No hay registros para mostrar.</div>
+      } @else {
+        <div class="sp-table-container cortes-table-container">
+          <table class="sp-table cortes-table">
+            <thead>
+              <tr>
+                @for (columna of columnas; track columna.campo) {
+                  <th [class]="claseCelda(columna.campo)">{{ columna.etiqueta }}</th>
+                }
+              </tr>
+            </thead>
+            <tbody>
+              @for (fila of filasTabla(); track $index) {
+                <tr>
+                  @for (columna of columnas; track columna.campo) {
+                    <td [class]="claseCelda(columna.campo)">
+                      {{ valorFormateado(fila, columna.campo) }}
+                    </td>
+                  }
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    }
+  </div>
+</section>

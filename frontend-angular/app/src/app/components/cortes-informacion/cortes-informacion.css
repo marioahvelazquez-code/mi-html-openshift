@@ -1,0 +1,170 @@
+.cortes-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 18px 14px 28px;
+  padding-top: 34px;
+  min-height: calc(100vh - 90px);
+}
+
+.cortes-card {
+  width: min(1600px, 98vw);
+  transform: translateY(-10px);
+}
+
+.cortes-page .sp-card,
+.cortes-page .sp-table-wrap {
+  width: min(1600px, 98vw);
+}
+
+.sp-title {
+  margin: 0;
+  font-size: 1.9rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.sp-counter {
+  margin-top: 24px;
+  padding: 16px;
+  border-radius: 12px;
+  background: rgba(0, 81, 94, 0.45);
+  border: 1px solid rgba(143, 217, 255, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.sp-counter-label {
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.sp-counter-value {
+  font-size: 1.9rem;
+  color: #8fd9ff;
+  line-height: 1;
+}
+
+.cortes-table-wrap {
+  width: min(1600px, 98vw);
+  margin: 16px auto 0;
+  padding: 16px;
+  border-radius: 16px;
+  background: rgba(0, 0, 0, 0.34);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+.sp-table-loading,
+.sp-table-empty {
+  padding: 14px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.86);
+}
+
+.spinner-icon {
+  animation: giro 1s linear infinite;
+  color: #8fd9ff;
+}
+
+.cortes-table-container {
+  display: flex;
+  justify-content: center;
+  overflow: auto;
+  max-height: 60vh;
+  border-radius: 10px;
+}
+
+.cortes-table {
+  width: 100%;
+  min-width: 1100px;
+  margin: 0 auto;
+  border-collapse: collapse;
+}
+
+.cortes-table th,
+.cortes-table td {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  padding: 8px 10px;
+  font-size: 0.88rem;
+  color: #f2fbff;
+  text-align: left;
+  vertical-align: top;
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.cortes-table th {
+  position: sticky;
+  top: 0;
+  background: rgba(0, 81, 94, 0.88);
+  z-index: 1;
+  font-weight: 700;
+}
+
+.cortes-table tbody tr:nth-of-type(odd) {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.cortes-table tbody tr:hover {
+  background: rgba(143, 217, 255, 0.12);
+}
+
+.cortes-table td {
+  color: #f2fbff;
+}
+
+.celda-numero {
+  text-align: center;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.celda-fecha {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.celda-fuente {
+  color: #8fd9ff;
+  font-weight: 600;
+}
+
+.celda-periodo {
+  color: #d7f4ff;
+}
+
+@media (max-width: 768px) {
+  .cortes-page {
+    padding-top: 28px;
+  }
+
+  .cortes-card {
+    transform: translateY(-8px);
+  }
+
+  .sp-counter {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .sp-title {
+    font-size: 1.6rem;
+  }
+
+  .cortes-table-wrap {
+    width: min(1600px, 100%);
+    padding: 12px;
+  }
+}
+
+@keyframes giro {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

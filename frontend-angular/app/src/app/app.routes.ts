@@ -101,4 +101,12 @@ export const routes: Routes = [
         (m) => m.SolicitudesEspecialesRealizadasComponent,
       ),
   },
+  {
+    path: 'cortes-informacion',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./components/cortes-informacion/cortes-informacion').then(
+        (m) => m.CortesInformacionComponent,
+      ),
+  },
 ];

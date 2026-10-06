@@ -30,6 +30,15 @@
         <span>Revisar Fichas</span>
       </li>
 
+      <li
+        class="menu-item"
+        *ngIf="!accesoRestringidoSolicitud"
+        (click)="seleccionar(VISTAS.CORTES_INFORMACION)"
+      >
+        <lucide-icon name="table-2" [size]="18" class="menu-icon"></lucide-icon>
+        <span>Cortes de Información</span>
+      </li>
+
       <li class="menu-item" *ngIf="!accesoRestringidoSolicitud" (click)="seleccionar(VISTAS.EXCEL)">
         <lucide-icon name="between-horizontal-start" [size]="18" class="menu-icon"></lucide-icon>
         <span>Carga de Información</span>

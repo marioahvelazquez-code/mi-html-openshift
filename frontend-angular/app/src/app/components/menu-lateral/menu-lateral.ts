@@ -20,6 +20,7 @@ export const VISTAS = {
   SOLICITUDESREALIZADAS: 'solicitudes-realizadas',
   SOLICITUDESPECIALBD: 'solicitud-especial-bd',
   SOLICITUDESESPECIALESREALIZADAS: 'solicitudes-especiales-realizadas',
+  CORTES_INFORMACION: 'cortes-informacion',
 } as const;
 
 export type VistaActiva = (typeof VISTAS)[keyof typeof VISTAS];
@@ -121,6 +122,9 @@ export class MenuLateralComponent implements OnChanges {
     }
     if (vista === 'solicitudes-especiales-realizadas') {
       this.router.navigate(['/solicitudes-especiales-realizadas']);
+    }
+    if (vista === 'cortes-informacion') {
+      this.router.navigate(['/cortes-informacion']);
     }
     this.submenuCambioBdAbierto = false;
     this.submenuEspecialBdAbierto = false;

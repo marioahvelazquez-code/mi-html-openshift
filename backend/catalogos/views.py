@@ -2459,6 +2459,35 @@ def bitacoracarga(request):
 @api_view(["GET"])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
+def cortes_informacion(request):
+    query = """
+        SELECT TOP (1000)
+            [Id tema] AS id_tema,
+            [Tema] AS tema,
+            [Fuente] AS fuente,
+            [Periodo] AS periodo,
+            [Fecha de corte] AS fecha_de_corte,
+            [Año] AS anio,
+            [# Mes] AS numero_mes,
+            [Mes] AS mes,
+            [Semana] AS semana,
+            [Periodo histórico] AS periodo_historico
+        FROM [DB_FichaEstatal].[dbo].[VW_FE_Fechas_Corte]
+        ORDER BY [Fecha de corte] DESC, [Año] DESC, [# Mes] DESC
+    """
+
+    with connection.cursor() as cursor:
+        cursor.execute(query)
+        columns = [col[0] for col in cursor.description]
+        rows = cursor.fetchall()
+
+    data = [dict(zip(columns, row)) for row in rows]
+    return Response({"ok": True, "total": len(data), "items": data})
+
+
+@api_view(["GET"])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
 def getRegion(request):
     with connection.cursor() as cursor:
         cursor.execute("""
