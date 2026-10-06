@@ -19,6 +19,7 @@ class ConsultaAnalitica:
     COLUMNAS_AMBITO = {
         "ENTIDAD": "b.ClaveEntidadFederativa",
         "DELEGACION": "b.NombreDelegacionUMAE",
+        "OOAD": "b.cve_ooad",
         "REGION": "b.Region",
         "NIVEL_ATENCION": "b.NivelAtencion",
     }
@@ -53,7 +54,18 @@ class ConsultaAnalitica:
 
     def contar_unidades(self, plan):
         tipo_unidad = plan.get("tipo_unidad")
-        if tipo_unidad not in self.TIPOS_UNIDAD_SOPORTADOS:
+        filtro_umae = bool(plan.get("filtro_umae"))
+        nivel_atencion_explicito = plan.get("nivel_atencion")
+        es_conteo_por_nivel = (
+            tipo_unidad is None
+            and isinstance(nivel_atencion_explicito, dict)
+            and bool(nivel_atencion_explicito.get("id"))
+        )
+        if (
+            tipo_unidad not in self.TIPOS_UNIDAD_SOPORTADOS
+            and not es_conteo_por_nivel
+            and not filtro_umae
+        ):
             return {
                 "status": "tipo_unidad_no_soportado",
                 "tipo_consulta": "COUNT_UNIDADES",
@@ -63,7 +75,7 @@ class ConsultaAnalitica:
         niveles_atencion = self._normalizar_niveles(
             plan.get("niveles_atencion")
         )
-        if not niveles_atencion:
+        if not niveles_atencion and not filtro_umae:
             return {
                 "status": "plan_invalido",
                 "tipo_consulta": "COUNT_UNIDADES",
@@ -84,13 +96,18 @@ class ConsultaAnalitica:
         filtros = resultado_ambito["filtros"]
         parametros = resultado_ambito["parametros"]
 
-        placeholders_niveles = ", ".join(
-            ["%s"] * len(niveles_atencion)
-        )
-        filtros.append(
-            f"b.NivelAtencion IN ({placeholders_niveles})"
-        )
-        parametros.extend(niveles_atencion)
+        if niveles_atencion:
+            placeholders_niveles = ", ".join(
+                ["%s"] * len(niveles_atencion)
+            )
+            filtros.append(
+                f"b.NivelAtencion IN ({placeholders_niveles})"
+            )
+            parametros.extend(niveles_atencion)
+
+        if filtro_umae:
+            filtros.append("b.es_umae = %s")
+            parametros.append("UMAE")
 
         clausula_where = "\n              AND ".join(filtros)
         query = f"""
@@ -126,6 +143,8 @@ class ConsultaAnalitica:
             ),
             "niveles_atencion": niveles_atencion,
             "ambito": plan.get("ambito"),
+            "nivel_atencion": nivel_atencion_explicito,
+            "filtro_umae": filtro_umae,
             "total_unidades": int(total_unidades or 0),
         }
 
@@ -326,7 +345,7 @@ class ConsultaAnalitica:
                 "parametros": [],
             }
 
-        if tipo_ambito == "ENTIDAD":
+        if tipo_ambito in {"ENTIDAD", "OOAD"}:
             valor_ambito = self._primer_valor(ambito, "id", "descripcion")
         else:
             valor_ambito = self._primer_valor(ambito, "descripcion", "id")

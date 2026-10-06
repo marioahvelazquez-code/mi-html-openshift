@@ -82,14 +82,15 @@ PALABRAS_BASURA_HOSPITAL = {
 
 PALABRAS_BASURA_VARIABLE = {
     # Tipos, siglas y nombres de hospitales
-    "hospital", "hgz", "hgr", "hgzmf", "umf", "umae", "cmn", "siglo", "xxi", 
+    "hospital", "hgz", "hgr", "hgzmf", "umf", "umae", "umaes", "cmn", "siglo", "xxi",
     "la", "raza", "mc", "gregor", "magdalena", "salinas", "monterrey", "guadalajara",
 
     # Conectores, preposiciones y artículos
     "y", "e", "a", "ahora","del", "de", "la", "el", "los", "las", "en", "por", "para",
 
     # Verbos de petición y preguntas
-    "cuanto", "cuantos", "cuanta", "cuantas", "tiene", "tienen", "hay", 
+    "cuanto", "cuantos", "cuanta", "cuantas", "tiene", "tienen", "hay",
+    "existen",
     "dame", "muestra", "numero", "cantidad",
     "cual", "cuales", "que", "es", "son", "con",
     "mas", "menos", "mayor", "mayores", "menor", "menores",
@@ -97,7 +98,7 @@ PALABRAS_BASURA_VARIABLE = {
     "minimo", "minima", "minimos", "minimas",
 
     # Términos de ámbito territorial
-    "delegacion", "delegaciones", "estado", "estados", "entidad", "entidades", 
+    "delegacion", "delegaciones", "ooad", "estado", "estados", "entidad", "entidades",
     "region", "regiones", "nivel", "atencion", "nacional", "pais", "republica", 
     "todo", "todos", "hospitales",
 

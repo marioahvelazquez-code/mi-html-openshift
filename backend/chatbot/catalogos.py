@@ -18,6 +18,7 @@ class Catalogos:
         self.catalogo_entidades = self._cargar_json(base_dir / "catalogo_entidad.json")
         self.catalogo_niveles = self._cargar_json(base_dir / "catalogo_nivel.json")
         self.catalogo_regiones = self._cargar_json(base_dir / "catalogo_region.json")
+        self.catalogo_ooad = self._cargar_json(base_dir / "catalogo_ooad.json")
 
         # Mantiene compatibilidad con los nombres anteriores.
         self.catalogo_delegacion = self.catalogo_delegaciones

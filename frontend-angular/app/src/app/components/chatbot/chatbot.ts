@@ -57,6 +57,7 @@ interface ContextoConversacion {
   operacion?: string | null;
   tipoUnidad?: string | null;
   resultadoAnalitico?: any | null;
+  filtroUmae?: boolean;
 }
 
 interface ConsultaEnEdicion {
@@ -112,6 +113,7 @@ interface RespuestaChatbot {
   totalEmpates?: number;
   resultadosAnaliticos?: any[];
   resultadoAnalitico?: any;
+  filtroUmae?: boolean;
 }
 
 interface ResumenConsulta {
@@ -125,6 +127,8 @@ interface ResumenConsulta {
     tipoUnidad?: string;
     variable?: string;
     ambito?: string;
+    nivel?: string;
+    clasificacion?: string;
     hospital?: string;
   };
 }
@@ -845,20 +849,73 @@ export class ChatComponent implements OnInit {
       this.obtenerDescripcion(variableObjeto, ['descripcion', 'desc_original']) ||
       this.obtenerDescripcion(res.datos?.[0], ['descripcion']);
     const tipoUnidad = res.tipoUnidad || res.contexto?.tipoUnidad || '';
+    const filtroUmae = Boolean(
+      res.filtroUmae ?? res.contexto?.filtroUmae,
+    );
+    const tipoAmbito = String(ambitoObjeto?.tipo || '').toUpperCase();
+    const nivel = this.obtenerNivelAtencionResumen(
+      res,
+      ambitoObjeto,
+      tipoConsulta,
+      tipoUnidad,
+    );
+    const ambitoIfu =
+      tipoAmbito === 'OOAD' && ambito ? `OOAD · ${ambito}` : ambito;
+    const mostrarAmbitoInterpretacion = tipoAmbito !== 'NIVEL_ATENCION';
 
     if (tipoConsulta === 'COUNT_UNIDADES') {
       const esUmf = tipoUnidad === 'UMF';
+      const esHospital = tipoUnidad === 'HOSPITAL';
       const total = Number(res.totalUnidades ?? res.resultadoAnalitico?.total ?? 0);
-      const etiquetaResultado = esUmf ? 'UMF' : total === 1 ? 'hospital' : 'hospitales';
+      const objetivo = filtroUmae
+        ? 'UMAE'
+        : esUmf
+        ? 'Unidades de Medicina Familiar'
+        : esHospital
+          ? 'Hospitales'
+          : tipoUnidad
+            ? res.descripcionTipoUnidad || tipoUnidad
+            : 'Unidades';
+      const tipoUnidadResumen = filtroUmae
+        ? 'UMAE'
+        : esUmf
+        ? 'UMF'
+        : esHospital
+          ? 'Hospital'
+          : tipoUnidad || 'Todas las unidades';
+      const etiquetaResultado = filtroUmae
+        ? 'UMAE'
+        : esUmf
+        ? 'UMF'
+        : esHospital
+          ? total === 1
+            ? 'hospital'
+            : 'hospitales'
+          : total === 1
+            ? 'unidad'
+            : 'unidades';
+      const prefijosAmbito: Record<string, string> = {
+        OOAD: 'OOAD',
+        ENTIDAD: 'Entidad',
+        DELEGACION: 'Delegación',
+        REGION: 'Región',
+      };
+      const alcanceConteo =
+        !tipoUnidad && ambito && prefijosAmbito[tipoAmbito]
+          ? `${prefijosAmbito[tipoAmbito]} · ${ambito}`
+          : ambito || 'Ámbito seleccionado';
       return {
         tipoConsulta: 'Conteo de unidades',
-        objetivo: esUmf ? 'Unidades de Medicina Familiar' : 'Hospitales',
-        alcance: ambito || 'Ámbito seleccionado',
+        objetivo,
+        alcance: alcanceConteo,
         resultadoPrincipal: `${total.toLocaleString('es-MX')} ${etiquetaResultado}`,
         interpretacion: {
           operacion: 'Contar',
-          tipoUnidad: esUmf ? 'UMF' : 'Hospital',
-          ...(ambito ? { ambito } : {}),
+          tipoUnidad: tipoUnidadResumen,
+          ...(ambito && mostrarAmbitoInterpretacion
+            ? { ambito: alcanceConteo }
+            : {}),
+          ...(nivel ? { nivel } : {}),
         },
       };
     }
@@ -905,7 +962,7 @@ export class ChatComponent implements OnInit {
     return {
       tipoConsulta: 'Consulta IFU',
       objetivo: variable || 'Variable IFU',
-      alcance: hospital || ambito || 'Ámbito seleccionado',
+      alcance: hospital || ambitoIfu || 'Ámbito seleccionado',
       resultadoPrincipal:
         valor === null || valor === undefined
           ? 'Sin resultado'
@@ -914,7 +971,11 @@ export class ChatComponent implements OnInit {
         operacion: 'Consultar valor',
         ...(hospital ? { hospital } : {}),
         ...(variable ? { variable } : {}),
-        ...(!hospital && ambito ? { ambito } : {}),
+        ...(!hospital && ambitoIfu && mostrarAmbitoInterpretacion
+          ? { ambito: ambitoIfu }
+          : {}),
+        ...(nivel ? { nivel } : {}),
+        ...(filtroUmae ? { clasificacion: 'UMAE' } : {}),
       },
     };
   }
@@ -946,6 +1007,46 @@ export class ChatComponent implements OnInit {
       'nombre_original',
       'texto_usado',
     ]);
+  }
+
+  private obtenerNivelAtencionResumen(
+    res: RespuestaChatbot,
+    ambito: any,
+    tipoConsulta: string,
+    tipoUnidad: string,
+  ): string {
+    const tipoAmbito = String(ambito?.tipo || '').toUpperCase();
+    const candidatos: unknown[] = [];
+
+    if (tipoAmbito === 'NIVEL_ATENCION') {
+      candidatos.push(ambito);
+    }
+
+    candidatos.push(
+      ambito?.nivel_atencion,
+      res.contexto?.ambito?.nivel_atencion,
+      res.contexto?.nivelAtencion,
+      res.contexto?.nivel_atencion,
+    );
+
+    if (tipoConsulta === 'COUNT_UNIDADES' && !tipoUnidad) {
+      candidatos.push(res.nivelesAtencion?.[0]);
+    }
+
+    for (const candidato of candidatos) {
+      if (typeof candidato === 'string' && candidato.trim()) {
+        return candidato.trim();
+      }
+
+      const descripcion = this.obtenerDescripcion(candidato, [
+        'descripcion',
+        'desc_original',
+        'id',
+      ]);
+      if (descripcion) return descripcion;
+    }
+
+    return '';
   }
 
   private descripcionCortaVariable(descripcion: string): string {

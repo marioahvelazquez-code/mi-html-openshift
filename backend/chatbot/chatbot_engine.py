@@ -104,7 +104,6 @@ class ChatbotEngine:
         "hgr",
         "hgzmf",
         "umf",
-        "umae",
         "cmn",
         "hgo",
         "hes",
@@ -112,6 +111,7 @@ class ChatbotEngine:
         "hp",
         "honco",
     }
+    TERMINOS_UMAE = {"umae", "umaes"}
     MENSAJE_SIN_INTENCION = (
         "No entendí tu pregunta. Por favor intenta escribir una unidad médica, "
         "una variable o una consulta del IFU."
@@ -142,6 +142,7 @@ class ChatbotEngine:
         print("[chatbot] variable confirmada por usuario:", variable_confirmada, flush=True)
 
         pregunta_normalizada = normalizar_texto_completo(pregunta_usuario)
+        filtro_umae = self._detectar_filtro_umae(pregunta_normalizada)
         resultado_operacion = self.detector_operacion.detectar(pregunta_usuario)
         resultado_tipo_unidad = self.detector_tipo_unidad.detectar(
             pregunta_usuario
@@ -190,6 +191,9 @@ class ChatbotEngine:
         )
         tiene_indicio_unidad_puntual = bool(
             set(pregunta_normalizada.split()) & self.INDICADORES_UNIDAD_PUNTUAL
+        )
+        mencion_umae_generica = self._es_mencion_umae_generica(
+            pregunta_normalizada
         )
         es_ambito_macro = (
             ambito_detectado["tipo"] != "HOSPITAL"
@@ -265,6 +269,8 @@ class ChatbotEngine:
                 "score": 1.0,
                 "texto_usado": ambito_detectado.get("texto_usado", ""),
             }
+        elif mencion_umae_generica:
+            resultado_hospital = resultado_hospital_texto
         else:
             resultado_hospital_texto = self.buscador_hospital.buscar(pregunta_usuario)
 
@@ -296,12 +302,35 @@ class ChatbotEngine:
             pregunta_usuario,
             hospital_detectado,
         )
+        nivel_atencion_para_plan = self._extraer_nivel_atencion(
+            ambito_detectado
+        )
+        es_conteo_generico_por_nivel = (
+            self._es_conteo_generico_unidades_por_nivel(
+                resultado_operacion,
+                resultado_tipo_unidad,
+                nivel_atencion_para_plan,
+                texto_variable_limpio,
+            )
+        )
+        es_conteo_umae = (
+            resultado_operacion.get("operacion") == "COUNT"
+            and filtro_umae
+            and not texto_variable_limpio
+        )
         se_busca_variable_desde_texto, razon_no_buscar_variable = (
             self._debe_buscar_variable_desde_texto(texto_variable_limpio)
         )
         if variable_confirmada:
             se_busca_variable_desde_texto = False
             razon_no_buscar_variable = "variable confirmada por usuario"
+        if es_conteo_generico_por_nivel or es_conteo_umae:
+            se_busca_variable_desde_texto = False
+            razon_no_buscar_variable = (
+                "conteo explícito de unidades por nivel de atención"
+                if es_conteo_generico_por_nivel
+                else "conteo explícito de unidades UMAE"
+            )
 
         print("[chatbot] texto_variable_limpio:", texto_variable_limpio, flush=True)
         print(
@@ -360,7 +389,9 @@ class ChatbotEngine:
             )
 
         variable_para_plan = None
-        if variable_confirmada and variable_contexto:
+        if es_conteo_generico_por_nivel or es_conteo_umae:
+            variable_para_plan = None
+        elif variable_confirmada and variable_contexto:
             variable_para_plan = self._normalizar_variable_contexto(
                 variable_contexto
             )
@@ -379,12 +410,30 @@ class ChatbotEngine:
         elif resultado_hospital_texto.get("status") == "ganador_claro":
             hospital_para_plan = resultado_hospital_texto.get("hospital")
 
+        if (
+            not ambito_para_plan
+            and filtro_umae
+            and mencion_umae_generica
+            and not hospital_para_plan
+            and (variable_para_plan or es_conteo_umae)
+        ):
+            ambito_para_plan = {
+                "tipo": "NACIONAL",
+                "id": "NACIONAL",
+                "descripcion": "Nacional",
+            }
+
         plan_consulta = self.planificador_consulta.construir(
             resultado_operacion=resultado_operacion,
             resultado_tipo_unidad=resultado_tipo_unidad,
             ambito=ambito_para_plan,
             variable=variable_para_plan,
             hospital=hospital_para_plan,
+            nivel_atencion=nivel_atencion_para_plan,
+            contar_unidades=(
+                es_conteo_generico_por_nivel or es_conteo_umae
+            ),
+            filtro_umae=filtro_umae,
         )
         print(
             "[chatbot][analitica] plan:",
@@ -627,6 +676,15 @@ class ChatbotEngine:
             if es_ambito_macro
             else contexto.get("ambito")
         )
+        ambito_plan = plan_consulta.get("ambito") or {}
+        usa_umae_nacional = (
+            plan_consulta.get("filtro_umae")
+            and str(ambito_plan.get("tipo") or "").upper() == "NACIONAL"
+            and not plan_consulta.get("hospital")
+        )
+        if usa_umae_nacional:
+            hospital_contexto_final = None
+            ambito_contexto_final = ambito_plan
         if es_ambito_macro:
             hospital_contexto_final = None
         elif (
@@ -650,6 +708,7 @@ class ChatbotEngine:
             "variable": variable_contexto_final,
             "hospitalConfirmadoPorUsuario": False,
             "variableConfirmadaPorUsuario": False,
+            "filtroUmae": bool(plan_consulta.get("filtro_umae")),
         }
 
         print("[chatbot] hospital detectado desde texto:", resultado_hospital_texto, flush=True)
@@ -765,10 +824,25 @@ class ChatbotEngine:
             se_consulta_sql = True
 
             if puede_consultar_ambito:
+                argumentos_consulta_ifu = {
+                    "tipo_ambito": ambito_final["tipo"],
+                    "filtro_id": ambito_final["id"],
+                    "variable_id": variable_id,
+                }
+                nivel_atencion_plan = plan_consulta.get(
+                    "nivel_atencion"
+                )
+                if isinstance(nivel_atencion_plan, dict):
+                    nivel_atencion_id = nivel_atencion_plan.get("id")
+                    if nivel_atencion_id:
+                        argumentos_consulta_ifu["nivel_atencion"] = (
+                            nivel_atencion_id
+                        )
+                if plan_consulta.get("filtro_umae"):
+                    argumentos_consulta_ifu["filtro_umae"] = True
+
                 datos = self.consulta_ifu.obtener_valor_dinamico(
-                    tipo_ambito=ambito_final["tipo"],
-                    filtro_id=ambito_final["id"],
-                    variable_id=variable_id,
+                    **argumentos_consulta_ifu
                 )
             else:
                 datos = self.consulta_ifu.obtener_valor(
@@ -786,6 +860,7 @@ class ChatbotEngine:
             "variable": resultado_variable,
             "datos": datos,
             "requiereConfirmacion": self._requiere_confirmacion(resultado_hospital, resultado_variable),
+            "filtroUmae": bool(plan_consulta.get("filtro_umae")),
         }
 
     def _preparar_ambito_para_planificador(self, resultado_ambito):
@@ -816,6 +891,74 @@ class ChatbotEngine:
             "id": identificador,
             "descripcion": descripcion,
         }
+
+    @classmethod
+    def _detectar_filtro_umae(cls, pregunta_normalizada):
+        tokens = set((pregunta_normalizada or "").split())
+        return bool(tokens & cls.TERMINOS_UMAE)
+
+    @classmethod
+    def _es_mencion_umae_generica(cls, pregunta_normalizada):
+        tokens = set((pregunta_normalizada or "").split())
+        if not tokens & cls.TERMINOS_UMAE:
+            return False
+
+        indicadores_especificos = cls.INDICADORES_UNIDAD_PUNTUAL | {
+            "hospital"
+        }
+        tiene_indicador_especifico = bool(tokens & indicadores_especificos)
+        tiene_identificador_numerico = any(
+            token.isdigit()
+            for token in tokens
+        )
+        return not tiene_indicador_especifico and not tiene_identificador_numerico
+
+    @staticmethod
+    def _extraer_nivel_atencion(resultado_ambito):
+        if not isinstance(resultado_ambito, dict):
+            return None
+
+        nivel = resultado_ambito.get("nivel_atencion")
+        if isinstance(nivel, dict):
+            return nivel
+
+        if str(resultado_ambito.get("tipo") or "").upper() != "NIVEL_ATENCION":
+            return None
+
+        identificador = resultado_ambito.get("id")
+        if not identificador:
+            return None
+
+        return {
+            "tipo": "NIVEL_ATENCION",
+            "id": identificador,
+            "descripcion": (
+                resultado_ambito.get("desc_original")
+                or resultado_ambito.get("descripcion")
+                or identificador
+            ),
+        }
+
+    @staticmethod
+    def _es_conteo_generico_unidades_por_nivel(
+        resultado_operacion,
+        resultado_tipo_unidad,
+        nivel_atencion,
+        texto_variable,
+    ):
+        if (resultado_operacion or {}).get("operacion") != "COUNT":
+            return False
+        if not nivel_atencion:
+            return False
+        if (resultado_tipo_unidad or {}).get("status") == "ganador_claro":
+            return False
+
+        tokens = set((texto_variable or "").split())
+        if not tokens & {"unidad", "unidades"}:
+            return False
+
+        tokens_especificos = tokens - {"unidad", "unidades", "ooad"}
+        return not tokens_especificos
 
     def _aplicar_contexto_analitico_pendiente(
         self,
@@ -1032,6 +1175,7 @@ class ChatbotEngine:
             "variable": contexto.get("variable"),
             "hospitalConfirmadoPorUsuario": False,
             "variableConfirmadaPorUsuario": False,
+            "filtroUmae": bool(plan.get("filtro_umae")),
         }
 
         es_count_unidades = plan.get("tipo_consulta") == "COUNT_UNIDADES"
@@ -1055,6 +1199,7 @@ class ChatbotEngine:
                 ),
                 "variable": plan.get("variable"),
                 "ambito": plan.get("ambito"),
+                "filtroUmae": bool(plan.get("filtro_umae")),
             }
         else:
             contexto_analitico.pop("consultaAnaliticaPendiente", None)
@@ -1074,6 +1219,7 @@ class ChatbotEngine:
                 "variable": (
                     None if es_count_unidades else plan.get("variable")
                 ),
+                "filtroUmae": bool(plan.get("filtro_umae")),
             }
 
         return contexto_analitico
@@ -1140,9 +1286,14 @@ class ChatbotEngine:
                 "nivelesAtencion": list(
                     resultado.get("niveles_atencion") or []
                 ),
+                "filtroUmae": bool(resultado.get("filtro_umae")),
                 "resultadoAnalitico": {
                     "total": total,
-                    "unidad": resultado.get("tipo_unidad"),
+                    "unidad": (
+                        "UMAE"
+                        if resultado.get("filtro_umae")
+                        else resultado.get("tipo_unidad")
+                    ),
                 },
             }
         )
@@ -1345,22 +1496,30 @@ class ChatbotEngine:
     def _crear_mensaje_count_unidades(self, resultado):
         total = int(resultado.get("total_unidades") or 0)
         tipo_unidad = resultado.get("tipo_unidad")
+        filtro_umae = bool(resultado.get("filtro_umae"))
         if total == 0:
-            etiqueta = (
-                "unidades de medicina familiar"
-                if tipo_unidad == "UMF"
-                else "hospitales"
-            )
+            if filtro_umae:
+                etiqueta = "UMAE"
+            elif tipo_unidad == "UMF":
+                etiqueta = "unidades de medicina familiar"
+            elif tipo_unidad == "HOSPITAL":
+                etiqueta = "hospitales"
+            else:
+                etiqueta = "unidades"
             return f"No encontré {etiqueta} en el ámbito seleccionado."
 
-        if tipo_unidad == "UMF":
+        if filtro_umae:
+            etiqueta = "UMAE"
+        elif tipo_unidad == "UMF":
             etiqueta = (
                 "unidad de medicina familiar"
                 if total == 1
                 else "unidades de medicina familiar"
             )
-        else:
+        elif tipo_unidad == "HOSPITAL":
             etiqueta = "hospital" if total == 1 else "hospitales"
+        else:
+            etiqueta = "unidad" if total == 1 else "unidades"
 
         ambito = resultado.get("ambito") or {}
         if str(ambito.get("tipo") or "").upper() == "NACIONAL":

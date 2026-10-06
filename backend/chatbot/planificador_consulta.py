@@ -8,6 +8,9 @@ class PlanificadorConsulta:
         ambito=None,
         variable=None,
         hospital=None,
+        nivel_atencion=None,
+        contar_unidades=False,
+        filtro_umae=False,
     ):
         operacion_detectada = (resultado_operacion or {}).get(
             "operacion",
@@ -24,6 +27,17 @@ class PlanificadorConsulta:
         ) = self._extraer_tipo_unidad(resultado_tipo_unidad)
         ambito_normalizado = self._normalizar_ambito(ambito)
         variable_normalizada = self._normalizar_variable(variable)
+        nivel_atencion_normalizado = self._normalizar_nivel_atencion(
+            nivel_atencion
+        )
+        if (
+            contar_unidades
+            and nivel_atencion_normalizado
+            and not tipo_unidad
+        ):
+            niveles_atencion = [
+                nivel_atencion_normalizado["descripcion"]
+            ]
 
         plan = self._crear_plan_base(
             operacion_detectada=operacion_detectada,
@@ -33,6 +47,8 @@ class PlanificadorConsulta:
             ambito=ambito_normalizado,
             variable=variable_normalizada,
             hospital=hospital,
+            nivel_atencion=nivel_atencion_normalizado,
+            filtro_umae=bool(filtro_umae),
         )
 
         if estado_tipo == "multiple_tipo_unidad":
@@ -48,8 +64,14 @@ class PlanificadorConsulta:
 
         if (
             operacion_detectada == "COUNT"
-            and tipo_unidad
             and not variable_normalizada
+            and (
+                tipo_unidad
+                or (
+                    contar_unidades
+                    and (nivel_atencion_normalizado or filtro_umae)
+                )
+            )
         ):
             plan.update(
                 {
@@ -181,6 +203,31 @@ class PlanificadorConsulta:
             "descripcion": str(descripcion or ""),
         }
 
+    @classmethod
+    def _normalizar_nivel_atencion(cls, nivel_atencion):
+        if not isinstance(nivel_atencion, dict):
+            return None
+
+        identificador = cls._primer_valor(
+            nivel_atencion,
+            "id",
+            "descripcion",
+            "desc_original",
+        )
+        if identificador is None:
+            return None
+
+        descripcion = cls._primer_valor(
+            nivel_atencion,
+            "descripcion",
+            "desc_original",
+            "id",
+        )
+        return {
+            "id": identificador,
+            "descripcion": str(descripcion),
+        }
+
     @staticmethod
     def _extraer_tipo_unidad(resultado_tipo_unidad):
         resultado = resultado_tipo_unidad or {}
@@ -206,6 +253,8 @@ class PlanificadorConsulta:
         ambito,
         variable,
         hospital,
+        nivel_atencion,
+        filtro_umae,
     ):
         return {
             "status": "sin_plan",
@@ -219,6 +268,8 @@ class PlanificadorConsulta:
             "ambito": ambito,
             "variable": variable,
             "hospital": hospital,
+            "nivel_atencion": nivel_atencion,
+            "filtro_umae": filtro_umae,
         }
 
     @staticmethod

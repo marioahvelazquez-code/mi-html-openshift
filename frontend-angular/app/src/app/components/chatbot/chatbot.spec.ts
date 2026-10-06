@@ -144,6 +144,254 @@ describe('ChatComponent', () => {
     expect(component.resumenConsulta?.interpretacion.tipoUnidad).toBe('Hospital');
   });
 
+  it('muestra la clasificación UMAE en una consulta IFU por entidad', () => {
+    const respuesta = respuestaIfuAmbito(
+      'ENTIDAD',
+      'Ciudad de México',
+      undefined,
+      'Sala de Quirófano',
+    );
+    respuesta.filtroUmae = true;
+    respuesta.contexto.filtroUmae = true;
+    respuesta.datos = [{ valor: 105, descripcion: 'Sala de Quirófano' }];
+
+    component.procesarRespuestaBackend(respuesta);
+    fixture.detectChanges();
+
+    expect(component.resumenConsulta?.tipoConsulta).toBe('Consulta IFU');
+    expect(component.resumenConsulta?.objetivo).toBe('Sala de Quirófano');
+    expect(component.resumenConsulta?.alcance).toBe('Ciudad de México');
+    expect(component.resumenConsulta?.resultadoPrincipal).toBe('105');
+    expect(component.resumenConsulta?.interpretacion.clasificacion).toBe('UMAE');
+    expect(fixture.nativeElement.textContent).toContain('Clasificación');
+  });
+
+  it('muestra la clasificación UMAE en una consulta IFU nacional', () => {
+    const respuesta = respuestaIfuAmbito(
+      'NACIONAL',
+      'Nacional',
+      undefined,
+      'Sala de Quirófano',
+    );
+    respuesta.filtroUmae = true;
+    respuesta.contexto.filtroUmae = true;
+    respuesta.datos = [{ valor: 253, descripcion: 'Sala de Quirófano' }];
+
+    component.procesarRespuestaBackend(respuesta);
+
+    expect(component.resumenConsulta?.alcance).toBe('Nacional');
+    expect(component.resumenConsulta?.resultadoPrincipal).toBe('253');
+    expect(component.resumenConsulta?.interpretacion.ambito).toBe('Nacional');
+    expect(component.resumenConsulta?.interpretacion.clasificacion).toBe('UMAE');
+  });
+
+  it('representa un conteo UMAE por entidad sin duplicar clasificación', () => {
+    const respuesta = respuestaCount(null, 'Ciudad de México', 9);
+    respuesta.filtroUmae = true;
+    respuesta.contexto.filtroUmae = true;
+    respuesta.resultadoAnalitico = { total: 9, unidad: 'UMAE' };
+
+    component.procesarRespuestaBackend(respuesta);
+
+    expect(component.resumenConsulta?.objetivo).toBe('UMAE');
+    expect(component.resumenConsulta?.alcance).toBe('Entidad · Ciudad de México');
+    expect(component.resumenConsulta?.resultadoPrincipal).toBe('9 UMAE');
+    expect(component.resumenConsulta?.interpretacion.tipoUnidad).toBe('UMAE');
+    expect(component.resumenConsulta?.interpretacion.clasificacion).toBeUndefined();
+  });
+
+  it('representa un conteo UMAE nacional', () => {
+    const respuesta = respuestaCount(null, 'Nacional', 25, 'NACIONAL');
+    respuesta.filtroUmae = true;
+    respuesta.contexto.filtroUmae = true;
+
+    component.procesarRespuestaBackend(respuesta);
+
+    expect(component.resumenConsulta?.objetivo).toBe('UMAE');
+    expect(component.resumenConsulta?.alcance).toBe('Nacional');
+    expect(component.resumenConsulta?.resultadoPrincipal).toBe('25 UMAE');
+    expect(component.resumenConsulta?.interpretacion.tipoUnidad).toBe('UMAE');
+  });
+
+  it('mantiene UMAE como etiqueta cuando el conteo total es uno', () => {
+    const respuesta = respuestaCount(null, 'Nacional', 1, 'NACIONAL');
+    respuesta.filtroUmae = true;
+
+    component.procesarRespuestaBackend(respuesta);
+
+    expect(component.resumenConsulta?.resultadoPrincipal).toBe('1 UMAE');
+  });
+
+  it('muestra simultáneamente nivel y clasificación UMAE', () => {
+    const respuesta = respuestaIfuAmbito(
+      'ENTIDAD',
+      'Ciudad de México',
+      'Tercer Nivel',
+      'Sala de Quirófano',
+    );
+    respuesta.filtroUmae = true;
+    respuesta.datos = [{ valor: 105, descripcion: 'Sala de Quirófano' }];
+
+    component.procesarRespuestaBackend(respuesta);
+
+    expect(component.resumenConsulta?.interpretacion.nivel).toBe('Tercer Nivel');
+    expect(component.resumenConsulta?.interpretacion.clasificacion).toBe('UMAE');
+  });
+
+  it('no muestra clasificación cuando filtroUmae es falso o no existe', () => {
+    const respuestaConFiltroFalso = respuestaIfuAmbito(
+      'ENTIDAD',
+      'Ciudad de México',
+    );
+    respuestaConFiltroFalso.filtroUmae = false;
+    respuestaConFiltroFalso.contexto.filtroUmae = true;
+
+    component.procesarRespuestaBackend(respuestaConFiltroFalso);
+
+    expect(component.resumenConsulta?.interpretacion.clasificacion).toBeUndefined();
+
+    component.procesarRespuestaBackend(
+      respuestaIfuAmbito('ENTIDAD', 'Ciudad de México'),
+    );
+
+    expect(component.resumenConsulta?.interpretacion.clasificacion).toBeUndefined();
+  });
+
+  it('representa un conteo genérico sin convertirlo en hospitales', () => {
+    component.procesarRespuestaBackend(
+      respuestaCount(null, 'Querétaro', 22, 'OOAD', ['Primer Nivel']),
+    );
+
+    expect(component.resumenConsulta?.objetivo).toBe('Unidades');
+    expect(component.resumenConsulta?.resultadoPrincipal).toBe('22 unidades');
+    expect(component.resumenConsulta?.interpretacion.tipoUnidad).toBe('Todas las unidades');
+    expect(component.resumenConsulta?.alcance).toBe('OOAD · Querétaro');
+    expect(component.resumenConsulta?.interpretacion.ambito).toBe('OOAD · Querétaro');
+    expect(component.resumenConsulta?.interpretacion.nivel).toBe('Primer Nivel');
+  });
+
+  it('muestra ámbito y nivel en una consulta IFU por entidad', () => {
+    component.procesarRespuestaBackend(
+      respuestaIfuAmbito('ENTIDAD', 'Ciudad de México', 'Tercer Nivel'),
+    );
+
+    expect(component.resumenConsulta?.interpretacion.ambito).toBe('Ciudad de México');
+    expect(component.resumenConsulta?.interpretacion.nivel).toBe('Tercer Nivel');
+  });
+
+  it('omite el nivel en una consulta IFU por entidad sin nivel explícito', () => {
+    component.procesarRespuestaBackend(
+      respuestaIfuAmbito('ENTIDAD', 'Ciudad de México'),
+    );
+
+    expect(component.resumenConsulta?.interpretacion.ambito).toBe('Ciudad de México');
+    expect(component.resumenConsulta?.interpretacion.nivel).toBeUndefined();
+  });
+
+  it('muestra solo Nivel en la interpretación cuando el ámbito es NIVEL_ATENCION', () => {
+    component.procesarRespuestaBackend(
+      respuestaIfuAmbito('NIVEL_ATENCION', 'Tercer Nivel', 'Tercer Nivel'),
+    );
+
+    expect(component.resumenConsulta?.alcance).toBe('Tercer Nivel');
+    expect(component.resumenConsulta?.interpretacion.ambito).toBeUndefined();
+    expect(component.resumenConsulta?.interpretacion.nivel).toBe('Tercer Nivel');
+  });
+
+  it('conserva la etiqueta OOAD y muestra el nivel en consultas IFU', () => {
+    component.procesarRespuestaBackend(
+      respuestaIfuAmbito('OOAD', 'Querétaro', 'Segundo Nivel'),
+    );
+
+    expect(component.resumenConsulta?.alcance).toBe('OOAD · Querétaro');
+    expect(component.resumenConsulta?.interpretacion.ambito).toBe('OOAD · Querétaro');
+    expect(component.resumenConsulta?.interpretacion.nivel).toBe('Segundo Nivel');
+  });
+
+  it('muestra el nivel genéricamente para otra variable IFU', () => {
+    component.procesarRespuestaBackend(
+      respuestaIfuAmbito(
+        'ENTIDAD',
+        'Ciudad de México',
+        'Tercer Nivel',
+        'Sala de Quirófano',
+      ),
+    );
+
+    expect(component.resumenConsulta?.objetivo).toBe('Sala de Quirófano');
+    expect(component.resumenConsulta?.interpretacion.nivel).toBe('Tercer Nivel');
+  });
+
+  it('no muestra como nivel explícito la clasificación implícita de UMF', () => {
+    component.procesarRespuestaBackend(
+      respuestaCount('UMF', 'Jalisco', 35),
+    );
+
+    expect(component.resumenConsulta?.interpretacion.nivel).toBeUndefined();
+  });
+
+  it('no muestra como nivel explícito la clasificación implícita de hospitales', () => {
+    component.procesarRespuestaBackend(
+      respuestaCount('HOSPITAL', 'Jalisco', 8),
+    );
+
+    expect(component.resumenConsulta?.interpretacion.nivel).toBeUndefined();
+  });
+
+  it('no muestra nivel en una consulta nacional sin nivel explícito', () => {
+    component.procesarRespuestaBackend(
+      respuestaCount(null, 'Nacional', 100, 'NACIONAL', []),
+    );
+
+    expect(component.resumenConsulta?.interpretacion.nivel).toBeUndefined();
+  });
+
+  it('mantiene singular y plural para unidades genéricas y hospitales', () => {
+    component.procesarRespuestaBackend(respuestaCount(null, 'Nacional', 1, 'NACIONAL'));
+    expect(component.resumenConsulta?.resultadoPrincipal).toBe('1 unidad');
+
+    component.procesarRespuestaBackend(respuestaCount(null, 'Nacional', 2, 'NACIONAL'));
+    expect(component.resumenConsulta?.resultadoPrincipal).toBe('2 unidades');
+
+    component.procesarRespuestaBackend(respuestaCount('HOSPITAL', 'Nacional', 1, 'NACIONAL'));
+    expect(component.resumenConsulta?.resultadoPrincipal).toBe('1 hospital');
+
+    component.procesarRespuestaBackend(respuestaCount('HOSPITAL', 'Nacional', 2, 'NACIONAL'));
+    expect(component.resumenConsulta?.resultadoPrincipal).toBe('2 hospitales');
+  });
+
+  it('representa conteos genéricos igual para todos los tipos de ámbito', () => {
+    const ambitos = [
+      { tipo: 'OOAD', descripcion: 'Querétaro', alcance: 'OOAD · Querétaro' },
+      { tipo: 'ENTIDAD', descripcion: 'Querétaro', alcance: 'Entidad · Querétaro' },
+      { tipo: 'DELEGACION', descripcion: 'México Oriente', alcance: 'Delegación · México Oriente' },
+      { tipo: 'REGION', descripcion: 'Norte', alcance: 'Región · Norte' },
+      { tipo: 'NACIONAL', descripcion: 'Nacional', alcance: 'Nacional' },
+    ];
+
+    for (const ambito of ambitos) {
+      component.procesarRespuestaBackend(
+        respuestaCount(null, ambito.descripcion, 4, ambito.tipo),
+      );
+
+      expect(component.resumenConsulta?.objetivo).toBe('Unidades');
+      expect(component.resumenConsulta?.interpretacion.tipoUnidad).toBe('Todas las unidades');
+      expect(component.resumenConsulta?.resultadoPrincipal).toBe('4 unidades');
+      expect(component.resumenConsulta?.alcance).toBe(ambito.alcance);
+      expect(component.resumenConsulta?.interpretacion.ambito).toBe(ambito.alcance);
+    }
+  });
+
+  it('conserva tipos de unidad futuros sin tratarlos como hospitales', () => {
+    const respuesta = respuestaCount('OTRO_TIPO', 'Ejemplo', 3);
+    respuesta.descripcionTipoUnidad = 'Otro tipo de unidad';
+    component.procesarRespuestaBackend(respuesta);
+
+    expect(component.resumenConsulta?.objetivo).toBe('Otro tipo de unidad');
+    expect(component.resumenConsulta?.interpretacion.tipoUnidad).toBe('OTRO_TIPO');
+    expect(component.resumenConsulta?.resultadoPrincipal).toBe('3 unidades');
+  });
+
   it('construye máximos y mínimos por unidad', () => {
     component.procesarRespuestaBackend(respuestaExtremo('MAX'));
     expect(component.resumenConsulta?.tipoConsulta).toBe('Máximo por unidad');
@@ -238,7 +486,13 @@ describe('ChatComponent', () => {
     expect(component.contexto.ambito).toBeNull();
   });
 
-  function respuestaCount(tipoUnidad: string, descripcionAmbito: string, total: number): any {
+  function respuestaCount(
+    tipoUnidad: string | null,
+    descripcionAmbito: string,
+    total: number,
+    tipoAmbito = 'ENTIDAD',
+    nivelesAtencion?: string[],
+  ): any {
     return {
       ok: true,
       status: 'ok',
@@ -246,17 +500,66 @@ describe('ChatComponent', () => {
       tipoConsulta: 'COUNT_UNIDADES',
       operacion: 'COUNT',
       tipoUnidad,
-      nivelesAtencion: tipoUnidad === 'UMF' ? ['Primer Nivel'] : ['Segundo Nivel', 'Tercer Nivel'],
-      ambito: { tipo: 'ENTIDAD', id: 'X', descripcion: descripcionAmbito },
+      nivelesAtencion:
+        nivelesAtencion ??
+        (tipoUnidad === 'UMF'
+          ? ['Primer Nivel']
+          : tipoUnidad === 'HOSPITAL'
+            ? ['Segundo Nivel', 'Tercer Nivel']
+            : []),
+      ambito: { tipo: tipoAmbito, id: 'X', descripcion: descripcionAmbito },
       totalUnidades: total,
       contexto: {
         hospital: null,
         variable: null,
-        ambito: { tipo: 'ENTIDAD', id: 'X', descripcion: descripcionAmbito },
+        ambito: { tipo: tipoAmbito, id: 'X', descripcion: descripcionAmbito },
       },
       hospital: sinBusqueda,
       variable: sinBusqueda,
       datos: [],
+    };
+  }
+
+  function respuestaIfuAmbito(
+    tipoAmbito: string,
+    descripcionAmbito: string,
+    nivel?: string,
+    descripcionVariable = 'Total de Camas Censables de la unidad.',
+  ): any {
+    const nivelAtencion = nivel
+      ? {
+          tipo: 'NIVEL_ATENCION',
+          id: nivel,
+          descripcion: nivel,
+        }
+      : undefined;
+    const ambito = {
+      tipo: tipoAmbito,
+      id: tipoAmbito === 'ENTIDAD' ? '09' : 'X',
+      desc_original: descripcionAmbito,
+      ...(nivelAtencion ? { nivel_atencion: nivelAtencion } : {}),
+    };
+
+    return {
+      ok: true,
+      pregunta_original: 'consulta IFU por ámbito',
+      contexto: {
+        hospital: null,
+        ambito,
+        variable: { id: 50100, descripcion: descripcionVariable },
+      },
+      hospital: {
+        ...sinBusqueda,
+        status: 'ganador_claro',
+        hospital: null,
+        ambito_macro: ambito,
+      },
+      variable: {
+        ...sinBusqueda,
+        status: 'ganador_claro',
+        variable: { id: 50100, descripcion: descripcionVariable },
+      },
+      datos: [{ valor: 120, descripcion: descripcionVariable }],
     };
   }
 

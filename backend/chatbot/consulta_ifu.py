@@ -25,7 +25,14 @@ class ConsultaIFU:
             "mes": int(fila[1]),
         }
 
-    def obtener_valor_dinamico(self, tipo_ambito, filtro_id, variable_id):
+    def obtener_valor_dinamico(
+        self,
+        tipo_ambito,
+        filtro_id,
+        variable_id,
+        nivel_atencion=None,
+        filtro_umae=False,
+    ):
         tipo_ambito = (tipo_ambito or "").upper()
         parametros = [variable_id]
 
@@ -46,6 +53,12 @@ class ConsultaIFU:
             filtro_sql = "AND b.Cve_Deleg_UMAE = %s"
             parametros.append(filtro_id)
 
+        elif tipo_ambito == "OOAD":
+            campo_select = "b.cve_ooad"
+            campo_alias = "cve_ooad"
+            filtro_sql = "AND b.cve_ooad = %s"
+            parametros.append(filtro_id)
+
         elif tipo_ambito == "REGION":
             campo_select = "b.Region"
             campo_alias = "Region"
@@ -60,6 +73,14 @@ class ConsultaIFU:
 
         else:
             raise ValueError(f"Tipo de ambito no soportado: {tipo_ambito}")
+
+        if nivel_atencion and tipo_ambito != "NIVEL_ATENCION":
+            filtro_sql += "\n            AND b.NivelAtencion = %s"
+            parametros.append(nivel_atencion)
+
+        if filtro_umae:
+            filtro_sql += "\n            AND b.es_umae = %s"
+            parametros.append("UMAE")
 
         group_by = ""
         if tipo_ambito != "NACIONAL":
