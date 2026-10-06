@@ -34,7 +34,7 @@ export class CortesInformacionComponent implements OnInit {
   readonly cargando = signal(true);
   readonly totalRegistros = signal(0);
   readonly filasTabla = signal<Record<string, unknown>[]>([]);
-  private readonly rutaCsv = '/assets/corte.csv';
+  private readonly rutaCsv = '/public/corte/corte.csv';
 
   constructor(private http: HttpClient) {}
 
