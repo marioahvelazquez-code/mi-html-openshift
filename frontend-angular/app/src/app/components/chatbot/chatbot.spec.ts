@@ -41,6 +41,128 @@ describe('ChatComponent', () => {
 
   afterEach(() => httpTesting.verify());
 
+  async function buscarSugerencias(texto: string) {
+    component.chatControl.setValue(texto);
+    fixture.detectChanges();
+    await new Promise((resolve) => setTimeout(resolve, 330));
+    return {
+      hospitales: httpTesting.expectOne((r) => r.url.includes('/buscar-hospitales/')),
+      variables: httpTesting.expectOne((r) => r.url.includes('/buscar-variables/')),
+    };
+  }
+
+  const variableExacta = {
+    id: '52301', descripcion: 'Cama de Pediatría Médica', mecanismo: 'tokens' as const,
+  };
+
+  it('solicita metadata y presenta diez variables con el total sin seleccionarlas', async () => {
+    const peticiones = await buscarSugerencias('CAMAS');
+    expect(peticiones.variables.request.url).toContain('incluir_metadata=1');
+    peticiones.hospitales.flush([]);
+    peticiones.variables.flush({
+      items: Array.from({ length: 10 }, (_, i) => ({ ...variableExacta, id: String(i) })),
+      total: 138, total_exactas: 138,
+    });
+    fixture.detectChanges();
+    expect(component.variablesVisibles).toBe(10);
+    expect(component.totalVariables).toBe(138);
+    expect(fixture.nativeElement.textContent).toContain('Mostrando 10 de 138 coincidencias');
+    expect(fixture.nativeElement.querySelector('.autocomplete-summary').closest('mat-option')).toBeNull();
+    expect(component.contexto.variable).toBeFalsy();
+  });
+
+  it('preserva selección, clave y confirmación de variable', () => {
+    component.alSeleccionarSugerencia({ option: { value: { ...variableExacta, tipo: 'variable' } } });
+    expect(component.contexto.variable.id).toBe('52301');
+    expect(component.contexto.variable.descripcion).toBe('Cama de Pediatría Médica');
+    expect(component.contexto.variableConfirmadaPorUsuario).toBe(true);
+  });
+
+  it('conserva la búsqueda de hospitales y su selección', async () => {
+    const requests = await buscarSugerencias('hospital');
+    const hospital = { id: 'H1', nombre_original: 'Hospital ejemplo', tipo: 'hospital' };
+    requests.hospitales.flush([hospital]);
+    requests.variables.flush({ items: [variableExacta], total: 1, total_exactas: 1 });
+    component.alSeleccionarSugerencia({ option: { value: hospital } });
+    expect(component.contexto.hospital?.id).toBe('H1');
+    expect(component.contexto.hospitalConfirmadoPorUsuario).toBe(true);
+  });
+
+  it('cancela inmediatamente HTTP anterior y vuelve a buscar al refinar', async () => {
+    const anteriores = await buscarSugerencias('CAMAS');
+    component.chatControl.setValue('CAMAS PEDIATRIA');
+    expect(anteriores.variables.cancelled).toBe(true);
+    expect(anteriores.hospitales.cancelled).toBe(true);
+    await new Promise((resolve) => setTimeout(resolve, 330));
+    httpTesting.expectOne((r) => r.url.includes('/buscar-hospitales/')).flush([]);
+    const nueva = httpTesting.expectOne((r) => r.url.includes('/buscar-variables/'));
+    expect(nueva.request.url).toContain('CAMAS%20PEDIATRIA');
+    nueva.flush({ items: [variableExacta], total: 1, total_exactas: 1 });
+    fixture.detectChanges();
+    expect(component.totalVariables).toBe(1);
+    expect(fixture.nativeElement.querySelector('.autocomplete-summary')).toBeNull();
+  });
+
+  it('el debounce de 300 ms no solicita por cada pulsación', async () => {
+    component.chatControl.setValue('CAM');
+    component.chatControl.setValue('CAMAS');
+    httpTesting.expectNone((r) => r.url.includes('/buscar-'));
+    await new Promise((resolve) => setTimeout(resolve, 330));
+    httpTesting.expectOne((r) => r.url.includes('/buscar-hospitales/')).flush([]);
+    httpTesting.expectOne((r) => r.url.includes('/buscar-variables/')).flush({ items: [], total: 0, total_exactas: 0 });
+  });
+
+  it('muestra clave, descripción y mecanismo en opciones reales de Material', async () => {
+    const input = fixture.nativeElement.querySelector('input');
+    input.focus();
+    const requests = await buscarSugerencias('CAMA PEDIATRIA');
+    requests.hospitales.flush([]);
+    requests.variables.flush({ items: [variableExacta, { id: '99', descripcion: 'Otra sugerencia', mecanismo: 'similitud' }], total: 2, total_exactas: 1 });
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const options = Array.from(document.querySelectorAll('mat-option'));
+    expect(options.length).toBe(2);
+    expect(options[0].textContent).toContain('52301');
+    expect(options[0].textContent).toContain('Cama de Pediatría Médica');
+    expect(options[0].textContent).toContain('Exacta');
+    expect(options[1].textContent).toContain('Sugerencia');
+  });
+
+  it('flecha y Enter seleccionan sin enviar la conversación', async () => {
+    const input = fixture.nativeElement.querySelector('input');
+    input.focus();
+    const requests = await buscarSugerencias('CAMA PEDIATRIA');
+    requests.hospitales.flush([]);
+    requests.variables.flush({ items: [variableExacta], total: 1, total_exactas: 1 });
+    fixture.detectChanges();
+    await fixture.whenStable();
+    function tecla(tipo: string, key: string, keyCode: number) {
+      const event = new KeyboardEvent(tipo, { key, bubbles: true, cancelable: true });
+      Object.defineProperty(event, 'keyCode', { value: keyCode });
+      input.dispatchEvent(event);
+    }
+    component.autocompleteTrigger?.openPanel();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    expect(component.autocompleteTrigger?.panelOpen).toBe(true);
+    tecla('keydown', 'ArrowDown', 40);
+    expect(component.autocompleteTrigger?.activeOption?.value.id).toBe('52301');
+    tecla('keydown', 'Enter', 13);
+    tecla('keyup', 'Enter', 13);
+    expect(component.contexto.variable?.id).toBe('52301');
+    expect(component.contexto.variableConfirmadaPorUsuario).toBe(true);
+    httpTesting.expectNone('/api/catalogos/chatbot/');
+  });
+
+  it('Enter sin opción activa mantiene el envío de preguntas naturales', () => {
+    component.chatControl.setValue('¿Cuántos quirófanos hay en Sonora?');
+    component.registrarEnter(new KeyboardEvent('keydown', { key: 'Enter' }));
+    component.enviarConEnter();
+    const request = httpTesting.expectOne('/api/catalogos/chatbot/');
+    expect(request.request.body.pregunta).toBe('¿Cuántos quirófanos hay en Sonora?');
+    request.flush({ ok: false });
+  });
+
   it('crea el componente', () => {
     expect(component).toBeTruthy();
   });

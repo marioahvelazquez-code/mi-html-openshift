@@ -69,7 +69,7 @@
           </div>
         </div>
 
-        <div class="chat-input-area">
+        <div class="chat-input-area" (keydown)="registrarEnter($event)">
           <mat-form-field class="full-width chat-field" appearance="outline">
             <mat-label>Preguntame algo del IFU...</mat-label>
 
@@ -78,7 +78,7 @@
               matInput
               [formControl]="chatControl"
               [matAutocomplete]="auto"
-              (keyup.enter)="enviarMensaje()"
+              (keyup.enter)="enviarConEnter()"
             />
 
             <mat-autocomplete
@@ -92,7 +92,9 @@
                 [value]="sugerencia"
               >
                 <span class="autocomplete-kind-badge">
-                  {{ sugerencia.tipo === 'hospital' ? 'Hospital' : 'Variable' }}
+                  {{ sugerencia.tipo === 'hospital' ? 'Hospital' :
+                    (sugerencia.mecanismo === 'clave' || sugerencia.mecanismo === 'tokens'
+                      ? 'Variable · Exacta' : 'Variable · Sugerencia') }}
                 </span>
                 <span class="autocomplete-id-badge">{{ sugerencia.id }}</span>
                 <span class="autocomplete-label-text">
@@ -110,6 +112,10 @@
               <mat-icon>send</mat-icon>
             </button>
           </mat-form-field>
+          <p *ngIf="totalVariables > 10" class="autocomplete-summary" role="status" aria-live="polite">
+            Mostrando {{ variablesVisibles }} de {{ totalVariables }} coincidencias.
+            Escribe más palabras para precisar tu búsqueda.
+          </p>
         </div>
       </div>
     </div>

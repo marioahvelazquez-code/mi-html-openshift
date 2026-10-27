@@ -1,3 +1,5 @@
+import re
+
 from .consulta_ifu import ConsultaIFU 
 from .consulta_analitica import ConsultaAnalitica
 from .buscador_hospital import BuscadorHospital
@@ -131,6 +133,12 @@ class ChatbotEngine:
 
     def procesar(self, pregunta_usuario, contexto=None):
         contexto = contexto if isinstance(contexto, dict) else {}
+        modo_turno = self._clasificar_turno(pregunta_usuario, contexto)
+        consulta_previa = self._consulta_previa(contexto) if modo_turno != "nueva" else {}
+        # Una pregunta independiente no debe recuperar filtros omitidos.
+        if modo_turno == "nueva":
+            contexto = {}
+        pregunta_interpretacion = self._sin_retiradas(pregunta_usuario)
         hospital_contexto = contexto.get("hospital")
         variable_contexto = contexto.get("variable")
         hospital_confirmado = bool(contexto.get("hospitalConfirmadoPorUsuario"))
@@ -141,7 +149,7 @@ class ChatbotEngine:
         print("[chatbot] hospital confirmado por usuario:", hospital_confirmado, flush=True)
         print("[chatbot] variable confirmada por usuario:", variable_confirmada, flush=True)
 
-        pregunta_normalizada = normalizar_texto_completo(pregunta_usuario)
+        pregunta_normalizada = normalizar_texto_completo(pregunta_interpretacion)
         filtro_umae = self._detectar_filtro_umae(pregunta_normalizada)
         resultado_operacion = self.detector_operacion.detectar(pregunta_usuario)
         resultado_tipo_unidad = self.detector_tipo_unidad.detectar(
@@ -163,22 +171,14 @@ class ChatbotEngine:
 
         # Detecta si la consulta usa un hospital o un ámbito general.
         ambito_detectado = self.buscador_ambito.buscar(pregunta_normalizada)
-        resultado_operacion, resultado_tipo_unidad = (
-            self._aplicar_contexto_analitico_pendiente(
-                contexto,
-                ambito_detectado,
-                resultado_operacion,
-                resultado_tipo_unidad,
-            )
-        )
-        resultado_operacion, resultado_tipo_unidad = (
-            self._aplicar_continuidad_ultima_consulta_analitica(
-                contexto,
-                ambito_detectado,
-                resultado_operacion,
-                resultado_tipo_unidad,
-            )
-        )
+        if modo_turno == "seguimiento" and consulta_previa:
+            if resultado_operacion.get("operacion") == "SIN_OPERACION_ANALITICA":
+                resultado_operacion = {
+                    **resultado_operacion,
+                    "operacion": consulta_previa.get("operacion") or "SIN_OPERACION_ANALITICA",
+                }
+            if resultado_tipo_unidad.get("status") == "sin_tipo_unidad" and consulta_previa.get("tipoUnidad"):
+                resultado_tipo_unidad = self.detector_tipo_unidad.detectar(consulta_previa["tipoUnidad"])
         print(
             "[chatbot][analitica] operacion:",
             resultado_operacion,
@@ -207,6 +207,9 @@ class ChatbotEngine:
             hospital_confirmado=hospital_confirmado,
             variable_confirmada=variable_confirmada,
         )
+        if modo_turno == "seguimiento" and consulta_previa:
+            tiene_intencion = True
+            razon_sin_intencion = "seguimiento con consulta previa; validar cambios antes de ejecutar"
         es_continuacion_count_valida = (
             self._es_continuacion_count_valida(
                 contexto,
@@ -298,8 +301,9 @@ class ChatbotEngine:
             else:
                 resultado_hospital = resultado_hospital_texto
 
+        pregunta_variable = self._quitar_formula_peticion(pregunta_interpretacion)
         texto_variable_limpio = self.buscador_variable._preparar_texto(
-            pregunta_usuario,
+            pregunta_variable,
             hospital_detectado,
         )
         nivel_atencion_para_plan = self._extraer_nivel_atencion(
@@ -318,18 +322,40 @@ class ChatbotEngine:
             and filtro_umae
             and not texto_variable_limpio
         )
+        conteo_sin_variable = self._conteo_solicitado_sin_variable(
+            pregunta_variable,
+            resultado_operacion,
+            resultado_tipo_unidad,
+            contexto,
+            mencion_umae_generica,
+            hospital_detectado,
+        )
+        es_conteo_tipo_unidad = conteo_sin_variable == "UMF"
+        if conteo_sin_variable == "UMAE":
+            es_conteo_umae = True
+            if resultado_operacion.get("operacion") == "SIN_OPERACION_ANALITICA":
+                resultado_operacion = {
+                    **resultado_operacion,
+                    "operacion": "COUNT",
+                    "termino_detectado": None,
+                    "confianza": 1.0,
+                }
         se_busca_variable_desde_texto, razon_no_buscar_variable = (
             self._debe_buscar_variable_desde_texto(texto_variable_limpio)
         )
         if variable_confirmada:
             se_busca_variable_desde_texto = False
             razon_no_buscar_variable = "variable confirmada por usuario"
-        if es_conteo_generico_por_nivel or es_conteo_umae:
+        if es_conteo_generico_por_nivel or es_conteo_umae or es_conteo_tipo_unidad:
             se_busca_variable_desde_texto = False
             razon_no_buscar_variable = (
                 "conteo explícito de unidades por nivel de atención"
                 if es_conteo_generico_por_nivel
-                else "conteo explícito de unidades UMAE"
+                else (
+                    "conteo explícito de unidades de medicina familiar"
+                    if es_conteo_tipo_unidad
+                    else "conteo de unidades UMAE sin variable"
+                )
             )
 
         print("[chatbot] texto_variable_limpio:", texto_variable_limpio, flush=True)
@@ -353,7 +379,7 @@ class ChatbotEngine:
 
         if se_busca_variable_desde_texto:
             resultado_variable_texto = self.buscador_variable.buscar(
-                pregunta_usuario,
+                pregunta_variable,
                 hospital_detectado,
             )
 
@@ -389,7 +415,7 @@ class ChatbotEngine:
             )
 
         variable_para_plan = None
-        if es_conteo_generico_por_nivel or es_conteo_umae:
+        if es_conteo_generico_por_nivel or es_conteo_umae or es_conteo_tipo_unidad:
             variable_para_plan = None
         elif variable_confirmada and variable_contexto:
             variable_para_plan = self._normalizar_variable_contexto(
@@ -423,18 +449,40 @@ class ChatbotEngine:
                 "descripcion": "Nacional",
             }
 
-        plan_consulta = self.planificador_consulta.construir(
-            resultado_operacion=resultado_operacion,
-            resultado_tipo_unidad=resultado_tipo_unidad,
-            ambito=ambito_para_plan,
-            variable=variable_para_plan,
-            hospital=hospital_para_plan,
-            nivel_atencion=nivel_atencion_para_plan,
-            contar_unidades=(
-                es_conteo_generico_por_nivel or es_conteo_umae
-            ),
-            filtro_umae=filtro_umae,
+        consulta_efectiva, conflicto = self._consolidar_consulta(
+            pregunta_usuario, modo_turno, consulta_previa, contexto,
+            resultado_operacion, resultado_tipo_unidad,
+            resultado_variable_texto, variable_para_plan, hospital_para_plan,
+            ambito_detectado, nivel_atencion_para_plan, filtro_umae,
         )
+        if conflicto:
+            return self._respuesta_conflicto(pregunta_usuario, contexto, consulta_efectiva, conflicto)
+        plan_consulta = self.planificador_consulta.construir(
+            resultado_operacion={"operacion": consulta_efectiva["operacion"]},
+            resultado_tipo_unidad=consulta_efectiva["detectorTipoUnidad"],
+            ambito=consulta_efectiva["ambito"],
+            variable=consulta_efectiva["variable"],
+            hospital=consulta_efectiva["hospital"],
+            nivel_atencion=consulta_efectiva["nivelAtencion"],
+            contar_unidades=consulta_efectiva["contarUnidades"],
+            filtro_umae=consulta_efectiva["filtroUmae"],
+        )
+        if plan_consulta.get("status") == "plan_valido":
+            consulta_efectiva = self._consulta_desde_plan(plan_consulta)
+        if consulta_efectiva.get("variable"):
+            resultado_variable = {
+                **resultado_variable, "status": "ganador_claro",
+                "variable": consulta_efectiva["variable"],
+            }
+        if consulta_efectiva.get("hospital"):
+            resultado_hospital = {
+                **resultado_hospital, "status": "ganador_claro",
+                "hospital": consulta_efectiva["hospital"],
+            }
+        elif consulta_efectiva.get("ambito"):
+            resultado_hospital = {"status": "ganador_claro", "hospital": None,
+                                  "ambito_macro": self._ambito_publicado(consulta_efectiva),
+                                  "score": 1.0, "texto_usado": pregunta_usuario}
         print(
             "[chatbot][analitica] plan:",
             plan_consulta,
@@ -670,47 +718,13 @@ class ChatbotEngine:
         )
         print("[chatbot] variable_final_usada:", variable_final_usada, flush=True)
 
-        hospital_contexto_final = hospital_contexto
-        ambito_contexto_final = (
-            ambito_detectado
-            if es_ambito_macro
-            else contexto.get("ambito")
+        candidatos_pendientes = resultado_variable.get("candidatos") or []
+        contexto_final = self._publicar_consulta(
+            contexto, consulta_efectiva,
+            pendiente=bool(candidatos_pendientes) or plan_consulta.get("status") != "plan_valido"
+                      or not (consulta_efectiva.get("ambito") or consulta_efectiva.get("hospital")),
+            candidatos=candidatos_pendientes,
         )
-        ambito_plan = plan_consulta.get("ambito") or {}
-        usa_umae_nacional = (
-            plan_consulta.get("filtro_umae")
-            and str(ambito_plan.get("tipo") or "").upper() == "NACIONAL"
-            and not plan_consulta.get("hospital")
-        )
-        if usa_umae_nacional:
-            hospital_contexto_final = None
-            ambito_contexto_final = ambito_plan
-        if es_ambito_macro:
-            hospital_contexto_final = None
-        elif (
-            resultado_hospital["status"] == "ganador_claro"
-            and resultado_hospital.get("hospital")
-        ):
-            hospital_contexto_final = resultado_hospital["hospital"]
-            ambito_contexto_final = None
-
-        if resultado_variable["status"] == "ganador_claro":
-            variable_contexto_final = resultado_variable["variable"]
-        elif se_busca_variable_desde_texto and resultado_variable["status"] == "empate_tecnico":
-            variable_contexto_final = None
-        else:
-            variable_contexto_final = variable_contexto
-
-        contexto_final = {
-            **contexto,
-            "hospital": hospital_contexto_final,
-            "ambito": ambito_contexto_final,
-            "variable": variable_contexto_final,
-            "hospitalConfirmadoPorUsuario": False,
-            "variableConfirmadaPorUsuario": False,
-            "filtroUmae": bool(plan_consulta.get("filtro_umae")),
-        }
-
         print("[chatbot] hospital detectado desde texto:", resultado_hospital_texto, flush=True)
         print("[chatbot] variable detectada desde texto:", resultado_variable_texto, flush=True)
         print("[chatbot] contexto final fusionado:", contexto_final, flush=True)
@@ -816,7 +830,9 @@ class ChatbotEngine:
             and not hospital_final
         )
         if (
-            puede_consultar_hospital or puede_consultar_ambito
+            plan_consulta.get("status") == "plan_valido"
+            and plan_consulta.get("tipo_consulta") == "CONSULTA_IFU"
+            and (puede_consultar_hospital or puede_consultar_ambito)
         ):
             clave_unidad = hospital_final["id"] if puede_consultar_hospital else None
             variable_id = variable_final["id"]
@@ -829,16 +845,10 @@ class ChatbotEngine:
                     "filtro_id": ambito_final["id"],
                     "variable_id": variable_id,
                 }
-                nivel_atencion_plan = plan_consulta.get(
-                    "nivel_atencion"
-                )
-                if isinstance(nivel_atencion_plan, dict):
-                    nivel_atencion_id = nivel_atencion_plan.get("id")
-                    if nivel_atencion_id:
-                        argumentos_consulta_ifu["nivel_atencion"] = (
-                            nivel_atencion_id
-                        )
-                if plan_consulta.get("filtro_umae"):
+                nivel_efectivo = consulta_efectiva.get("nivelAtencion")
+                if nivel_efectivo:
+                    argumentos_consulta_ifu["nivel_atencion"] = nivel_efectivo["id"]
+                if consulta_efectiva["filtroUmae"]:
                     argumentos_consulta_ifu["filtro_umae"] = True
 
                 datos = self.consulta_ifu.obtener_valor_dinamico(
@@ -850,6 +860,17 @@ class ChatbotEngine:
                     variable_id=variable_id
                 )
                    
+        if se_consulta_sql:
+            contexto_final = self._publicar_consulta(contexto, consulta_efectiva, completada=True)
+            if not datos:
+                return {
+                    "status": "sin_datos",
+                    "mensaje": "No existen registros para la variable y los filtros seleccionados.",
+                    "pregunta_original": pregunta_usuario, "contexto": contexto_final,
+                    "hospital": resultado_hospital, "variable": resultado_variable,
+                    "datos": [], "requiereConfirmacion": False,
+                    "filtroUmae": consulta_efectiva["filtroUmae"],
+                }
         print("[chatbot] status_respuesta:", "ok", flush=True)
         print("[chatbot] requiere_confirmacion:", self._requiere_confirmacion(resultado_hospital, resultado_variable), flush=True)
         print("[chatbot] se_consulta_sql:", se_consulta_sql, flush=True)
@@ -891,6 +912,212 @@ class ChatbotEngine:
             "id": identificador,
             "descripcion": descripcion,
         }
+
+    @staticmethod
+    def _sin_retiradas(pregunta):
+        texto = normalizar_texto_completo(pregunta)
+        limpio = re.sub(r"\b(?:quitar|retirar|eliminar) el filtro umae\b|\b(?:en )?todos los niveles\b", " ", texto)
+        return re.sub(r"\s+", " ", limpio).strip() if limpio != texto else pregunta
+
+    def _consulta_previa(self, contexto):
+        for campo in ("consultaPendiente", "ultimaConsultaEfectiva"):
+            if isinstance(contexto.get(campo), dict):
+                return dict(contexto[campo])
+        # Compatibilidad con clientes que todavía envían la conversación anterior.
+        anterior = contexto.get("consultaAnaliticaPendiente") or contexto.get("ultimaConsultaAnalitica") or {}
+        if not isinstance(anterior, dict):
+            anterior = {}
+        ambito = contexto.get("ambito") or anterior.get("ambito")
+        nivel = contexto.get("nivelAtencion") or (ambito or {}).get("nivel_atencion")
+        variable = contexto.get("variable") or anterior.get("variable")
+        hospital = contexto.get("hospital")
+        if not (ambito or variable or hospital or anterior):
+            return {}
+        return {"tipoConsulta": anterior.get("tipoConsulta", "CONSULTA_IFU"),
+                "operacion": anterior.get("operacion", "VALOR" if hospital else "SUM"),
+                "variable": variable, "hospital": hospital,
+                "ambito": self._preparar_ambito_para_planificador(ambito),
+                "nivelAtencion": nivel, "filtroUmae": bool(contexto.get("filtroUmae", anterior.get("filtroUmae", False))),
+                "tipoUnidad": anterior.get("tipoUnidad"),
+                "nivelesAtencion": anterior.get("nivelesAtencion", [])}
+
+    def _clasificar_turno(self, pregunta, contexto):
+        if contexto.get("variableConfirmadaPorUsuario") or contexto.get("hospitalConfirmadoPorUsuario"):
+            return "confirmacion"
+        if not self._consulta_previa(contexto):
+            return "nueva"
+        texto = normalizar_texto_completo(pregunta)
+        if re.match(r"^y\b", texto):
+            return "seguimiento"
+        if re.fullmatch(r"(?:quitar|retirar|eliminar) el filtro umae|(?:en )?todos los niveles", texto):
+            return "seguimiento"
+        # Sin Y solo se aceptan modificadores geográficos completos, sin
+        # variable, verbo de petición ni texto adicional desconocido.
+        if re.match(r"^en\s+", texto):
+            ambito = self.buscador_ambito.buscar(texto)
+            if ambito.get("tipo") != "HOSPITAL" and not self.buscador_variable._preparar_texto(texto):
+                return "seguimiento"
+        return "nueva"
+
+    def _consolidar_consulta(
+        self, pregunta, modo, previa, contexto, operacion, tipo,
+        variable_texto, variable, hospital, ambito_detectado, nivel, umae,
+    ):
+        texto = normalizar_texto_completo(pregunta)
+        hereda = modo in {"seguimiento", "confirmacion"}
+        previa = previa if hereda else {}
+        ambito = self._preparar_ambito_para_planificador(ambito_detectado)
+        explicito = variable_texto.get("status") == "ganador_claro" or bool(contexto.get("variableConfirmadaPorUsuario"))
+        ambigua = variable_texto.get("status") in {"empate_tecnico", "baja_confianza"} and bool(variable_texto.get("candidatos")) and not contexto.get("variableConfirmadaPorUsuario")
+        q = {"tipoConsulta": "CONSULTA_IFU", "operacion": operacion.get("operacion"),
+             "variable": variable if explicito else (None if ambigua else previa.get("variable")),
+             "hospital": hospital or previa.get("hospital"),
+             "ambito": ambito or previa.get("ambito"),
+             "nivelAtencion": nivel or previa.get("nivelAtencion"),
+             "filtroUmae": bool(umae or previa.get("filtroUmae")),
+             "tipoUnidad": tipo.get("tipo_unidad") or previa.get("tipoUnidad"),
+             "nivelesAtencion": list(tipo.get("niveles_atencion") or previa.get("nivelesAtencion") or []),
+             "detectorTipoUnidad": tipo, "contarUnidades": False}
+        if modo == "confirmacion" and contexto.get("variableConfirmadaPorUsuario"):
+            q["variable"] = self._normalizar_variable_contexto(contexto.get("variable") or {})
+        if ambito:
+            if ambito["tipo"] == "NIVEL_ATENCION" and previa.get("ambito") and previa["ambito"]["tipo"] != "NIVEL_ATENCION":
+                q["ambito"] = previa["ambito"]
+            elif ambito["tipo"] != "NIVEL_ATENCION" and not hospital:
+                q["hospital"] = None
+        if hospital:
+            if nivel or umae:
+                return q, "Confirma el hospital o el ámbito con filtros; no combinaré restricciones incompatibles."
+            q.update(ambito=None, nivelAtencion=None, filtroUmae=False)
+        elif q.get("hospital") and nivel:
+            return q, "Indica si deseas conservar el hospital o consultar un nivel de atención."
+        if re.search(r"\bsin (?:las? )?umaes?\b", texto):
+            return q, "¿Deseas excluir las UMAE o quitar el filtro para incluir todas las unidades?"
+        retira_umae = bool(re.search(r"\b(?:quitar|retirar|eliminar) el filtro umae\b", texto))
+        retira_nivel = "todos los niveles" in texto
+        if retira_umae:
+            q["filtroUmae"] = False
+        if retira_nivel:
+            q["nivelAtencion"] = None
+            if (q.get("ambito") or {}).get("tipo") == "NIVEL_ATENCION":
+                q["ambito"] = {"tipo": "NACIONAL", "id": "NACIONAL", "descripcion": "Nacional"}
+        if ambigua:
+            q["variable"] = None
+            q["operacion"] = "SIN_OPERACION_ANALITICA"
+        if q["variable"]:
+            # Una variable explícita cambia COUNT a infraestructura. Las
+            # restricciones del tipo de unidad se materializan como nivel.
+            if explicito and previa.get("operacion") == "COUNT":
+                q["operacion"] = "SIN_OPERACION_ANALITICA"
+                if not q["nivelAtencion"] and len(q["nivelesAtencion"]) == 1:
+                    n = q["nivelesAtencion"][0]
+                    q["nivelAtencion"] = {"id": n, "descripcion": n}
+                elif not q["nivelAtencion"] and len(q["nivelesAtencion"]) > 1:
+                    return q, "El tipo de unidad abarca varios niveles. Indica un nivel antes de consultar infraestructura; no quitaré ese filtro silenciosamente."
+        else:
+            q["contarUnidades"] = bool(q["operacion"] == "COUNT" and (q["filtroUmae"] or q["nivelAtencion"] or q["tipoUnidad"]))
+            if q["contarUnidades"]:
+                q["tipoConsulta"] = "COUNT_UNIDADES"
+            elif retira_umae and q["operacion"] == "COUNT":
+                return q, "¿Qué tipo de unidad deseas contar al retirar el filtro UMAE?"
+        if q["tipoUnidad"] == "UMF" and q["nivelAtencion"] and q["nivelAtencion"]["id"] != "Primer Nivel":
+            return q, "El tipo UMF y el nivel solicitado son contradictorios. ¿Qué filtro deseas cambiar?"
+        if not q["ambito"] and not q["hospital"] and q["filtroUmae"] and (q["variable"] or q["contarUnidades"]):
+            q["ambito"] = {"tipo": "NACIONAL", "id": "NACIONAL", "descripcion": "Nacional"}
+        if modo == "seguimiento":
+            cambio = explicito or ambigua or ambito or hospital or nivel or umae or retira_nivel or retira_umae or tipo.get("termino_detectado")
+            if not cambio:
+                return q, "Indica qué variable, ámbito o filtro deseas cambiar."
+        return q, None
+
+    @staticmethod
+    def _consulta_desde_plan(plan):
+        return {"tipoConsulta": plan.get("tipo_consulta"), "operacion": plan.get("operacion"),
+                "variable": plan.get("variable"), "ambito": plan.get("ambito"),
+                "hospital": plan.get("hospital"), "nivelAtencion": plan.get("nivel_atencion"),
+                "filtroUmae": bool(plan.get("filtro_umae")), "tipoUnidad": plan.get("tipo_unidad"),
+                "descripcionTipoUnidad": plan.get("descripcion_tipo_unidad"),
+                "nivelesAtencion": list(plan.get("niveles_atencion") or [])}
+
+    @staticmethod
+    def _ambito_publicado(q):
+        if not q.get("ambito"):
+            return None
+        ambito = dict(q["ambito"])
+        if q.get("nivelAtencion"):
+            ambito["nivel_atencion"] = q["nivelAtencion"]
+        return ambito
+
+    def _publicar_consulta(self, contexto, consulta, pendiente=False, completada=False, candidatos=None):
+        q = {k: v for k, v in consulta.items() if k not in {"detectorTipoUnidad", "contarUnidades"}}
+        q["estado"] = "ejecutada" if completada else "pendiente" if pendiente else "planificada"
+        c = {**contexto, "variable": q.get("variable"), "hospital": q.get("hospital"),
+             "ambito": self._ambito_publicado(q), "nivelAtencion": q.get("nivelAtencion"),
+             "nivel_atencion": q.get("nivelAtencion"), "filtroUmae": bool(q.get("filtroUmae")),
+             "tipoUnidad": q.get("tipoUnidad"), "operacion": q.get("operacion"),
+             "nivelesAtencion": list(q.get("nivelesAtencion") or []),
+             "hospitalConfirmadoPorUsuario": False, "variableConfirmadaPorUsuario": False,
+             "consultaEfectiva": q, "consultaPendiente": None,
+             "consultaAnaliticaPendiente": None, "ultimaConsultaAnalitica": None,
+             "region": None, "entidad": None, "delegacion": None,
+             "filtros": {"nivelAtencion": q.get("nivelAtencion"), "umae": bool(q.get("filtroUmae"))}}
+        # Nunca sustituir la última consulta ejecutada por una pendiente.
+        c["ultimaConsultaEfectiva"] = q if completada else contexto.get("ultimaConsultaEfectiva")
+        if pendiente:
+            c["consultaPendiente"] = {**q, "candidatos": list(candidatos or [])}
+        if q.get("tipoConsulta") in {"COUNT_UNIDADES", "EXTREMO_POR_UNIDAD"}:
+            if pendiente:
+                c["consultaAnaliticaPendiente"] = q
+            elif completada:
+                c["ultimaConsultaAnalitica"] = q
+        return c
+
+    def _respuesta_conflicto(self, pregunta, contexto, q, mensaje):
+        return {"status": "requiere_aclaracion", "mensaje": mensaje,
+                "pregunta_original": pregunta, "contexto": self._publicar_consulta(contexto, q, pendiente=True),
+                "hospital": {"status": "sin_texto", "hospital": None},
+                "variable": {"status": "sin_texto", "variable": None},
+                "datos": [], "requiereConfirmacion": False}
+
+    @staticmethod
+    def _quitar_formula_peticion(pregunta):
+        # Solo prefijos completos: no cambia las palabra del buscador ni
+        # elimina palabras de infraestructura, negaciones o especialidades.
+        texto = normalizar_texto_completo(pregunta)
+        limpio = re.sub(r"^(?:me puedes decir|necesito conocer)\s+", "", texto)
+        return limpio if limpio != texto else pregunta
+
+    def _conteo_solicitado_sin_variable(
+        self, pregunta, operacion, tipo_unidad, contexto,
+        umae_generica, hospital,
+    ):
+        if hospital or contexto.get("variable") or contexto.get("variableConfirmadaPorUsuario"):
+            return None
+        for campo in ("consultaAnaliticaPendiente", "ultimaConsultaAnalitica"):
+            pendiente = contexto.get(campo)
+            if isinstance(pendiente, dict) and pendiente.get("variable"):
+                return None
+        op = operacion.get("operacion")
+        if op not in {"COUNT", "SIN_OPERACION_ANALITICA"}:
+            return None
+        texto = normalizar_texto_completo(pregunta)
+        if umae_generica:
+            restante = self.buscador_variable._preparar_texto(texto)
+            # Modificador temporal de la solicitud de conteo, no una regla
+            # global de limpieza ni una selección de corte SQL.
+            if not (set(restante.split()) - {"actualmente"}):
+                return "UMAE"
+        termino = tipo_unidad.get("termino_detectado") or ""
+        if (
+            op == "COUNT"
+            and tipo_unidad.get("status") == "ganador_claro"
+            and tipo_unidad.get("tipo_unidad") == "UMF"
+            and len(termino.split()) > 1
+        ):
+            sin_tipo = re.sub(r"\b" + re.escape(termino) + r"\b", " ", texto)
+            if not self.buscador_variable._preparar_texto(sin_tipo):
+                return "UMF"
+        return None
 
     @classmethod
     def _detectar_filtro_umae(cls, pregunta_normalizada):
@@ -1169,60 +1396,10 @@ class ChatbotEngine:
         pendiente=False,
         completada=False,
     ):
-        contexto_analitico = {
-            **contexto,
-            "hospital": contexto.get("hospital"),
-            "variable": contexto.get("variable"),
-            "hospitalConfirmadoPorUsuario": False,
-            "variableConfirmadaPorUsuario": False,
-            "filtroUmae": bool(plan.get("filtro_umae")),
-        }
-
-        es_count_unidades = plan.get("tipo_consulta") == "COUNT_UNIDADES"
-        if es_count_unidades:
-            contexto_analitico["hospital"] = None
-            contexto_analitico["variable"] = None
-
-        if plan.get("ambito"):
-            contexto_analitico["ambito"] = plan["ambito"]
-
-        if pendiente:
-            contexto_analitico["consultaAnaliticaPendiente"] = {
-                "tipoConsulta": plan.get("tipo_consulta"),
-                "operacion": plan.get("operacion"),
-                "tipoUnidad": plan.get("tipo_unidad"),
-                "descripcionTipoUnidad": plan.get(
-                    "descripcion_tipo_unidad"
-                ),
-                "nivelesAtencion": list(
-                    plan.get("niveles_atencion") or []
-                ),
-                "variable": plan.get("variable"),
-                "ambito": plan.get("ambito"),
-                "filtroUmae": bool(plan.get("filtro_umae")),
-            }
-        else:
-            contexto_analitico.pop("consultaAnaliticaPendiente", None)
-
-        if completada:
-            contexto_analitico["ultimaConsultaAnalitica"] = {
-                "tipoConsulta": plan.get("tipo_consulta"),
-                "operacion": plan.get("operacion"),
-                "tipoUnidad": plan.get("tipo_unidad"),
-                "descripcionTipoUnidad": plan.get(
-                    "descripcion_tipo_unidad"
-                ),
-                "nivelesAtencion": list(
-                    plan.get("niveles_atencion") or []
-                ),
-                "ambito": plan.get("ambito"),
-                "variable": (
-                    None if es_count_unidades else plan.get("variable")
-                ),
-                "filtroUmae": bool(plan.get("filtro_umae")),
-            }
-
-        return contexto_analitico
+        return self._publicar_consulta(
+            contexto, self._consulta_desde_plan(plan),
+            pendiente=pendiente, completada=completada,
+        )
 
     def _crear_respuesta_analitica_base(
         self,

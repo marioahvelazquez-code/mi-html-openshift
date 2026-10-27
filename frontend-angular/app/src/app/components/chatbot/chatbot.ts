@@ -12,15 +12,15 @@ import { HttpClient } from '@angular/common/http';
 
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatAutocompleteModule, MatAutocompleteTrigger } from '@angular/material/autocomplete';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatCardModule } from '@angular/material/card';
 import { LucideAngularModule } from 'lucide-angular';
 
-import { forkJoin, Observable, of } from 'rxjs';
-import { catchError, debounceTime, map, switchMap } from 'rxjs/operators';
+import { forkJoin, Observable, of, timer } from 'rxjs';
+import { catchError, map, startWith, switchMap } from 'rxjs/operators';
 import { ChatbotService } from '../../services/chatbot';
 
 interface Hospital {
@@ -33,6 +33,13 @@ interface Hospital {
 interface VariableMedica {
   id: string;
   descripcion: string;
+  mecanismo?: 'clave' | 'tokens' | 'canonica' | 'similitud';
+}
+
+interface RespuestaSugerenciasVariables {
+  items: VariableMedica[];
+  total: number;
+  total_exactas: number;
 }
 
 type SugerenciaAutocomplete =
@@ -165,6 +172,11 @@ interface MensajeChat {
 export class ChatComponent implements OnInit {
   @ViewChild('chatMessages') private chatMessages?: ElementRef<HTMLDivElement>;
 
+  @ViewChild(MatAutocompleteTrigger) autocompleteTrigger?: MatAutocompleteTrigger;
+  totalVariables = 0;
+  variablesVisibles = 0;
+  private enterSeleccionaSugerencia = false;
+
   chatControl = new FormControl('');
   sugerenciasFiltradas!: Observable<SugerenciaAutocomplete[]>;
   contexto: ContextoConversacion = {
@@ -214,14 +226,15 @@ export class ChatComponent implements OnInit {
     this.cargarFechaCorteIfu();
 
     this.sugerenciasFiltradas = this.chatControl.valueChanges.pipe(
-      debounceTime(300),
       switchMap((value) => {
         const buscar = typeof value === 'string' ? value : '';
         if (typeof value === 'string') {
           this.textoPreguntaActual = value;
           this.textoGeneradoPorSeleccion = false;
         }
-        if (buscar.length < 3) return of([]);
+        this.totalVariables = 0;
+        this.variablesVisibles = 0;
+        if (buscar.trim().length < 3 && !/^[0-9]+$/.test(buscar.trim())) return of([]);
 
         // El autocompletado permite cambiar hospital o variable.
         const buscarHospitales$ = this.http
@@ -229,28 +242,49 @@ export class ChatComponent implements OnInit {
           .pipe(catchError(() => of([])));
 
         const buscarVariables$ = this.http
-          .get<VariableMedica[]>(
-            `${this.API_URL}/buscar-variables/?q=${encodeURIComponent(buscar)}`,
+          .get<RespuestaSugerenciasVariables>(
+            `${this.API_URL}/buscar-variables/?q=${encodeURIComponent(buscar)}&incluir_metadata=1`,
           )
-          .pipe(catchError(() => of([])));
+          .pipe(catchError(() => of({ items: [], total: 0, total_exactas: 0 })));
 
-        return forkJoin({
-          hospitales: buscarHospitales$,
-          variables: buscarVariables$,
-        }).pipe(
-          map(({ hospitales, variables }) => [
-            ...hospitales.map((hospital) => ({
-              ...hospital,
-              tipo: 'hospital' as const,
-            })),
-            ...variables.map((variable) => ({
-              ...variable,
-              tipo: 'variable' as const,
-            })),
-          ]),
+        // El switchMap exterior cancela incluso durante el nuevo debounce.
+        return timer(300).pipe(
+          switchMap(() => forkJoin({
+            hospitales: buscarHospitales$,
+            variables: buscarVariables$,
+          })),
+          map(({ hospitales, variables }) => {
+            this.totalVariables = variables.total;
+            this.variablesVisibles = variables.items.length;
+            return [
+              ...hospitales.map((hospital) => ({
+                ...hospital,
+                tipo: 'hospital' as const,
+              })),
+              ...variables.items.map((variable) => ({
+                ...variable,
+                tipo: 'variable' as const,
+              })),
+            ];
+          }),
+          startWith([] as SugerenciaAutocomplete[]),
         );
       }),
     );
+  }
+
+  registrarEnter(event: KeyboardEvent): void {
+    if (event.key === 'Enter') {
+      this.enterSeleccionaSugerencia = Boolean(
+        event.defaultPrevented ||
+        (this.autocompleteTrigger?.panelOpen && this.autocompleteTrigger?.activeOption),
+      );
+    }
+  }
+
+  enviarConEnter(): void {
+    if (!this.enterSeleccionaSugerencia) this.enviarMensaje();
+    this.enterSeleccionaSugerencia = false;
   }
 
   private cargarFechaCorteIfu(): void {

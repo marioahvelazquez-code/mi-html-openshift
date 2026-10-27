@@ -5,6 +5,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from .chatbot import engine
+from .autocompletado_variable import sugerir_variables
 
 
 logger = logging.getLogger(__name__)
@@ -136,40 +137,11 @@ def buscar_hospitales(request):
 @permission_classes([AllowAny])
 def buscar_variables(request):
     q = str(request.query_params.get("q", "")).strip()
-    if len(q) < 3:
-        return Response([])
-
-    texto_variable = engine.buscador_variable._preparar_texto(q)
-    variable_canonica = engine.buscador_variable.buscar_variable_canonica(texto_variable)
-    resultado = engine.buscador_variable.buscar(q, aplicar_canonica=False)
-
-    if resultado["status"] == "ganador_claro":
-        variable = resultado["variable"]
-        variables = [
-            {
-                "id": variable["id"],
-                "descripcion": variable.get("descripcion") or variable.get("desc_original"),
-            }
-        ]
-    else:
-        variables = [
-            {
-                "id": candidato["id"],
-                "descripcion": candidato["descripcion"],
-            }
-            for candidato in resultado.get("candidatos", [])
-        ]
-
-    if variable_canonica:
-        sugerencia_canonica = {
-            "id": variable_canonica["id"],
-            "descripcion": variable_canonica.get("descripcion") or variable_canonica.get("desc_original"),
-        }
-        variables = [
-            variable
-            for variable in variables
-            if str(variable["id"]) != str(sugerencia_canonica["id"])
-        ]
-        variables.insert(0, sugerencia_canonica)
-
-    return Response(variables)
+    resultado = sugerir_variables(engine.buscador_variable, q)
+    if request.query_params.get("incluir_metadata") == "1":
+        return Response(resultado)
+    # Conserva el contrato de lista y sus campos para consumidores anteriores.
+    return Response([
+        {"id": item["id"], "descripcion": item["descripcion"]}
+        for item in resultado["items"]
+    ])

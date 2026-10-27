@@ -1,6 +1,7 @@
 """Busca variables médicas con BM25 y RapidFuzz."""
 
 import re
+import unicodedata
 
 import numpy as np
 from rapidfuzz import fuzz
@@ -22,6 +23,12 @@ EQUIVALENCIAS_SINGULAR_PLURAL = {
     "consultorios": "consultorio",
     "quirofanos": "quirofano",
     "unidades": "unidad",
+}
+
+# Política independiente del ranking: solo estas equivalencias explícitas.
+EQUIVALENCIAS_TOKENS_EXACTOS = {
+    "camas": "cama",
+    "consultorios": "consultorio",
 }
 
 TOKENS_BASE_URGENCIA = {
@@ -51,6 +58,61 @@ class BuscadorVariable:
             nombre.split()
             for nombre in self.nombres_variables_normalizados
         ])
+        self._variables_por_clave = {
+            str(variable["id"]): variable
+            for variable in self.catalogos.catalogo_variables
+        }
+        self._indice_tokens = {}
+        for clave, variable in self._variables_por_clave.items():
+            for token in self._tokens_exactos(variable["desc_original"]):
+                self._indice_tokens.setdefault(token, set()).add(clave)
+
+    @staticmethod
+    def _tokens_exactos(texto):
+        """Palabras completas sin parches, stopwords ni equivalencias implícitas."""
+        if not isinstance(texto, str):
+            return set()
+        texto = unicodedata.normalize("NFD", texto.lower())
+        texto = "".join(c for c in texto if unicodedata.category(c) != "Mn")
+        return {
+            EQUIVALENCIAS_TOKENS_EXACTOS.get(token, token)
+            for token in re.findall(r"[^\W_]+", texto, flags=re.UNICODE)
+        }
+
+    def _resultados_exactos(self, claves):
+        return [
+            {
+                "id": self._variables_por_clave[clave]["id"],
+                "descripcion": self._variables_por_clave[clave]["desc_original"],
+            }
+            for clave in sorted(claves, key=lambda valor: (int(valor), valor))
+        ]
+
+    def buscar_por_clave(self, clave):
+        """Lista de cero o una variable. No extrae números de preguntas.
+
+        Acepta un entero o una cadena decimal completa (espacios externos
+        permitidos). La interpretación de cantidades u hospitales corresponde
+        al futuro coordinador; este método solo consulta el catálogo IFU.
+        """
+        if type(clave) is int:
+            clave = str(clave)
+        if not isinstance(clave, str):
+            return []
+        clave = clave.strip()
+        if not re.fullmatch(r"[0-9]+", clave):
+            return []
+        return self._resultados_exactos([clave]) if clave in self._variables_por_clave else []
+
+    def buscar_por_tokens(self, texto):
+        """Todas las coincidencias AND, ordenadas por clave numérica ascendente."""
+        tokens = self._tokens_exactos(texto)
+        if not tokens:
+            return []
+        conjuntos = [self._indice_tokens.get(token, set()) for token in tokens]
+        conjuntos.sort(key=len)
+        claves = conjuntos[0].intersection(*conjuntos[1:])
+        return self._resultados_exactos(claves)
 
     def buscar(self, pregunta_usuario, hospital_detectado=None, aplicar_canonica=True):
         texto_variable = self._preparar_texto(pregunta_usuario, hospital_detectado)
