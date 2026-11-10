@@ -244,6 +244,42 @@ describe('ChatComponent', () => {
     expect(component.resumenConsulta?.objetivo).toBe('Total de Consultorios de la Unidad');
     expect(component.resumenConsulta?.alcance).toBe('UMF 27 Tijuana');
     expect(component.resumenConsulta?.resultadoPrincipal).toBe('57');
+    expect(component.resumenConsulta?.interpretacion.clave).toBe('70000');
+    fixture.detectChanges();
+    const textoResumen = fixture.nativeElement.textContent;
+    expect(textoResumen).toContain('Clave');
+    expect(textoResumen).toContain('70000');
+  });
+
+  it('muestra la clave IFU desde variable_nva cuando no existe id', () => {
+    const respuesta = respuestaIfuAmbito(
+      'ENTIDAD',
+      'Ciudad de México',
+      undefined,
+      'Total de Camas Censables de la unidad.',
+    );
+    respuesta.variable.variable = {
+      variable_nva: 50100,
+      descripcion: 'Total de Camas Censables de la unidad.',
+    };
+    respuesta.contexto.variable = respuesta.variable.variable;
+
+    component.procesarRespuestaBackend(respuesta);
+
+    expect(component.resumenConsulta?.interpretacion.clave).toBe('50100');
+  });
+
+  it('no muestra la fila clave cuando la consulta no tiene variable IFU', () => {
+    component.procesarRespuestaBackend(
+      respuestaCount('UMF', 'Zacatecas', 35),
+    );
+    fixture.detectChanges();
+
+    expect(component.resumenConsulta?.interpretacion.clave).toBeUndefined();
+    const etiquetas = Array.from(
+      fixture.nativeElement.querySelectorAll('.interpretation-list span'),
+    ).map((element: any) => element.textContent.trim());
+    expect(etiquetas).not.toContain('Clave');
   });
 
   it('construye el conteo de UMF', () => {

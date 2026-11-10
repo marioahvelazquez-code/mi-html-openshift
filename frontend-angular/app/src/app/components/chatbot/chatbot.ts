@@ -131,6 +131,7 @@ interface ResumenConsulta {
   resultadoSecundario?: string;
   interpretacion: {
     operacion?: string;
+    clave?: string;
     tipoUnidad?: string;
     variable?: string;
     ambito?: string;
@@ -879,6 +880,7 @@ export class ChatComponent implements OnInit {
     const ambito = this.descripcionAmbitoResumen(ambitoObjeto);
     const variableObjeto =
       res.variableAnalitica || res.variable?.variable || res.contexto?.variable;
+    const claveIfu = this.obtenerClaveIfu(variableObjeto);
     const variable =
       this.obtenerDescripcion(variableObjeto, ['descripcion', 'desc_original']) ||
       this.obtenerDescripcion(res.datos?.[0], ['descripcion']);
@@ -982,6 +984,7 @@ export class ChatComponent implements OnInit {
           : {}),
         interpretacion: {
           operacion: esMaximo ? 'Máximo' : 'Mínimo',
+          ...(claveIfu ? { clave: claveIfu } : {}),
           ...(tipoUnidad
             ? { tipoUnidad: tipoUnidad === 'HOSPITAL' ? 'Hospital' : tipoUnidad }
             : {}),
@@ -1003,6 +1006,7 @@ export class ChatComponent implements OnInit {
           : this.valorNumerico(valor).toLocaleString('es-MX'),
       interpretacion: {
         operacion: 'Consultar valor',
+        ...(claveIfu ? { clave: claveIfu } : {}),
         ...(hospital ? { hospital } : {}),
         ...(variable ? { variable } : {}),
         ...(!hospital && ambitoIfu && mostrarAmbitoInterpretacion
@@ -1029,6 +1033,14 @@ export class ChatComponent implements OnInit {
       }
     }
     return '';
+  }
+
+  private obtenerClaveIfu(variable: any): string {
+    if (!variable || typeof variable !== 'object') return '';
+    const clave = variable.variable_nva ?? variable.id;
+    return clave === null || clave === undefined
+      ? ''
+      : String(clave).trim();
   }
 
   private descripcionAmbitoResumen(ambito: any): string {
