@@ -1,5 +1,8 @@
 
 from decimal import Decimal, InvalidOperation
+from datetime import time
+import math
+import re
 
 import pandas as pd
 
@@ -143,6 +146,36 @@ def validar_excel(archivo, hoja, diccionario):
                         "error": f"Debe ser numérico: {valor}",
                     })
 
+            elif tipo == "float":
+                try:
+                    numero = float(str(valor))
+                    if not math.isfinite(numero):
+                        raise ValueError()
+                except (ValueError, TypeError, OverflowError):
+                    errores.append({
+                        "fila": numero_fila,
+                        "columna": columna,
+                        "error": f"Debe ser un número válido: {valor}",
+                    })
+
+            elif tipo == "time":
+                texto = str(valor).strip()
+                patron = r"\d{2}:\d{2}(?::\d{2}(?:\.\d{1,6})?)?"
+                try:
+                    if not re.fullmatch(patron, texto):
+                        raise ValueError()
+                    time.fromisoformat(texto)
+                except (ValueError, TypeError):
+                    errores.append({
+                        "fila": numero_fila,
+                        "columna": columna,
+                        "error": (
+                            f"Hora inválida: {valor}. "
+                            "Formatos permitidos: HH:MM, HH:MM:SS "
+                            "o HH:MM:SS.ffffff"
+                        ),
+                    })
+
             elif tipo in ("date", "datetime"):
                 try:
                     fecha = pd.to_datetime(
@@ -159,7 +192,10 @@ def validar_excel(archivo, hoja, diccionario):
                         "error": f"Fecha inválida: {valor}",
                     })
 
-            elif config["longitud"] is not None:
+            elif (
+                tipo in ("char", "varchar", "nchar", "nvarchar", "text")
+                and config["longitud"] is not None
+            ):
                 if len(str(valor)) > int(config["longitud"]):
                     errores.append({
                         "fila": numero_fila,
