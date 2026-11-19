@@ -13,6 +13,10 @@ import subprocess
 import pandas as pd
 import requests
 from difflib import SequenceMatcher
+import logging
+from .services.validaciones_excel import validar_excel
+from .services.onedrive import guardar_excel_onedrive
+logger = logging.getLogger(__name__)
 
 try:
     from sentence_transformers import SentenceTransformer, util as st_util
@@ -1668,6 +1672,125 @@ def generar_reporte_excel_revision(request):
     response["Content-Disposition"] = f'attachment; filename="reporte_revision_{id_objeto_base}.xls"'
     return response
 #Mario: Fin endpoint reporte excel de revision.
+
+
+
+@api_view(["POST"])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def validar_excel_onedrive(request):
+
+    archivo = request.FILES.get("file")
+    id_tema = request.POST.get("id_tema")
+    hoja = request.POST.get("hoja")
+
+    if not archivo or not id_tema or not hoja:
+        return Response({
+            "error": "Se requiere archivo, id_tema y hoja"
+        }, status=400)
+
+    if request.auth:
+        usuario = request.auth["id_usuario"]
+    else:
+        return Response({
+            "error": "No autenticado"
+        }, status=401)
+
+    try:
+        # Consultar las reglas existentes en SQL Server.
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT
+                    columna_excel,
+                    columna_bd,
+                    obligatorio,
+                    tipo_dato,
+                    longitud
+                FROM cat_diccionario_campo
+                WHERE id_tema = %s
+                  AND activo = 1
+            """, [id_tema])
+
+            diccionario = cursor.fetchall()
+
+        if not diccionario:
+            return Response({
+                "error": "No existen reglas para este tema"
+            }, status=400)
+
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT ruta, nombre_archivo
+                FROM cat_tema
+                WHERE id_tema = %s
+            """, [id_tema])
+
+            configuracion = cursor.fetchone()
+
+        if not configuracion:
+            return Response({
+                "error": "No existe configuración de OneDrive para este tema"
+            }, status=400)
+
+        ruta_relativa, nombre_archivo = configuracion
+
+        if not ruta_relativa or not nombre_archivo:
+            return Response({
+                "error": "La ruta o el nombre del archivo no están configurados"
+            }, status=400)
+
+        resultado = validar_excel(
+            archivo=archivo,
+            hoja=hoja,
+            diccionario=diccionario,
+        )
+
+        if not resultado["valido"]:
+            return Response({
+                "error": resultado["error"],
+                "detalle": resultado["errores"][:20],
+                "total_errores": len(resultado["errores"]),
+                "total_registros": resultado["total_registros"],
+                "faltantes": resultado.get("faltantes", []),
+                "extras": resultado.get("extras", []),
+                "duplicadas": resultado.get("duplicadas", []),
+                "columnas_esperadas": resultado.get(
+                    "columnas_esperadas", []
+                ),
+            }, status=400)
+
+        # No se inserta nada en SQL Server.
+        # Solo se guarda si pasó todas las validaciones.
+        archivo_guardado = guardar_excel_onedrive(
+            archivo=archivo,
+            ruta_relativa=ruta_relativa,
+            nombre_archivo=nombre_archivo,
+        )
+
+        return Response({
+            "mensaje": "Archivo validado y guardado correctamente",
+            "archivo": archivo_guardado["nombre"],
+            "carpeta": archivo_guardado["ruta_relativa"],
+            "total_registros": resultado["total_registros"],
+            "total_errores": 0,
+        }, status=201)
+
+    except (ValueError, FileNotFoundError) as error:
+        return Response({
+            "error": str(error)
+        }, status=400)
+
+    except OSError:
+        logger.exception("Error al guardar Excel en OneDrive")
+        return Response({
+            "error": "No se pudo guardar el archivo en OneDrive"
+        }, status=500)
+
+    except Exception:
+        logger.exception("Error al validar Excel")
+        return Response({
+            "error": "Error interno al procesar el archivo"
+        }, status=500)
 
 
 

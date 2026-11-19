@@ -36,6 +36,7 @@
 
       <!-- ARCHIVO -->
       <input
+        #fileInput
         type="file"
         class="input-custom"
         accept=".xlsx,.xls"
@@ -49,6 +50,7 @@
         <select
           class="select-custom"
           [value]="hojaSeleccionada"
+          [disabled]="isLoading"
           (change)="hojaSeleccionada = $any($event.target).value"
         >
           <option value="">Seleccione hoja</option>
@@ -59,7 +61,11 @@
       </div>
 
       <!-- BOTÓN -->
-      <button class="btn-custom" [disabled]="!idTema || isLoading" (click)="onSubmit()">
+      <button
+        class="btn-custom"
+        [disabled]="!idArea || !idTema || !archivo || !hojaSeleccionada || isLoading"
+        (click)="onSubmit()"
+      >
         Subir archivo
       </button>
 

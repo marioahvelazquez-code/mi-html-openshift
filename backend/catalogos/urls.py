@@ -39,4 +39,6 @@ urlpatterns = [
     path('buscar-variables/', chatbot_views.buscar_variables),
     path('fecha-corte-ifu/', chatbot_views.fecha_corte_ifu),
     path('chatbot/', chatbot_views.chatbot),    
+    path("validar-excel-onedrive/",  views.validar_excel_onedrive,  name="validar_excel_onedrive",
+),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -27,7 +27,7 @@ export class CargaExcelService {
     formData.append('file', archivo);
     formData.append('hoja', hoja);
     console.log('Archivo a subir:', archivo);
-    return this.http.post(`${this.apiUrl}/subir_excel/`, formData);
+    return this.http.post(`${this.apiUrl}/validar-excel-onedrive/`, formData);
   }
 
   obtenerHojas(archivo: File): Observable<any> {
