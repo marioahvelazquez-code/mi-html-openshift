@@ -13,10 +13,11 @@ import os
 from pathlib import Path
 from datetime import timedelta
 
+
 ONEDRIVE_EXCEL_PATH = Path(
     os.environ.get(
         "ONEDRIVE_EXCEL_PATH",
-        "/app/onedrive/coord_datos/Ficha Estatal/Ficha estatal datos"
+        "/app/onedrive/ficha_estatal_datos"
     )
 )
 
